@@ -1,0 +1,351 @@
+=== SHAPE ===
+
+ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ 
+«ЛАЗЕРТАГ»
+
+
+ПАСПОРТ
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Смоленск
+
+=== SHAPE ===
+6
+
+=== SHAPE ===
+3
+
+=== SHAPE ===
+2
+
+=== SHAPE ===
+11
+
+=== SHAPE ===
+7
+
+=== SHAPE ===
+4
+
+=== SHAPE ===
+5
+
+=== SHAPE ===
+8
+
+=== SHAPE ===
+9
+
+=== SHAPE ===
+10
+
+=== SHAPE ===
+
+
+
+LLC LASERWAR
+
+SPECIFICATION
+
+
+
+
+AR HELLFIRE play set Special Series
+
+
+
+
+
+
+
+=== SHAPE ===
+
+
+
+Dear Customer!
+Thank you for choosing our products! LLC LASERWAR would like to assure you that you will enjoy the purchased device and it will serve you long.  This slip defines the terms of the guarantee.
+This guarantee slip period is 24 months from the purchase day provided that the terms and conditions set out in this guarantee are complied with.
+
+
+=== SHAPE ===
+Contact details
+Official website:
+www.laserwar.com
+
+e-mail:
+info@laserwar.com               
+help@laserwar.com        Date of purchase:_____________                                
+
+Skype:
+info@laserwar.com               
+help@laserwar.com
+
+
+
+
+
+
+
+
+
+_____________________            
+                                         stamp                                     signature
+
+
+Equipment version			  Serial number
+
+          v.9 SmartRGB                                          
+
+          v.10 X-GEN Wi-Fi
+
+          Feedback       			OLED
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+=== SHAPE ===
+Application
+AR HELLFIRE play set Special Series –– is a tactical light-and-sound rifle designed for laser tag gameplay.
+
+Technical specifications
+Weight
+
+2 kg
+
+
+
+Length
+
+90 cm
+
+
+
+Accumulator type
+
+Li+; 
+7,4 V; 2200 mAh
+
+
+
+Battery charger type
+
+Automatic, Li+
+
+
+
+Continuous operation time
+
+Up to 30 hours
+
+
+
+Effective firing range 
+
+300 m
+
+
+
+Software
+
+LASERTAG configurator
+
+
+
+
+Delivery set ***
+№ 
+
+
+Name
+
+Unit type
+
+Amount
+
+
+
+1.
+
+Light-and-sound rifle
+
+pcs.
+
+1
+
+
+
+2.
+
+Product specification
+
+pcs.
+
+1
+
+
+
+
+       
+
+
+
+=== SHAPE ===
+Information about repair works during the guarantee period (filled out by the repair centre)
+
+
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+Date:__________________
+Maintenance carried out: _____________________________________________________________________
+
+Repair centre stamp
+
+
+
+
+
+
+
+
+
+=== SHAPE ===
+Description and operation
+Construction
+AR HELLFIRE play set Special Series includes two components: a tactical light-and-sound rifle and a sensor-equipped headband for damage detection.
+The communication between the weapon and the headband is achieved by means of Bluetooth technology.
+The construction of the AR HELLFIRE play set Special Series is presented in Scheme 1.
+Scheme 1             
+1 – optical system.
+2 – slats for installing additional equipment.   
+3 – the shutter for reloading. 
+4 – the stock is folding telescopic.
+5 – Fuse to turn on.
+6 – power socket.
+
+
+=== SHAPE ===
+Guarantee terms and conditions:
+1. The guarantee comes into force upon presenting of this slip, with a confirmed by a repair center date of purchase displayed.  
+2. These guarantee promises cover only the devices purchased from an official representative of LLC LASERWAR, or its official dealer.
+3. This guarantee does not cover products in the following cases:
+- if the customer does not follow the directions outlined in the User’s manual;
+- in case of damage;
+- if any objects or liquids get inside of the device.;
+- if it gets damaged by pets;
+- unauthorized access to the units and details of the device;
+- abuse or misuse, including failure to use this product for its normal purposes;
+- any cause beyond the control of the company, Force Majeure (natural catastrophes, fire, accidents, etc.);
+- if the device fails due to incorrect connection, voltage fluctuations, and/or improper care. 
+4. Should it happen that you lose your guarantee slip, you will not be issued a copy.
+
+
+=== SHAPE ===
+The equipment must be stored in a well-ventilated room at a temperature of +18°С to +30°С, air humidity 45% to 65%. 
+The equipment must be charged before storing (ideally, at the nominal voltage of the accumulator).
+
+Guarantee promises
+The manufacturer guarantees reliability of the LASERWAR individual set provided the user complies with all the product use requirements. The manufacturer promises to replace or repair an individual set of equipment provided that the user complied with the rules of transportation, storage, use and paid for the delivery of the faulty equipment to the service center. 
+The guarantee covers for battery chargers, speakers, infrared modules is 14 DAYS.
+ATTENTION! If the battery is used incorrectly (wrong battery charger is used to charge the equipment), the accumulators will not be covered by the guarantee!
+
+Visit our website www.laserwar.com to read the full version of the user’s manual by LLC LASERWAR.
+
+
+
+
+=== SHAPE ===
+Changing the performance characteristics
+The performance characteristics are changed with the help of LASERTAG-configurator.
+The LASERTAG-configurator program is shown in Figure 1.
+Figure 1
+
+Connect a Bluetooth base to your PC (use a Bluetooth adapter if your pc doesn't support Bluetooth); turn the weapon on. You needn't turn on the headband. The main configurator window will display the active BT connection and the number of connected devices. Select the preset you want to use, click "Write" to apply. A new window will display all active connected devices, their ID, the type of weapon, firmware version, and serial number. Click the refresh button if no devices are found.
+
+
+
+
+
+
+
+=== SHAPE ===
+Choose the required game set by ticking the appropriate box. Press the "Write" button. Having confirmed the changes, restart the game set.
+
+Preparing for work
+To activate the "HELLFIRE", power on both the rifle and the headband. They will automatically pair and enter standby mode (indicated by the headband's LEDs blinking rapidly). Select "New Game" via the remote control. The device is now ready for use.
+
+=== SHAPE ===
+Operating rules
+1. Weather conditions. We strongly recommend that the equipment shouldn't be used in the rain and at temperatures below -20 °C. 
+Avoid getting moisture inside the device. If this happened, turn off the device, dry the equipment at room temperature for at least two hours.
+Having used the device at low temperatures don't try to charge it immediately after the game. Wait for electronics to warm up. 
+2. Batteries. The device has lithium batteries. To recharge the device, use only universal Li+ chargers. 
+
+Connect the charger to the device, and only then to the network.
+
+You can control the recharge process with the help of a special indicator. If the battery is low, the LED is red; When the recharge process is complete, the color will be changed to green.
+
+Please note! The game set must be recharged immediately after you have played with it under constant supervision at temperature no less than 0°С and no longer than for 2 hours. 
+
+3. Headband When using headbands pay attention to hygienic cuffs. They will protect electronic parts from moisture. If the bandage gets wet, it can result in the electronics failure. That's why the bandage should be dried.  
+
+

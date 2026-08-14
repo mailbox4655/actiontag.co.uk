@@ -1,0 +1,69 @@
+---
+interface Props { t: Record<string, any> }
+const { t } = Astro.props;
+---
+
+<section class="hero">
+  <video class="hero-video" autoplay muted loop playsinline poster="/assets/scenes/lasertag.png" aria-hidden="true">
+    <source src="/assets/video/lasertag.webm" type="video/webm" />
+    <source src="/assets/video/lasertag.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-scrim"></div>
+
+  <div class="container hero-content">
+    <span class="kicker">{t.hero.kicker}</span>
+    <h1>{t.hero.title}</h1>
+    <p class="hero-sub">{t.hero.subtitle}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#devices">{t.hero.cta_devices}</a>
+      <a class="btn btn-ghost" href="#contact">{t.hero.cta_contact}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: min(92vh, 56rem);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 2%, transparent 45%),
+      linear-gradient(to right, rgba(10, 14, 18, 0.85) 15%, rgba(10, 14, 18, 0.25) 70%);
+  }
+  [dir='rtl'] .hero-scrim {
+    background:
+      linear-gradient(to top, var(--bg) 2%, transparent 45%),
+      linear-gradient(to left, rgba(10, 14, 18, 0.85) 15%, rgba(10, 14, 18, 0.25) 70%);
+  }
+  .hero-content { position: relative; max-width: 100%; }
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 5.2rem);
+    text-transform: uppercase;
+    max-width: 15ch;
+  }
+  .hero-sub {
+    margin-block-start: 1.4rem;
+    max-width: 34rem;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+  }
+  .hero-actions {
+    margin-block-start: 2.2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+</style>

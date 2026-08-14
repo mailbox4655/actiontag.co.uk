@@ -1,0 +1,205 @@
+---
+interface Props { t: Record<string, any> }
+const { t } = Astro.props;
+
+const specOrder = ['weight', 'length', 'range', 'battery'];
+---
+
+<section class="section devices" id="devices">
+  <div class="container section-head">
+    <span class="kicker">AlphaTag · Special Series</span>
+    <h2 class="section-title">{t.devices.title}</h2>
+    <p class="section-sub">{t.devices.subtitle}</p>
+  </div>
+
+  <div class="carousel" data-carousel>
+    <div class="track" data-track>
+      {t.devices.items.map((item: any, i: number) => (
+        <article class="slide" data-slide aria-label={`${i + 1} / ${t.devices.items.length}`}>
+          <div class="slide-inner container">
+            <a class="slide-media" href="https://lasertagsale.com/" target="_blank" rel="noopener" aria-label={item.name}>
+              <img
+                src={`/assets/devices2/${item.id}.webp`}
+                alt={item.name}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                width="900"
+                height="500"
+              />
+            </a>
+            <div class="slide-copy">
+              <h3>{item.name}</h3>
+              <p class="tagline">{t.devices.taglines[item.id]}</p>
+              <dl class="specs">
+                {specOrder.filter((k) => item.specs[k]).map((k) => (
+                  <div class="spec">
+                    <dt>{t.devices.spec_labels[k]}</dt>
+                    <dd>{item.specs[k]}</dd>
+                  </div>
+                ))}
+              </dl>
+              <a class="btn btn-ghost" href="https://lasertagsale.com/" target="_blank" rel="noopener">
+                {t.devices.shop_cta} ↗
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="controls container">
+      <button class="arrow" data-prev aria-label="Previous">‹</button>
+      <div class="dots" data-dots></div>
+      <button class="arrow" data-next aria-label="Next">›</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .devices { background: var(--bg-raised); border-block: 1px solid var(--line); padding-block-end: 3rem; }
+
+  .carousel { position: relative; }
+  .track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .track::-webkit-scrollbar { display: none; }
+
+  .slide { flex: 0 0 100%; scroll-snap-align: center; }
+  .slide-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 5vw, 4rem);
+    min-height: 30rem;
+  }
+  .slide-media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+  }
+  /* red glow pedestal behind each device */
+  .slide-media::before {
+    content: '';
+    position: absolute;
+    inset: 15%;
+    background: radial-gradient(ellipse at center, var(--accent-dim) 0%, transparent 65%);
+  }
+  .slide-media img {
+    position: relative;
+    width: min(100%, 560px);
+    filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.55));
+  }
+  .slide-copy h3 {
+    font-size: clamp(1.9rem, 4vw, 2.9rem);
+    text-transform: uppercase;
+  }
+  .tagline { color: var(--accent-hot); margin-block: 0.6rem 1.2rem; font-size: 1.1rem; }
+  .specs {
+    margin: 0 0 1.8rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto));
+    justify-content: start;
+    gap: 0.8rem 2.2rem;
+  }
+  .spec dt {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-muted);
+  }
+  .spec dd {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    padding-block-start: 1rem;
+  }
+  .arrow {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text);
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .arrow:hover { border-color: var(--accent); color: var(--accent-hot); }
+
+  .dots { display: flex; gap: 0.5rem; }
+  .dots :global(button) {
+    width: 2.2rem;
+    height: 4px;
+    border: 0;
+    border-radius: 2px;
+    background: var(--line);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .dots :global(button[aria-current='true']) { background: var(--accent); }
+
+  @media (max-width: 820px) {
+    .slide-inner { grid-template-columns: 1fr; min-height: 0; padding-block: 1rem; text-align: center; }
+    .slide-media { padding: 0.5rem; }
+    .slide-media img { width: min(80%, 420px); }
+    .specs { justify-content: center; text-align: start; }
+    .slide-copy .btn { margin-block-end: 0.5rem; }
+  }
+</style>
+
+<script>
+  function initCarousel(root: Element) {
+    const track = root.querySelector('[data-track]') as HTMLElement;
+    const slides = Array.from(root.querySelectorAll('[data-slide]')) as HTMLElement[];
+    const dotsWrap = root.querySelector('[data-dots]') as HTMLElement;
+
+    const dots = slides.map((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', `Slide ${i + 1}`);
+      b.addEventListener('click', () => goTo(i));
+      dotsWrap.appendChild(b);
+      return b;
+    });
+
+    let index = 0;
+
+    function goTo(i: number) {
+      index = (i + slides.length) % slides.length;
+      slides[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    function syncDots() {
+      // find the slide closest to the track's visual center
+      const center = track.scrollLeft + track.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      slides.forEach((s, i) => {
+        const d = Math.abs(s.offsetLeft + s.clientWidth / 2 - center);
+        if (d < bestDist) { bestDist = d; best = i; }
+      });
+      index = best;
+      dots.forEach((d, i) => d.setAttribute('aria-current', String(i === index)));
+    }
+
+    track.addEventListener('scroll', () => requestAnimationFrame(syncDots), { passive: true });
+    root.querySelector('[data-prev]')?.addEventListener('click', () => goTo(index - 1));
+    root.querySelector('[data-next]')?.addEventListener('click', () => goTo(index + 1));
+    syncDots();
+  }
+
+  document.querySelectorAll('[data-carousel]').forEach(initCarousel);
+</script>

@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Projektant i producent sprzętu do laser taga | Wielka Brytania",
+    "description": "Projektujemy i produkujemy profesjonalny sprzęt do laser taga w Wielkiej Brytanii i UE od 2004 roku. Taggery, bezprzewodowe czujniki, systemy MilSim KillHouse i pełne wsparcie dla wypożyczalni."
+  },
+  "nav": {
+    "devices": "Sprzęt",
+    "props": "Ekosystem",
+    "milsim": "MilSim",
+    "business": "Załóż biznes",
+    "products": "Nasze produkty",
+    "contact": "Kontakt",
+    "shop": "Sklep"
+  },
+  "hero": {
+    "kicker": "Projektujemy i produkujemy od 2004 roku",
+    "title": "Profesjonalny sprzęt do laser taga, stworzony do najcięższej pracy w wypożyczalniach",
+    "subtitle": "Niezawodne narzędzie pracy dla operatorów — zaprojektowane przez zespół, który sam prowadzi areny laser taga, a nie tylko fabrykę.",
+    "cta_devices": "Zobacz sprzęt",
+    "cta_contact": "Zamów demo"
+  },
+  "why": {
+    "title": "Dlaczego operatorzy wybierają Action Tag",
+    "items": [
+      {
+        "title": "Pionierzy branży",
+        "text": "Jako pierwsi wprowadziliśmy bezprzewodowe czujniki na głowę w 2006 roku i pistolet do laser taga w 2008. Interfejs PC, wielokolorowe diody drużyn — zbudowaliśmy je pierwsi."
+      },
+      {
+        "title": "Wyprodukowano w UK i UE",
+        "text": "Nasze zakłady produkcyjne i magazyny znajdują się w Wielkiej Brytanii i UE. Krótkie terminy, prawdziwe wsparcie, żadnego szarego importu."
+      },
+      {
+        "title": "Stworzony do wypożyczalni",
+        "text": "Korpusy z ABS klasy zbrojeniowej, 36 godzin pracy na baterii, pełnowymiarowe taggery ważące kilogram — dla dzieci i dorosłych. Sprzęt, który zarabia dzień w dzień."
+      },
+      {
+        "title": "Prowadzimy Cię za rękę",
+        "text": "Pełne demo, pomoc w projektowaniu areny, scenariusze gier, szkolenie personelu i późniejsze wsparcie. Kup, wynajmij lub leasinguj — start jest prosty."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Nasze taggery",
+    "subtitle": "Zestawy kompatybilne ze sobą i z każdym akcesorium z naszej oferty",
+    "shop_cta": "Zobacz w sklepie",
+    "spec_labels": {
+      "weight": "Waga",
+      "length": "Długość",
+      "range": "Zasięg skuteczny",
+      "battery": "Czas pracy"
+    },
+    "taglines": {
+      "ak15-warrior": "Klasyczny szturmowy tagger AK",
+      "ak25-predator": "Nowa generacja platformy AK",
+      "ar15-ranger": "Koń roboczy platformy AR",
+      "ar-hellfire": "Karabin szturmowy, seria Hellfire",
+      "mg-hellfire": "Karabin maszynowy, seria Hellfire",
+      "sg-hellfire": "Strzelba, seria Hellfire",
+      "mp9lt-phoenix": "Kompaktowy pistolet maszynowy",
+      "hornet": "Pistolet boczny",
+      "sr-hellfire": "Karabin wyborowy, seria Hellfire",
+      "sr21-ghost": "Karabin snajperski dalekiego zasięgu",
+      "laser-biathlon": "Zestaw treningowy dla klubów i szkół biathlonowych"
+    }
+  },
+  "props": {
+    "title": "Kompletny ekosystem gry",
+    "subtitle": "Akcesoria, które zamieniają arenę w scenariusze, do których gracze wracają",
+    "more_title": "…i wiele więcej",
+    "more_cta": "Zobacz w naszym sklepie"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Jedyny taki na świecie",
+    "text1": "Jedyna na świecie elektroniczna strzelnica współpracująca ze sprzętem do paintballa, airsoftu i laser taga. Inspirowana obiektami treningowymi CQB używanymi przez policję i siły specjalne.",
+    "text2": "Elektroniczne cele połączone są z systemem punktacji: wyeliminuj wszystkie na trasie, zatrzymaj zegar, pobij rekord. Pojedyncze stanowisko strzeleckie lub tor przeszkód do 60 metrów z 24 celami — rywalizacja, adrenalina i nieskończona grywalność.",
+    "cta": "Zapytaj o KillHouse"
+  },
+  "business": {
+    "title": "Załóż własny biznes laser tag",
+    "subtitle": "Potrzebujesz mniejszego kapitału, niż myślisz. Mamy kilka sposobów, aby zacząć:",
+    "options": [
+      {
+        "title": "Kup",
+        "text": "Sprzęt na własność z przedłużalną gwarancją. Dokupuj w dowolnym momencie — wszystko pozostaje kompatybilne."
+      },
+      {
+        "title": "Wynajmij",
+        "text": "Zawsze najnowszy sprzęt bez przywiązania do starzejącego się wyposażenia. Zwróć lub wymień, gdy zmienią się potrzeby."
+      },
+      {
+        "title": "Leasing",
+        "text": "Rozłóż koszty, podczas gdy arena już zarabia. Ścieżki modernizacji utrzymują przewagę nad lokalną konkurencją."
+      }
+    ],
+    "footer": "Każda opcja obejmuje pełne demo, szkolenie, doradztwo przy projektowaniu areny i naszą wiedzę o pozyskiwaniu klientów.",
+    "cta": "Porozmawiajmy o Twoim starcie"
+  },
+  "products": {
+    "title": "Rodzina Action Tag",
+    "subtitle": "Trzy linie produktów, jeden producent",
+    "shop": {
+      "title": "Sklep LaserTag",
+      "text": "Kupuj taggery, czujniki i akcesoria bezpośrednio od producenta."
+    },
+    "vr": {
+      "text": "Atrakcje VR typu free-roaming dla centrów rozrywki."
+    },
+    "softplay": {
+      "text": "Cyfrowa przygoda dla nowych i istniejących sal zabaw."
+    }
+  },
+  "contact": {
+    "title": "Zamów demo",
+    "subtitle": "Opowiedz nam o swojej arenie lub planach — odpowiadamy osobiście, zwykle tego samego dnia.",
+    "name": "Twoje imię",
+    "email": "E-mail",
+    "phone": "Telefon (opcjonalnie)",
+    "search_country": "Szukaj kraju…",
+    "message": "Co planujesz?",
+    "send": "Wyślij wiadomość",
+    "sending": "Wysyłanie…",
+    "success": "Dziękujemy! Odezwiemy się wkrótce.",
+    "error": "Coś poszło nie tak. Napisz do nas bezpośrednio na",
+    "phone_label": "Telefon",
+    "email_label": "E-mail",
+    "address_label": "Adres",
+    "whatsapp": "Napisz na WhatsApp"
+  },
+  "footer": {
+    "tagline": "Projektant i producent sprzętu do laser taga — UK i UE, od 2004 roku.",
+    "rights": "Wszelkie prawa zastrzeżone."
+  }
+}

@@ -1,0 +1,43 @@
+---
+interface Props { t: Record<string, any> }
+const { t } = Astro.props;
+---
+
+<section class="section milsim" id="milsim">
+  <video class="milsim-video" autoplay muted loop playsinline poster="/assets/scenes/milsim.png" aria-hidden="true">
+    <source src="/assets/video/milsim.webm" type="video/webm" />
+    <source src="/assets/video/milsim.mp4" type="video/mp4" />
+  </video>
+  <div class="milsim-scrim"></div>
+
+  <div class="container milsim-content">
+    <span class="kicker">{t.milsim.kicker}</span>
+    <h2 class="section-title">{t.milsim.title}</h2>
+    <p>{t.milsim.text1}</p>
+    <p>{t.milsim.text2}</p>
+    <a class="btn btn-primary" href="#contact">{t.milsim.cta}</a>
+  </div>
+</section>
+
+<style>
+  .milsim { position: relative; overflow: hidden; border-block: 1px solid var(--line); }
+  .milsim-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .milsim-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(10, 14, 18, 0.93) 30%, rgba(10, 14, 18, 0.55));
+  }
+  [dir='rtl'] .milsim-scrim {
+    background: linear-gradient(to left, rgba(10, 14, 18, 0.93) 30%, rgba(10, 14, 18, 0.55));
+  }
+  .milsim-content { position: relative; max-width: 44rem; margin-inline-start: 0; }
+  .milsim-content p { color: var(--text); opacity: 0.92; margin-block-end: 1.2rem; }
+  .milsim-content .section-title { margin-block-end: 1.4rem; }
+  .milsim-content .btn { margin-block-start: 0.4rem; }
+</style>

@@ -1,0 +1,13 @@
+# Cloudflare Pages redirects
+/ /en/ 302
+
+# Old Joomla URLs -> new anchors (SEO preservation)
+/en/price /en/ 301
+/en/rental-lasertag/our-rental-system /en/#devices 301
+/en/rental-lasertag/taggers /en/#devices 301
+/en/rental-lasertag/props /en/#props 301
+/en/milsim-killhouse /en/#milsim 301
+/en/soft-play /en/#products 301
+/en/starting-your-business /en/#business 301
+/en/home-lasertag /en/ 301
+/cz/* /cs/ 301

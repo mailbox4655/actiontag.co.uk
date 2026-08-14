@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Ontwikkelaar & fabrikant van lasertag-apparatuur | Verenigd Koninkrijk",
+    "description": "Wij ontwikkelen en produceren professionele lasertag-apparatuur in het VK en de EU, al sinds 2004. Taggers, draadloze sensoren, MilSim KillHouse-systemen en volledige ondersteuning voor verhuurbedrijven."
+  },
+  "nav": {
+    "devices": "Apparatuur",
+    "props": "Ecosysteem",
+    "milsim": "MilSim",
+    "business": "Start een bedrijf",
+    "products": "Onze producten",
+    "contact": "Contact",
+    "shop": "Shop"
+  },
+  "hero": {
+    "kicker": "Ontwikkeling & productie sinds 2004",
+    "title": "Professionele lasertag-apparatuur, gebouwd voor het zwaarste verhuurgebruik",
+    "subtitle": "Betrouwbaar gereedschap voor exploitanten — ontworpen door een team dat zelf lasertag-locaties runt, niet alleen een fabriek.",
+    "cta_devices": "Bekijk de apparatuur",
+    "cta_contact": "Vraag een demo aan"
+  },
+  "why": {
+    "title": "Waarom exploitanten voor Action Tag kiezen",
+    "items": [
+      {
+        "title": "Pioniers in de branche",
+        "text": "Als eerste op de markt met draadloze hoofdsensoren in 2006 en het lasertag-pistool in 2008. PC-interface, meerkleurige team-leds — wij bouwden ze het eerst."
+      },
+      {
+        "title": "Gemaakt in VK & EU",
+        "text": "Onze productie- en opslaglocaties bevinden zich in het VK en de EU. Korte levertijden, echte support, geen grijze import."
+      },
+      {
+        "title": "Gebouwd voor verhuur",
+        "text": "Behuizingen van wapenwaardig ABS, 36 uur batterijduur, full-size taggers van één kilo voor kinderen én volwassenen. Apparatuur die dag in dag uit geld verdient."
+      },
+      {
+        "title": "We begeleiden je volledig",
+        "text": "Volledige demo, hulp bij het ontwerp van je locatie, spelscenario's, training van personeel en nazorg. Kopen, huren of leasen — starten wordt makkelijk."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Onze taggers",
+    "subtitle": "Speelsets die onderling compatibel zijn en met elk accessoire dat we verkopen",
+    "shop_cta": "Bekijk in de shop",
+    "spec_labels": {
+      "weight": "Gewicht",
+      "length": "Lengte",
+      "range": "Effectief bereik",
+      "battery": "Batterijduur"
+    },
+    "taglines": {
+      "ak15-warrior": "De klassieke AK-aanvalstagger",
+      "ak25-predator": "De volgende generatie van het AK-platform",
+      "ar15-ranger": "Het werkpaard van het AR-platform",
+      "ar-hellfire": "Aanvalsgeweer, Hellfire-serie",
+      "mg-hellfire": "Machinegeweer, Hellfire-serie",
+      "sg-hellfire": "Shotgun, Hellfire-serie",
+      "mp9lt-phoenix": "Compacte machinepistool",
+      "hornet": "Pistool als tweede wapen",
+      "sr-hellfire": "Precisiegeweer, Hellfire-serie",
+      "sr21-ghost": "Sniper met groot bereik",
+      "laser-biathlon": "Trainingsset voor biatlonclubs en scholen"
+    }
+  },
+  "props": {
+    "title": "Een compleet spel-ecosysteem",
+    "subtitle": "Accessoires die een speelveld veranderen in scenario's waar spelers voor terugkomen",
+    "more_title": "…en nog veel meer",
+    "more_cta": "Ontdek het in onze shop"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Uniek in de wereld",
+    "text1": "De enige elektronische schietbaan ter wereld die werkt met paintball-, airsoft- én lasertag-apparatuur. Geïnspireerd op de CQB-trainingsfaciliteiten van politie en speciale eenheden.",
+    "text2": "Elektronische doelen zijn gekoppeld aan een scoresysteem: schakel ze allemaal uit langs het parcours, stop de klok, verbeter de toptijd. Eén schietpositie of een hindernisbaan tot 60 meter met 24 doelen — competitief, vol adrenaline en eindeloos herspeelbaar.",
+    "cta": "Vraag naar het KillHouse"
+  },
+  "business": {
+    "title": "Start je eigen lasertag-bedrijf",
+    "subtitle": "Je hebt minder startkapitaal nodig dan je denkt. We hebben meerdere manieren om je op weg te helpen:",
+    "options": [
+      {
+        "title": "Kopen",
+        "text": "Direct eigendom met verlengbare garantie. Breid op elk moment uit — alles blijft compatibel."
+      },
+      {
+        "title": "Huren",
+        "text": "Altijd de nieuwste apparatuur zonder vast te zitten aan verouderend materiaal. Retourneer of wissel wanneer je behoeften veranderen."
+      },
+      {
+        "title": "Leasen",
+        "text": "Spreid de kosten terwijl je locatie al omzet draait. Upgrade-routes houden je voor op de lokale concurrentie."
+      }
+    ],
+    "footer": "Elke optie omvat een volledige demo, training, advies over het ontwerp van je locatie en onze kennis van klantenwerving.",
+    "cta": "Praat met ons over je start"
+  },
+  "products": {
+    "title": "De Action Tag-familie",
+    "subtitle": "Drie productlijnen, één fabrikant",
+    "shop": {
+      "title": "LaserTag-shop",
+      "text": "Koop taggers, sensoren en accessoires rechtstreeks bij de fabrikant."
+    },
+    "vr": {
+      "text": "Free-roaming VR-attracties voor entertainmentcentra."
+    },
+    "softplay": {
+      "text": "Digitale avontuur-upgrade voor nieuwe en bestaande indoorspeeltuinen."
+    }
+  },
+  "contact": {
+    "title": "Vraag een demo aan",
+    "subtitle": "Vertel ons over je locatie of je plannen — we antwoorden persoonlijk, meestal dezelfde dag nog.",
+    "name": "Je naam",
+    "email": "E-mail",
+    "phone": "Telefoon (optioneel)",
+    "search_country": "Zoek land…",
+    "message": "Wat ben je van plan?",
+    "send": "Verstuur bericht",
+    "sending": "Versturen…",
+    "success": "Bedankt! We nemen snel contact met je op.",
+    "error": "Er ging iets mis. Mail ons rechtstreeks op",
+    "phone_label": "Telefoon",
+    "email_label": "E-mail",
+    "address_label": "Adres",
+    "whatsapp": "Chat via WhatsApp"
+  },
+  "footer": {
+    "tagline": "Ontwikkelaar en fabrikant van lasertag-apparatuur — VK & EU, sinds 2004.",
+    "rights": "Alle rechten voorbehouden."
+  }
+}

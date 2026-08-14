@@ -1,0 +1,47 @@
+---
+interface Props { t: Record<string, any> }
+const { t } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer-row">
+    <div class="footer-brand">
+      <img class="footer-logo" src="/assets/brand/actiontag-logo.png" alt="ActionTag.co.uk — EU, UK, Ireland" width="1047" height="214" />
+      <p>{t.footer.tagline}</p>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/ActionTagLtd/" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://www.youtube.com/user/actiontaglasertag/" target="_blank" rel="noopener">YouTube</a>
+    </div>
+  </div>
+  <div class="container footer-legal">
+    © 2001–{year} Action Tag Ltd. {t.footer.rights}
+  </div>
+</footer>
+
+<style>
+  .footer { border-block-start: 1px solid var(--line); padding-block: 2.5rem 1.8rem; }
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .footer-logo { width: auto; height: 52px; }
+  .footer-brand p { color: var(--text-muted); font-size: 0.92rem; margin-block-start: 0.9rem; max-width: 30rem; }
+  .footer-social { display: flex; gap: 1.4rem; }
+  .footer-social a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .footer-social a:hover { color: var(--text); }
+  .footer-legal {
+    margin-block-start: 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+</style>

@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Entwickler & Hersteller von Lasertag-Ausrüstung | Großbritannien",
+    "description": "Wir entwickeln und fertigen professionelle Lasertag-Ausrüstung in Großbritannien und der EU — seit 2004. Tagger, kabellose Sensoren, MilSim-KillHouse-Systeme und voller Support für Vermietungsbetriebe."
+  },
+  "nav": {
+    "devices": "Geräte",
+    "props": "Ökosystem",
+    "milsim": "MilSim",
+    "business": "Geschäft starten",
+    "products": "Unsere Produkte",
+    "contact": "Kontakt",
+    "shop": "Shop"
+  },
+  "hero": {
+    "kicker": "Entwicklung & Fertigung seit 2004",
+    "title": "Professionelle Lasertag-Ausrüstung, gebaut für den härtesten Vermietungseinsatz",
+    "subtitle": "Ein zuverlässiges Arbeitsgerät für Betreiber — entwickelt von einem Team, das selbst Lasertag-Anlagen betreibt, nicht nur eine Fabrik.",
+    "cta_devices": "Geräte ansehen",
+    "cta_contact": "Demo anfragen"
+  },
+  "why": {
+    "title": "Warum Betreiber Action Tag wählen",
+    "items": [
+      {
+        "title": "Pioniere der Branche",
+        "text": "Als Erste am Markt mit kabellosen Kopfsensoren (2006) und der Lasertag-Pistole (2008). PC-Schnittstelle, mehrfarbige Team-LEDs — wir haben sie zuerst gebaut."
+      },
+      {
+        "title": "Made in UK & EU",
+        "text": "Unsere Produktions- und Lagerstandorte liegen in Großbritannien und der EU. Kurze Lieferzeiten, echter Support, keine Grauimporte."
+      },
+      {
+        "title": "Für die Vermietung gebaut",
+        "text": "Gehäuse aus waffentauglichem ABS, 36 Stunden Akkulaufzeit, Ein-Kilo-Tagger in voller Größe für Kinder und Erwachsene. Ausrüstung, die Tag für Tag Geld verdient."
+      },
+      {
+        "title": "Wir begleiten Sie",
+        "text": "Komplette Demo, Hilfe bei der Anlagenplanung, Spielszenarien, Personalschulung und Support danach. Kaufen, mieten oder leasen — der Start wird einfach."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Unsere Tagger",
+    "subtitle": "Spielsets, kompatibel untereinander und mit jedem Zubehör aus unserem Sortiment",
+    "shop_cta": "Im Shop ansehen",
+    "spec_labels": {
+      "weight": "Gewicht",
+      "length": "Länge",
+      "range": "Effektive Reichweite",
+      "battery": "Akkulaufzeit"
+    },
+    "taglines": {
+      "ak15-warrior": "Der klassische AK-Sturm-Tagger",
+      "ak25-predator": "Die nächste Generation der AK-Plattform",
+      "ar15-ranger": "Das Arbeitstier der AR-Plattform",
+      "ar-hellfire": "Sturmgewehr, Hellfire-Serie",
+      "mg-hellfire": "Maschinengewehr, Hellfire-Serie",
+      "sg-hellfire": "Schrotflinte, Hellfire-Serie",
+      "mp9lt-phoenix": "Kompakte Maschinenpistole",
+      "hornet": "Pistole als Zweitwaffe",
+      "sr-hellfire": "Scharfschützengewehr, Hellfire-Serie",
+      "sr21-ghost": "Scharfschützengewehr mit großer Reichweite",
+      "laser-biathlon": "Trainingsset für Biathlon-Vereine und Schulen"
+    }
+  },
+  "props": {
+    "title": "Ein komplettes Spiel-Ökosystem",
+    "subtitle": "Zubehör, das ein Spielfeld in Szenarien verwandelt, zu denen Spieler immer wiederkommen",
+    "more_title": "…und vieles mehr",
+    "more_cta": "Jetzt im Shop entdecken"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Weltweit einzigartig",
+    "text1": "Der einzige elektronische Schießstand der Welt, der mit Paintball-, Airsoft- und Lasertag-Ausrüstung funktioniert. Inspiriert von den CQB-Trainingsanlagen von Polizei und Spezialeinheiten.",
+    "text2": "Elektronische Ziele sind mit einem Punktesystem verbunden: Alle Ziele entlang des Parcours ausschalten, die Zeit stoppen, den Rekord brechen. Einzelner Schützenstand oder Hindernisparcours bis 60 Meter mit 24 Zielen — kompetitiv, adrenalingeladen und endlos wiederspielbar.",
+    "cta": "Zum KillHouse anfragen"
+  },
+  "business": {
+    "title": "Starten Sie Ihr Lasertag-Geschäft",
+    "subtitle": "Sie brauchen weniger Startkapital, als Sie denken. Mehrere Wege zum eigenen Betrieb:",
+    "options": [
+      {
+        "title": "Kaufen",
+        "text": "Direktes Eigentum mit verlängerbarer Garantie. Jederzeit erweiterbar — alles bleibt kompatibel."
+      },
+      {
+        "title": "Mieten",
+        "text": "Immer die neueste Ausrüstung, ohne an alterndes Material gebunden zu sein. Zurückgeben oder tauschen, wenn sich Ihr Bedarf ändert."
+      },
+      {
+        "title": "Leasen",
+        "text": "Kosten verteilen, während Ihre Anlage bereits Umsatz macht. Upgrade-Pfade halten Sie der lokalen Konkurrenz voraus."
+      }
+    ],
+    "footer": "Jede Option beinhaltet eine komplette Demo, Schulung, Beratung zur Anlagenplanung und unser Wissen zur Kundengewinnung.",
+    "cta": "Sprechen Sie mit uns über Ihren Start"
+  },
+  "products": {
+    "title": "Die Action-Tag-Familie",
+    "subtitle": "Drei Produktlinien, ein Hersteller",
+    "shop": {
+      "title": "LaserTag-Shop",
+      "text": "Tagger, Sensoren und Zubehör direkt vom Hersteller kaufen."
+    },
+    "vr": {
+      "text": "Free-Roaming-VR-Attraktionen für Freizeitzentren."
+    },
+    "softplay": {
+      "text": "Digitales Abenteuer-Upgrade für neue und bestehende Indoor-Spielplätze."
+    }
+  },
+  "contact": {
+    "title": "Demo anfragen",
+    "subtitle": "Erzählen Sie uns von Ihrer Anlage oder Ihren Plänen — wir antworten persönlich, meist noch am selben Tag.",
+    "name": "Ihr Name",
+    "email": "E-Mail",
+    "phone": "Telefon (optional)",
+    "search_country": "Land suchen…",
+    "message": "Was haben Sie vor?",
+    "send": "Nachricht senden",
+    "sending": "Wird gesendet…",
+    "success": "Vielen Dank! Wir melden uns in Kürze.",
+    "error": "Etwas ist schiefgelaufen. Schreiben Sie uns direkt an",
+    "phone_label": "Telefon",
+    "email_label": "E-Mail",
+    "address_label": "Adresse",
+    "whatsapp": "Per WhatsApp chatten"
+  },
+  "footer": {
+    "tagline": "Entwickler und Hersteller von Lasertag-Ausrüstung — UK & EU, seit 2004.",
+    "rights": "Alle Rechte vorbehalten."
+  }
+}

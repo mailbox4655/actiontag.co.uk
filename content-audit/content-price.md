@@ -1,0 +1,31 @@
+TITLE: Prices - Action Tag Lasertag
+- Toggle navigation EN CZ
+- EN
+- +44 (0) 7889 444393
+- Home
+- Action VR
+- CyberTag
+- LaserTag Our Rental System
+- Taggers
+- Props
+- MilSim
+- Soft Play
+- Starting up
+- Prices
+- Shop
+- Contacts
+- Home
+- Home
+- Action VR
+- CyberTag
+- LaserTag Our Rental System
+- Taggers
+- Props
+- MilSim
+- Soft Play
+- Starting up
+- Prices
+- Shop
+- Contacts
+
+IMAGES (5): /images/fb_icon_menu.png, /images/ytube_icon_menu.png, /media/mod_languages/images/cs_cz.gif, /media/mod_languages/images/en_gb.gif, https://actiontag.co.uk/images/new-logo.png

@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Utvikler og produsent av lasertag-utstyr | Storbritannia",
+    "description": "Vi utvikler og produserer profesjonelt lasertag-utstyr i Storbritannia og EU siden 2004. Taggere, trådløse sensorer, MilSim KillHouse-systemer og full støtte for utleievirksomheter."
+  },
+  "nav": {
+    "devices": "Utstyr",
+    "props": "Økosystem",
+    "milsim": "MilSim",
+    "business": "Start en bedrift",
+    "products": "Våre produkter",
+    "contact": "Kontakt",
+    "shop": "Butikk"
+  },
+  "hero": {
+    "kicker": "Utvikling og produksjon siden 2004",
+    "title": "Profesjonelt lasertag-utstyr, bygget for den tøffeste utleiebruken",
+    "subtitle": "Et pålitelig arbeidsverktøy for operatører — designet av et team som selv driver lasertag-arenaer, ikke bare en fabrikk.",
+    "cta_devices": "Se utstyret",
+    "cta_contact": "Be om en demo"
+  },
+  "why": {
+    "title": "Hvorfor operatører velger Action Tag",
+    "items": [
+      {
+        "title": "Bransjepionerer",
+        "text": "Først på markedet med trådløse hodesensorer i 2006 og lasertag-pistolen i 2008. PC-grensesnitt, flerfargede lag-LED-er — vi bygget dem først."
+      },
+      {
+        "title": "Produsert i UK og EU",
+        "text": "Våre produksjons- og lagerlokaler ligger i Storbritannia og EU. Korte leveringstider, ekte støtte, ingen gråimport."
+      },
+      {
+        "title": "Bygget for utleie",
+        "text": "Kropper i våpenkvalitets-ABS, 36 timers batteritid, fullskala taggere på én kilo som passer både barn og voksne. Utstyr som tjener penger, dag etter dag."
+      },
+      {
+        "title": "Vi følger deg hele veien",
+        "text": "Full demo, hjelp med arenadesign, spillscenarier, opplæring av personale og støtte i etterkant. Kjøp, lei eller leas — det er enkelt å komme i gang."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Våre taggere",
+    "subtitle": "Spillsett som er kompatible med hverandre og med alt tilbehør vi selger",
+    "shop_cta": "Se i butikken",
+    "spec_labels": {
+      "weight": "Vekt",
+      "length": "Lengde",
+      "range": "Effektiv rekkevidde",
+      "battery": "Batteritid"
+    },
+    "taglines": {
+      "ak15-warrior": "Den klassiske AK-angrepstaggeren",
+      "ak25-predator": "Neste generasjon av AK-plattformen",
+      "ar15-ranger": "Arbeidshesten på AR-plattformen",
+      "ar-hellfire": "Angrepsrifle, Hellfire-serien",
+      "mg-hellfire": "Maskingevær, Hellfire-serien",
+      "sg-hellfire": "Hagle, Hellfire-serien",
+      "mp9lt-phoenix": "Kompakt maskinpistol",
+      "hornet": "Sidevåpen-pistol",
+      "sr-hellfire": "Presisjonsrifle, Hellfire-serien",
+      "sr21-ghost": "Langtrekkende skarpskytterrifle",
+      "laser-biathlon": "Treningssett for skiskytterklubber og skoler"
+    }
+  },
+  "props": {
+    "title": "Et komplett spilløkosystem",
+    "subtitle": "Tilbehør som gjør en arena om til scenarier spillerne kommer tilbake for",
+    "more_title": "…og mye mer",
+    "more_cta": "Se i butikken vår"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Unik i verden",
+    "text1": "Verdens eneste elektroniske skytebane som fungerer med utstyr for paintball, airsoft og lasertag. Inspirert av CQB-treningsanleggene til politi og spesialstyrker.",
+    "text2": "Elektroniske mål er koblet til et poengsystem: eliminer alle langs løypa, stopp klokka, slå rekorden. Én skyteposisjon eller en hinderløype på opptil 60 meter med 24 mål — konkurransepreget, adrenalinfylt og uendelig spillbart.",
+    "cta": "Spør om KillHouse"
+  },
+  "business": {
+    "title": "Start din egen lasertag-bedrift",
+    "subtitle": "Du trenger mindre kapital enn du tror. Vi har flere måter å få deg i gang på:",
+    "options": [
+      {
+        "title": "Kjøp",
+        "text": "Direkte eierskap med utvidbar garanti. Legg til mer utstyr når som helst — alt forblir kompatibelt."
+      },
+      {
+        "title": "Lei",
+        "text": "Alltid det nyeste utstyret uten å være bundet til aldrende materiell. Lever tilbake eller bytt når behovene endrer seg."
+      },
+      {
+        "title": "Leasing",
+        "text": "Fordel kostnaden mens arenaen din allerede tjener penger. Oppgraderingsmuligheter holder deg foran lokale konkurrenter."
+      }
+    ],
+    "footer": "Alle alternativer inkluderer full demo, opplæring, råd om arenadesign og vår kunnskap om å tiltrekke kunder.",
+    "cta": "Snakk med oss om oppstarten din"
+  },
+  "products": {
+    "title": "Action Tag-familien",
+    "subtitle": "Tre produktlinjer, én produsent",
+    "shop": {
+      "title": "LaserTag-butikken",
+      "text": "Kjøp taggere, sensorer og tilbehør direkte fra produsenten."
+    },
+    "vr": {
+      "text": "Free-roaming VR-attraksjoner for underholdningssentre."
+    },
+    "softplay": {
+      "text": "Digitalt eventyr for nye og eksisterende lekeland."
+    }
+  },
+  "contact": {
+    "title": "Be om en demo",
+    "subtitle": "Fortell oss om arenaen eller planene dine — vi svarer personlig, som regel samme dag.",
+    "name": "Navnet ditt",
+    "email": "E-post",
+    "phone": "Telefon (valgfritt)",
+    "search_country": "Søk etter land…",
+    "message": "Hva planlegger du?",
+    "send": "Send melding",
+    "sending": "Sender…",
+    "success": "Takk! Vi tar kontakt snart.",
+    "error": "Noe gikk galt. Skriv til oss direkte på",
+    "phone_label": "Telefon",
+    "email_label": "E-post",
+    "address_label": "Adresse",
+    "whatsapp": "Chat på WhatsApp"
+  },
+  "footer": {
+    "tagline": "Utvikler og produsent av lasertag-utstyr — UK og EU, siden 2004.",
+    "rights": "Alle rettigheter forbeholdt."
+  }
+}

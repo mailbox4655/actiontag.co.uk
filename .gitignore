@@ -1,0 +1,11 @@
+# Legacy Joomla site backup (2.3 GB, contains files over GitHub's 100 MB limit) — local only
+/old-site/
+
+# Dependencies and build output
+node_modules/
+site/dist/
+site/.astro/
+
+# Local scratch
+*.log
+Thumbs.db

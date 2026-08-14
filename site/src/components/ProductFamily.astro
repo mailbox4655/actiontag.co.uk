@@ -1,0 +1,90 @@
+---
+interface Props { t: Record<string, any> }
+const { t } = Astro.props;
+
+// fit: 'contain' = transparent cutout on glow pedestal; 'cover' = photo fill
+const cards = [
+  { key: 'shop', href: 'https://lasertagsale.com/', img: '/assets/devices2/sr21-ghost.webp', fit: 'contain' },
+  { key: 'vr', href: 'https://actionvirtualreality.com/', img: '/assets/family/vr-trio.webp', fit: 'contain' },
+  { key: 'softplay', href: 'https://treasurehuntheroes.com/', img: '/assets/family/thh-logo.webp', fit: 'contain' },
+];
+---
+
+<section class="section family" id="products">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="section-title">{t.products.title}</h2>
+      <p class="section-sub">{t.products.subtitle}</p>
+    </div>
+
+    <div class="family-grid">
+      {cards.map(({ key, href, img, fit }) => (
+        <a class="card family-card" href={href} target="_blank" rel="noopener">
+          <div class={`family-media ${fit}`}>
+            <img src={img} alt={t.products[key].title} loading="lazy" />
+          </div>
+          <div class="family-body">
+            <h3>{t.products[key].title}</h3>
+            <p>{t.products[key].text}</p>
+            <span class="family-cta">{t.products[key].cta} ↗</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .family { background: var(--bg-raised); border-block: 1px solid var(--line); }
+  .family-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.2rem;
+  }
+  .family-card {
+    text-decoration: none;
+    overflow: hidden;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+  }
+  .family-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+  .family-media {
+    height: 11rem;
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-block-end: 1px solid var(--line);
+  }
+  /* cutouts sit on a red glow pedestal */
+  .family-media.contain::before {
+    content: '';
+    position: absolute;
+    inset-inline: 12%;
+    inset-block-end: 6%;
+    height: 45%;
+    background: radial-gradient(ellipse at 50% 100%, var(--accent-dim) 0%, transparent 70%);
+  }
+  .family-media.contain img {
+    position: relative;
+    max-height: 78%;
+    max-width: 82%;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
+  }
+  .family-media.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .family-body { padding: 1.5rem 1.6rem 1.7rem; }
+  .family-body h3 { font-size: 1.5rem; text-transform: uppercase; }
+  .family-body p { color: var(--text-muted); font-size: 0.95rem; margin-block: 0.6rem 1rem; }
+  .family-cta {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .family-card:hover .family-cta { color: var(--accent-hot); }
+</style>

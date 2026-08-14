@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Lazertago įrangos kūrėjas ir gamintojas | Jungtinė Karalystė",
+    "description": "Nuo 2004 m. kuriame ir gaminame profesionalią lazertago įrangą Jungtinėje Karalystėje ir ES. Taggeriai, belaidžiai jutikliai, MilSim KillHouse sistemos ir visapusiška pagalba nuomos verslui."
+  },
+  "nav": {
+    "devices": "Įranga",
+    "props": "Ekosistema",
+    "milsim": "MilSim",
+    "business": "Pradėkite verslą",
+    "products": "Mūsų produktai",
+    "contact": "Kontaktai",
+    "shop": "Parduotuvė"
+  },
+  "hero": {
+    "kicker": "Kuriame ir gaminame nuo 2004 m.",
+    "title": "Profesionali lazertago įranga, sukurta intensyviausiam nuomos naudojimui",
+    "subtitle": "Patikimas darbo įrankis operatoriams — sukurtas komandos, kuri pati valdo lazertago arenas, o ne vien gamyklos.",
+    "cta_devices": "Peržiūrėti įrangą",
+    "cta_contact": "Užsakyti demonstraciją"
+  },
+  "why": {
+    "title": "Kodėl operatoriai renkasi Action Tag",
+    "items": [
+      {
+        "title": "Pramonės pionieriai",
+        "text": "Pirmieji rinkoje pristatėme belaidžius galvos jutiklius 2006 m. ir lazertago pistoletą 2008 m. PC sąsaja, daugiaspalviai komandų LED — mes juos sukūrėme pirmi."
+      },
+      {
+        "title": "Pagaminta JK ir ES",
+        "text": "Mūsų gamybos ir sandėliavimo bazės yra Jungtinėje Karalystėje ir ES. Trumpi terminai, tikra pagalba, jokio pilkojo importo."
+      },
+      {
+        "title": "Sukurta nuomai",
+        "text": "Ginklų klasės ABS korpusai, 36 valandų baterija, kilogramą sveriantys pilno dydžio taggeriai vaikams ir suaugusiems. Įranga, kuri uždirba diena iš dienos."
+      },
+      {
+        "title": "Lydime jus visą kelią",
+        "text": "Pilna demonstracija, pagalba projektuojant areną, žaidimų scenarijai, personalo mokymai ir tolesnė pagalba. Pirkite, nuomokitės arba imkite lizingu — pradėti paprasta."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Mūsų taggeriai",
+    "subtitle": "Žaidimų komplektai, suderinami tarpusavyje ir su visais mūsų parduodamais priedais",
+    "shop_cta": "Žiūrėti parduotuvėje",
+    "spec_labels": {
+      "weight": "Svoris",
+      "length": "Ilgis",
+      "range": "Efektyvus šaudymo nuotolis",
+      "battery": "Baterijos veikimo laikas"
+    },
+    "taglines": {
+      "ak15-warrior": "Klasikinis AK šturmo taggeris",
+      "ak25-predator": "Naujos kartos AK platforma",
+      "ar15-ranger": "AR platformos darbinis arklys",
+      "ar-hellfire": "Šturmo šautuvas, Hellfire serija",
+      "mg-hellfire": "Kulkosvaidis, Hellfire serija",
+      "sg-hellfire": "Šratinis šautuvas, Hellfire serija",
+      "mp9lt-phoenix": "Kompaktiškas pistoletas-kulkosvaidis",
+      "hornet": "Atsarginis pistoletas",
+      "sr-hellfire": "Taiklusis šautuvas, Hellfire serija",
+      "sr21-ghost": "Tolimojo nuotolio snaiperio šautuvas",
+      "laser-biathlon": "Treniruočių komplektas biatlono klubams ir mokykloms"
+    }
+  },
+  "props": {
+    "title": "Pilna žaidimo ekosistema",
+    "subtitle": "Priedai, paverčiantys areną scenarijais, į kuriuos žaidėjai sugrįžta",
+    "more_title": "…ir dar daugiau",
+    "more_cta": "Raskite mūsų parduotuvėje"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Vienintelis pasaulyje",
+    "text1": "Vienintelė elektroninė šaudykla pasaulyje, veikianti su dažasvydžio, airsofto ir lazertago įranga. Įkvėpta policijos ir specialiųjų pajėgų CQB treniruočių objektų.",
+    "text2": "Elektroniniai taikiniai sujungti su taškų sistema: sunaikinkite juos visus trasoje, sustabdykite laikmatį, pagerinkite rekordą. Viena šaudymo pozicija arba kliūčių ruožas iki 60 metrų su 24 taikiniais — azartiška, kupina adrenalino ir be galo pakartojama.",
+    "cta": "Teiraukitės apie KillHouse"
+  },
+  "business": {
+    "title": "Pradėkite savo lazertago verslą",
+    "subtitle": "Kapitalo reikia mažiau, nei manote. Yra keli būdai pradėti:",
+    "options": [
+      {
+        "title": "Pirkite",
+        "text": "Tiesioginė nuosavybė su pratęsiama garantija. Bet kada papildykite įrangą — viskas lieka suderinama."
+      },
+      {
+        "title": "Nuomokitės",
+        "text": "Visada naujausia įranga be įsipareigojimų senstančiai technikai. Grąžinkite arba pakeiskite, kai pasikeičia poreikiai."
+      },
+      {
+        "title": "Lizingas",
+        "text": "Paskirstykite išlaidas, kol arena jau uždirba. Atnaujinimo galimybės išlaiko jus priekyje vietinės konkurencijos."
+      }
+    ],
+    "footer": "Kiekvienas variantas apima pilną demonstraciją, mokymus, arenos projektavimo konsultacijas ir mūsų žinias, kaip pritraukti klientų.",
+    "cta": "Pakalbėkime apie jūsų startą"
+  },
+  "products": {
+    "title": "Action Tag šeima",
+    "subtitle": "Trys produktų linijos, vienas gamintojas",
+    "shop": {
+      "title": "LaserTag parduotuvė",
+      "text": "Pirkite taggerius, jutiklius ir priedus tiesiai iš gamintojo."
+    },
+    "vr": {
+      "text": "Laisvo judėjimo VR atrakcionai pramogų centrams."
+    },
+    "softplay": {
+      "text": "Skaitmeninis nuotykis naujoms ir esamoms vaikų žaidimų erdvėms."
+    }
+  },
+  "contact": {
+    "title": "Užsakykite demonstraciją",
+    "subtitle": "Papasakokite apie savo areną ar planus — atsakome asmeniškai, dažniausiai tą pačią dieną.",
+    "name": "Jūsų vardas",
+    "email": "El. paštas",
+    "phone": "Telefonas (neprivaloma)",
+    "search_country": "Ieškoti šalies…",
+    "message": "Ką planuojate?",
+    "send": "Siųsti žinutę",
+    "sending": "Siunčiama…",
+    "success": "Ačiū! Netrukus susisieksime.",
+    "error": "Kažkas nepavyko. Rašykite mums tiesiogiai",
+    "phone_label": "Telefonas",
+    "email_label": "El. paštas",
+    "address_label": "Adresas",
+    "whatsapp": "Susirašykite per WhatsApp"
+  },
+  "footer": {
+    "tagline": "Lazertago įrangos kūrėjas ir gamintojas — JK ir ES, nuo 2004 m.",
+    "rights": "Visos teisės saugomos."
+  }
+}

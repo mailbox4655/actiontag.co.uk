@@ -1,0 +1,187 @@
+---
+import { locales } from '../i18n/locales';
+
+interface Props { lang: string; t: Record<string, any> }
+const { lang, t } = Astro.props;
+const current = locales.find((l) => l.code === lang)!;
+
+const waIcon =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+---
+
+<header class="site-header" id="top">
+  <div class="container header-row">
+    <a class="brand" href={`/${lang}/`}>
+      <img class="brand-logo" src="/assets/brand/actiontag-wordmark.png" alt="ActionTag.co.uk" width="1047" height="136" />
+    </a>
+
+    <nav class="main-nav" aria-label="Main">
+      <a href="#devices">{t.nav.devices}</a>
+      <a href="#props">{t.nav.props}</a>
+      <a href="#milsim">{t.nav.milsim}</a>
+      <a href="#business">{t.nav.business}</a>
+      <a href="#contact">{t.nav.contact}</a>
+      <a class="nav-shop" href="https://lasertagsale.com/" target="_blank" rel="noopener">{t.nav.shop} ↗</a>
+    </nav>
+
+    <div class="header-phone" dir="ltr">
+      <a class="wa-badge" href="https://wa.me/447889444393" target="_blank" rel="noopener"
+         aria-label="WhatsApp" title="WhatsApp" set:html={waIcon} />
+      <a class="phone-num" href="https://wa.me/447889444393" target="_blank" rel="noopener">+44 7889 444393</a>
+    </div>
+
+    <details class="lang-switch">
+      <summary aria-label="Language">
+        <img class="flag" src={`/assets/flags/${lang}.svg`} alt="" width="18" height="18" />
+        {current.name}
+      </summary>
+      <ul>
+        {locales.map((l) => (
+          <li>
+            <a href={`/${l.code}/`} aria-current={l.code === lang ? 'page' : undefined} lang={l.hreflang}>
+              <img class="flag" src={`/assets/flags/${l.code}.svg`} alt="" width="18" height="18" loading="lazy" />
+              {l.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+    background: rgba(10, 14, 18, 0.88);
+    backdrop-filter: blur(10px);
+    border-block-end: 1px solid var(--line);
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 4.25rem;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin-inline-end: auto;
+  }
+  .brand-logo { width: auto; height: 30px; }
+
+  .main-nav { display: flex; gap: 1.4rem; align-items: center; }
+  .main-nav a {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    text-decoration: none;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+  .main-nav a:hover { color: var(--text); }
+  .main-nav .nav-shop { color: var(--accent); }
+  .main-nav .nav-shop:hover { color: var(--accent-hot); }
+
+  .header-phone { display: flex; align-items: center; gap: 0.5rem; }
+  .wa-badge {
+    display: inline-flex;
+    color: var(--text);
+    opacity: 0.85;
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+  .wa-badge :global(svg) { width: 19px; height: 19px; }
+  .wa-badge:hover { opacity: 1; color: #25d366; }
+  .phone-num {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .phone-num:hover { color: var(--text); }
+  @media (max-width: 1080px) {
+    .header-phone .phone-num { display: none; }
+  }
+
+  .lang-switch { position: relative; }
+  .lang-switch summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text-muted);
+    user-select: none;
+  }
+  .lang-switch summary::-webkit-details-marker { display: none; }
+  .lang-switch summary::after {
+    content: '▾';
+    font-size: 0.7em;
+    margin-inline-start: 0.45em;
+    flex: none;
+  }
+  .lang-switch[open] summary { border-color: var(--accent); color: var(--text); }
+  .lang-switch ul {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: calc(100% + 8px);
+    margin: 0;
+    padding: 0.4rem;
+    list-style: none;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(8.5rem, 1fr));
+    gap: 2px;
+    max-height: none;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  }
+  .lang-switch a {
+    display: block;
+    padding: 0.4rem 0.7rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .lang-switch a:hover { background: var(--accent-dim); color: var(--text); }
+  .lang-switch a[aria-current='page'] { color: var(--accent); font-weight: 600; }
+
+  .flag {
+    display: inline-block;
+    vertical-align: -0.2em;
+    margin-inline-end: 0.45em;
+    width: 1.1em;
+    height: 1.1em;
+  }
+  .lang-switch summary .flag { margin-inline-end: 0.4em; }
+  .lang-switch a { display: flex; align-items: center; }
+  .lang-switch a .flag { flex: none; }
+
+  @media (max-width: 900px) {
+    .main-nav { display: none; }
+  }
+</style>
+
+<script>
+  // Close the language dropdown when clicking anywhere else
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.lang-switch[open]').forEach((d) => {
+      if (!d.contains(e.target as Node)) d.removeAttribute('open');
+    });
+  });
+</script>

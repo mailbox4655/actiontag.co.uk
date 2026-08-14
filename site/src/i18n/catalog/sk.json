@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Vývojár a výrobca vybavenia pre laser tag | Veľká Británia",
+    "description": "Od roku 2004 vyvíjame a vyrábame profesionálne vybavenie pre laser tag vo Veľkej Británii a EÚ. Taggery, bezdrôtové senzory, systémy MilSim KillHouse a kompletná podpora pre požičovne."
+  },
+  "nav": {
+    "devices": "Vybavenie",
+    "props": "Ekosystém",
+    "milsim": "MilSim",
+    "business": "Začnite podnikať",
+    "products": "Naše produkty",
+    "contact": "Kontakt",
+    "shop": "Obchod"
+  },
+  "hero": {
+    "kicker": "Vyvíjame a vyrábame od roku 2004",
+    "title": "Profesionálne vybavenie pre laser tag, stavané pre najnáročnejšiu prevádzku požičovní",
+    "subtitle": "Spoľahlivý pracovný nástroj pre prevádzkovateľov — navrhnutý tímom, ktorý sám prevádzkuje laser tag arény, nie len továrňou.",
+    "cta_devices": "Pozrieť vybavenie",
+    "cta_contact": "Vyžiadať demo"
+  },
+  "why": {
+    "title": "Prečo si prevádzkovatelia vyberajú Action Tag",
+    "items": [
+      {
+        "title": "Priekopníci odboru",
+        "text": "Ako prví na trhu sme priniesli bezdrôtové čelenky v roku 2006 a laser tag pištoľ v roku 2008. PC rozhranie, viacfarebné tímové LED — postavili sme ich prví."
+      },
+      {
+        "title": "Vyrobené v UK a EÚ",
+        "text": "Naše výrobné a skladové priestory sa nachádzajú vo Veľkej Británii a EÚ. Krátke dodacie lehoty, skutočná podpora, žiadne sivé dovozy."
+      },
+      {
+        "title": "Stavané pre požičovne",
+        "text": "Telá zo zbrojného ABS, 36 hodín výdrže batérie, kilové taggery v plnej veľkosti pre deti aj dospelých. Vybavenie, ktoré zarába deň čo deň."
+      },
+      {
+        "title": "Prevedieme vás všetkým",
+        "text": "Kompletné demo, pomoc s návrhom arény, herné scenáre, zaškolenie personálu a následná podpora. Kúpte, prenajmite si alebo leasujte — začať je jednoduché."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Naše taggery",
+    "subtitle": "Herné sety kompatibilné medzi sebou aj s celým príslušenstvom, ktoré predávame",
+    "shop_cta": "Zobraziť v obchode",
+    "spec_labels": {
+      "weight": "Hmotnosť",
+      "length": "Dĺžka",
+      "range": "Efektívny dostrel",
+      "battery": "Výdrž batérie"
+    },
+    "taglines": {
+      "ak15-warrior": "Klasický útočný tagger AK",
+      "ak25-predator": "Nová generácia platformy AK",
+      "ar15-ranger": "Ťažný kôň platformy AR",
+      "ar-hellfire": "Útočná puška, séria Hellfire",
+      "mg-hellfire": "Guľomet, séria Hellfire",
+      "sg-hellfire": "Brokovnica, séria Hellfire",
+      "mp9lt-phoenix": "Kompaktný samopal",
+      "hornet": "Záložná pištoľ",
+      "sr-hellfire": "Presná puška, séria Hellfire",
+      "sr21-ghost": "Ostreľovacia puška s dlhým dostrelom",
+      "laser-biathlon": "Tréningový set pre biatlonové kluby a školy"
+    }
+  },
+  "props": {
+    "title": "Kompletný herný ekosystém",
+    "subtitle": "Príslušenstvo, ktoré premení ihrisko na scenáre, ku ktorým sa hráči vracajú",
+    "more_title": "…a omnoho viac",
+    "more_cta": "Objavte v našom obchode"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Jediný na svete",
+    "text1": "Jediná elektronická strelnica na svete, ktorá funguje s vybavením pre paintball, airsoft aj laser tag. Inšpirované tréningovými zariadeniami CQB polície a špeciálnych jednotiek.",
+    "text2": "Elektronické terče sú prepojené s bodovacím systémom: zlikvidujte všetky na trase, zastavte časomieru, prekonajte rekord. Jedno strelecké stanovisko alebo prekážková dráha až 60 metrov s 24 terčmi — súťaživé, plné adrenalínu a nekonečne znovuhrateľné.",
+    "cta": "Opýtajte sa na KillHouse"
+  },
+  "business": {
+    "title": "Začnite podnikať s laser tagom",
+    "subtitle": "Nepotrebujete toľko kapitálu, koľko si myslíte. Máme niekoľko ciest, ako začať:",
+    "options": [
+      {
+        "title": "Kúpa",
+        "text": "Priame vlastníctvo s predĺžiteľnou zárukou. Kedykoľvek dokúpte ďalšie vybavenie — všetko zostáva kompatibilné."
+      },
+      {
+        "title": "Prenájom",
+        "text": "Vždy najnovšie vybavenie bez väzby na starnúcu techniku. Vráťte alebo vymeňte, keď sa vaše potreby zmenia."
+      },
+      {
+        "title": "Leasing",
+        "text": "Rozložte náklady, zatiaľ čo aréna už zarába. Možnosti upgradu vás udržia pred miestnou konkurenciou."
+      }
+    ],
+    "footer": "Každá možnosť zahŕňa kompletné demo, školenie, poradenstvo pri návrhu arény a naše know-how, ako prilákať zákazníkov.",
+    "cta": "Porozprávajme sa o vašom štarte"
+  },
+  "products": {
+    "title": "Rodina Action Tag",
+    "subtitle": "Tri produktové rady, jeden výrobca",
+    "shop": {
+      "title": "Obchod LaserTag",
+      "text": "Kupujte taggery, senzory a príslušenstvo priamo od výrobcu."
+    },
+    "vr": {
+      "text": "Free-roaming VR atrakcie pre zábavné centrá."
+    },
+    "softplay": {
+      "text": "Digitálne dobrodružstvo pre nové aj existujúce detské ihriská."
+    }
+  },
+  "contact": {
+    "title": "Vyžiadajte si demo",
+    "subtitle": "Povedzte nám o svojej aréne alebo plánoch — odpovedáme osobne, zvyčajne ešte v ten istý deň.",
+    "name": "Vaše meno",
+    "email": "E-mail",
+    "phone": "Telefón (nepovinné)",
+    "search_country": "Hľadať krajinu…",
+    "message": "Čo plánujete?",
+    "send": "Odoslať správu",
+    "sending": "Odosiela sa…",
+    "success": "Ďakujeme! Čoskoro sa vám ozveme.",
+    "error": "Niečo sa pokazilo. Napíšte nám priamo na",
+    "phone_label": "Telefón",
+    "email_label": "E-mail",
+    "address_label": "Adresa",
+    "whatsapp": "Napíšte nám na WhatsApp"
+  },
+  "footer": {
+    "tagline": "Vývojár a výrobca vybavenia pre laser tag — UK a EÚ, od roku 2004.",
+    "rights": "Všetky práva vyhradené."
+  }
+}

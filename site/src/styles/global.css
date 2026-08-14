@@ -1,0 +1,142 @@
+/* ============================================================
+   Action Tag — design system
+   Dark tactical: near-black ground, laser-red accent,
+   condensed display type, content carried by imagery.
+   All spacing/positioning uses logical properties (RTL-safe).
+   ============================================================ */
+
+:root {
+  --bg: #0a0e12;
+  --bg-raised: #121820;
+  --bg-panel: #171f29;
+  --line: #243040;
+  --text: #e8eef4;
+  --text-muted: #93a1b0;
+  /* brand red sampled from the ActionTag logo */
+  --accent: #e00c15;
+  --accent-hot: #ff3b42;
+  --accent-dim: rgba(224, 12, 21, 0.14);
+
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --content-width: 1200px;
+  --section-pad: clamp(4rem, 9vw, 7.5rem);
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+/* ---- Themed scrollbar ---- */
+html {
+  /* Firefox */
+  scrollbar-color: var(--line) var(--bg);
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 6px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar-corner { background: var(--bg); }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-block-start: 5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, video { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+  letter-spacing: 0.01em;
+}
+
+/* Arabic: condensed Latin faces don't cover Arabic script —
+   fall back to system Arabic fonts and open the line-height up. */
+[dir='rtl'] body,
+[dir='rtl'] h1, [dir='rtl'] h2, [dir='rtl'] h3, [dir='rtl'] h4 {
+  font-family: 'Segoe UI', 'Noto Sans Arabic', 'Arial', sans-serif;
+}
+[dir='rtl'] h1, [dir='rtl'] h2, [dir='rtl'] h3 { line-height: 1.25; letter-spacing: 0; }
+
+p { margin: 0; }
+a { color: inherit; }
+
+.container {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.section { padding-block: var(--section-pad); }
+
+.section-head { max-width: 46rem; margin-block-end: clamp(2rem, 5vw, 3.5rem); }
+
+.kicker {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  margin-block-end: 0.75rem;
+}
+
+.section-title { font-size: clamp(2.2rem, 5vw, 3.4rem); text-transform: uppercase; }
+
+.section-sub { color: var(--text-muted); margin-block-start: 1rem; font-size: 1.1rem; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-radius: 6px;
+  padding: 0.8rem 1.7rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hot); }
+
+.btn-ghost { border-color: var(--line); color: var(--text); background: transparent; }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent-hot); }
+
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* Reduced motion: kill smooth scrolling and long transitions */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

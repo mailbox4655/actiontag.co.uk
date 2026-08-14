@@ -1,0 +1,292 @@
+{
+  "meta": {
+    "title": "Action Tag — Laser Tag Equipment Developer & Manufacturer | UK",
+    "description": "We develop and manufacture professional laser tag equipment in the UK and EU since 2004. MK14 taggers, wireless sensors, MilSim KillHouse systems and full support for rental businesses."
+  },
+  "nav": {
+    "devices": "Devices",
+    "props": "Ecosystem",
+    "milsim": "MilSim",
+    "business": "Start a Business",
+    "products": "Our Products",
+    "contact": "Contact",
+    "shop": "Shop"
+  },
+  "hero": {
+    "kicker": "Developing & manufacturing since 2004",
+    "title": "Professional laser tag equipment, built for the toughest rental business use",
+    "subtitle": "A reliable tool of the trade for field operators — designed by a team that runs laser tag sites, not just a factory.",
+    "cta_devices": "See the devices",
+    "cta_contact": "Request a demo"
+  },
+  "why": {
+    "title": "Why operators choose Action Tag",
+    "items": [
+      {
+        "title": "Industry pioneers",
+        "text": "First to market with wireless head sensors in 2006 and the laser tag pistol in 2008. PC interface, multicolour team LEDs — we built them first."
+      },
+      {
+        "title": "Made in UK & EU",
+        "text": "Our production and warehousing facilities are located in the UK and EU. Short lead times, real support, no grey imports."
+      },
+      {
+        "title": "Built for rental",
+        "text": "Weapons-grade ABS bodies, 36-hour battery life, one-kilo full-size taggers that fit kids and adults alike. Equipment that earns, day in and day out."
+      },
+      {
+        "title": "We hold your hand",
+        "text": "Full demo, site design help, game scenarios, staff training and support afterwards. Buy, rent or lease — we make starting easy."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Our taggers",
+    "subtitle": "Play sets compatible with each other and with every prop we sell",
+    "shop_cta": "View in shop",
+    "spec_labels": {
+      "weight": "Weight",
+      "length": "Length",
+      "range": "Effective firing range",
+      "battery": "Battery life"
+    },
+    "items": [
+      {
+        "id": "ak15-warrior",
+        "name": "AK-15 Warrior",
+        "specs": {
+          "weight": "1,15 kg",
+          "length": "74 cm",
+          "range": "120-250 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "ak25-predator",
+        "name": "AK-25 Predator",
+        "specs": {
+          "weight": "1 kg",
+          "length": "70 cm",
+          "range": "80-160 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "ar15-ranger",
+        "name": "AR-15 Ranger",
+        "specs": {
+          "weight": "1,3 kg",
+          "length": "72 cm",
+          "range": "120-350 m",
+          "battery": "36 h"
+        }
+      },
+      {
+        "id": "ar-hellfire",
+        "name": "AR Hellfire",
+        "specs": {
+          "weight": "2 kg",
+          "length": "90 cm",
+          "range": "300 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "mg-hellfire",
+        "name": "MG Hellfire",
+        "specs": {
+          "weight": "3 kg",
+          "length": "86/94 cm",
+          "range": "185 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "sg-hellfire",
+        "name": "SG Hellfire",
+        "specs": {
+          "weight": "2 kg",
+          "length": "70 cm",
+          "range": "300 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "mp9lt-phoenix",
+        "name": "MP9LT Phoenix",
+        "specs": {
+          "weight": "0.78 kg",
+          "length": "39.5 cm",
+          "range": "300 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "hornet",
+        "name": "Hornet",
+        "specs": {
+          "weight": "0.35 kg",
+          "length": "22 cm",
+          "range": "100 m",
+          "battery": "20 h"
+        }
+      },
+      {
+        "id": "sr-hellfire",
+        "name": "SR Hellfire",
+        "specs": {
+          "weight": "2 kg",
+          "length": "90 cm",
+          "range": "300 m",
+          "battery": "30 h"
+        }
+      },
+      {
+        "id": "sr21-ghost",
+        "name": "SR-21 Ghost",
+        "specs": {
+          "weight": "1,6 kg",
+          "length": "82/92 cm",
+          "range": "250-400 m",
+          "battery": "36 h"
+        }
+      },
+      {
+        "id": "laser-biathlon",
+        "name": "Laser Biathlon 2.0 Trainer",
+        "specs": {
+          "weight": "",
+          "length": "",
+          "range": "50 m",
+          "battery": ""
+        }
+      }
+    ],
+    "taglines": {
+      "ak15-warrior": "Classic AK assault tagger",
+      "ak25-predator": "Next generation of the AK platform",
+      "ar15-ranger": "AR-platform workhorse",
+      "ar-hellfire": "Assault rifle, Hellfire series",
+      "mg-hellfire": "Machine gun, Hellfire series",
+      "sg-hellfire": "Shotgun, Hellfire series",
+      "mp9lt-phoenix": "Compact submachine gun",
+      "hornet": "Sidearm pistol",
+      "sr-hellfire": "Sniper rifle, Hellfire series",
+      "sr21-ghost": "Long-range sniper rifle",
+      "laser-biathlon": "Training set for biathlon clubs and schools"
+    }
+  },
+  "props": {
+    "title": "A complete gaming ecosystem",
+    "subtitle": "Props and accessories that turn a field into scenarios players come back for",
+    "items": {
+      "smart-pro-remote": "Smart Pro Remote",
+      "shock-bracelet": "Adrenaline Shock Bracelet",
+      "dome-armour": "Dome Armour 3.0",
+      "firefly-charger": "Firefly Charger",
+      "spider-charger": "Spider Charger",
+      "sport-headband": "AlphaTag Sport Headband",
+      "smart-first-aid": "Smart First Aid Kit 2.0",
+      "basic-first-aid": "Basic First Aid Kit",
+      "arsenal-ammo": "Arsenal Ammo Station",
+      "wild-west-target": "Wild West Target",
+      "alphatag-headband": "AlphaTag Headband",
+      "sport-vest": "AlphaTag Sport Vest",
+      "smart-rgb-headband": "Smart RGB Headband",
+      "digital-flag": "Digital Flag",
+      "rgb-target": "RGB Target",
+      "artifact": "Artifact",
+      "smart-control-point": "Smart Control Point",
+      "chameleon-point": "Chameleon Universal Point",
+      "enigma-nuclear-case": "Enigma Nuclear Case",
+      "medic": "Medic",
+      "pandora-box": "Pandora Box",
+      "perimeter-nuclear-case": "Perimeter Nuclear Case",
+      "smart-nano-remote": "Smart Nano Remote",
+      "zombie-game-set": "Zombie Game Set",
+      "bulletproof-vest": "AlphaTag Bulletproof Vest",
+      "swift-target": "Swift Target",
+      "crater-bomb": "Crater Bomb",
+      "smart-battle-base": "Smart Battle Base",
+      "time-point": "Time Point",
+      "radio-points-set": "Radio Control Points Set",
+      "elite-rgb-hostage": "Elite RGB Hostage",
+      "lasertag-vest": "LaserTag Vest"
+    },
+    "more_title": "…and much more",
+    "more_cta": "See it in our shop"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Unique in the world",
+    "text1": "The only electronic shooting range in the world that works with paintball, airsoft and laser tag equipment. Inspired by the CQB training facilities used by law enforcement and special forces.",
+    "text2": "Electronic targets connect to a scoring system: eliminate them all along the course, stop the timer, beat the best time. Single firing position or an obstacle course up to 60 metres with 24 targets — competitive, adrenaline-packed and endlessly replayable.",
+    "cta": "Ask about KillHouse"
+  },
+  "business": {
+    "title": "Start your laser tag business",
+    "subtitle": "You do not need as much outlay as you might think. We have several ways to get you running:",
+    "options": [
+      {
+        "title": "Buy",
+        "text": "Straightforward ownership with warranty support that can be extended. Add more equipment at any time — everything stays compatible."
+      },
+      {
+        "title": "Rent",
+        "text": "Get the newest equipment without being tied to ageing kit. Return or swap when your needs change."
+      },
+      {
+        "title": "Lease",
+        "text": "Spread the cost while your site earns. Upgrade paths keep you ahead of local competitors."
+      }
+    ],
+    "footer": "Every option comes with a full demo, training, site-design guidance and our know-how in attracting clients.",
+    "cta": "Talk to us about starting up"
+  },
+  "products": {
+    "title": "The Action Tag family",
+    "subtitle": "Three product lines, one manufacturer",
+    "shop": {
+      "title": "LaserTag Shop",
+      "text": "Buy taggers, sensors and props directly from the manufacturer.",
+      "cta": "lasertagsale.com"
+    },
+    "vr": {
+      "title": "Action VR",
+      "text": "Free-roam virtual reality attractions for entertainment venues.",
+      "cta": "actionvirtualreality.com"
+    },
+    "softplay": {
+      "title": "Treasure Hunt Heroes",
+      "text": "Digital adventure upgrade for new and existing soft play areas.",
+      "cta": "treasurehuntheroes.com"
+    }
+  },
+  "contact": {
+    "title": "Request a demo",
+    "subtitle": "Tell us about your site or your plans — we answer personally, usually the same day.",
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "search_country": "Search country…",
+    "message": "What are you planning?",
+    "send": "Send message",
+    "sending": "Sending…",
+    "success": "Thank you! We will get back to you shortly.",
+    "error": "Something went wrong. Please email us directly at",
+    "phone_label": "Phone",
+    "email_label": "Email",
+    "address_label": "Address",
+    "address": [
+      "Action Tag Ltd",
+      "36 Grizedale Road",
+      "Blackpool FY4 4TL",
+      "United Kingdom"
+    ],
+    "whatsapp": "Chat on WhatsApp"
+  },
+  "footer": {
+    "tagline": "Developer and manufacturer of laser tag equipment — UK & EU, since 2004.",
+    "rights": "All rights reserved."
+  }
+}

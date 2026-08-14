@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Razvoj i proizvodnja laser tag opreme | Ujedinjeno Kraljevstvo",
+    "description": "Razvijamo i proizvodimo profesionalnu laser tag opremu u Ujedinjenom Kraljevstvu i EU od 2004. Taggeri, bežični senzori, MilSim KillHouse sustavi i potpuna podrška za iznajmljivačke poslove."
+  },
+  "nav": {
+    "devices": "Oprema",
+    "props": "Ekosustav",
+    "milsim": "MilSim",
+    "business": "Pokrenite posao",
+    "products": "Naši proizvodi",
+    "contact": "Kontakt",
+    "shop": "Trgovina"
+  },
+  "hero": {
+    "kicker": "Razvijamo i proizvodimo od 2004.",
+    "title": "Profesionalna laser tag oprema, građena za najzahtjevniju upotrebu u najmu",
+    "subtitle": "Pouzdan radni alat za operatere — dizajniran od tima koji i sam vodi laser tag arene, a ne samo tvornice.",
+    "cta_devices": "Pogledajte opremu",
+    "cta_contact": "Zatražite demo"
+  },
+  "why": {
+    "title": "Zašto operateri biraju Action Tag",
+    "items": [
+      {
+        "title": "Pioniri industrije",
+        "text": "Prvi na tržištu s bežičnim senzorima za glavu 2006. i laser tag pištoljem 2008. PC sučelje, višebojne timske LED diode — mi smo ih napravili prvi."
+      },
+      {
+        "title": "Proizvedeno u UK i EU",
+        "text": "Naši proizvodni i skladišni kapaciteti nalaze se u Ujedinjenom Kraljevstvu i EU. Kratki rokovi, prava podrška, bez sivog uvoza."
+      },
+      {
+        "title": "Građeno za najam",
+        "text": "Kućišta od ABS-a vojne kvalitete, 36 sati baterije, taggeri pune veličine od jednog kilograma za djecu i odrasle. Oprema koja zarađuje iz dana u dan."
+      },
+      {
+        "title": "Vodimo vas kroz sve",
+        "text": "Potpuni demo, pomoć pri dizajnu arene, scenariji igre, obuka osoblja i podrška nakon toga. Kupite, unajmite ili uzmite leasing — početak je jednostavan."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Naši taggeri",
+    "subtitle": "Kompleti kompatibilni međusobno i sa svom dodatnom opremom koju prodajemo",
+    "shop_cta": "Pogledaj u trgovini",
+    "spec_labels": {
+      "weight": "Težina",
+      "length": "Duljina",
+      "range": "Efektivni domet",
+      "battery": "Trajanje baterije"
+    },
+    "taglines": {
+      "ak15-warrior": "Klasični jurišni tagger AK",
+      "ak25-predator": "Nova generacija AK platforme",
+      "ar15-ranger": "Radni konj AR platforme",
+      "ar-hellfire": "Jurišna puška, serija Hellfire",
+      "mg-hellfire": "Strojnica, serija Hellfire",
+      "sg-hellfire": "Sačmarica, serija Hellfire",
+      "mp9lt-phoenix": "Kompaktna strojnica",
+      "hornet": "Pomoćni pištolj",
+      "sr-hellfire": "Precizna puška, serija Hellfire",
+      "sr21-ghost": "Snajperska puška velikog dometa",
+      "laser-biathlon": "Trenažni komplet za biatlonske klubove i škole"
+    }
+  },
+  "props": {
+    "title": "Potpuni ekosustav igre",
+    "subtitle": "Dodaci koji arenu pretvaraju u scenarije zbog kojih se igrači vraćaju",
+    "more_title": "…i još mnogo toga",
+    "more_cta": "Pogledajte u našoj trgovini"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Jedinstven u svijetu",
+    "text1": "Jedino elektroničko strelište na svijetu koje radi s opremom za paintball, airsoft i laser tag. Inspirirano CQB trenažnim objektima policije i specijalnih postrojbi.",
+    "text2": "Elektroničke mete povezane su sa sustavom bodovanja: eliminirajte ih sve duž staze, zaustavite štopericu, srušite rekord. Jedno strelačko mjesto ili staza s preprekama do 60 metara s 24 mete — natjecateljski, pun adrenalina i beskrajno ponovljiv.",
+    "cta": "Pitajte za KillHouse"
+  },
+  "business": {
+    "title": "Pokrenite svoj laser tag posao",
+    "subtitle": "Treba vam manje kapitala nego što mislite. Postoji nekoliko načina za početak:",
+    "options": [
+      {
+        "title": "Kupite",
+        "text": "Izravno vlasništvo s produljivim jamstvom. Dodajte opremu bilo kada — sve ostaje kompatibilno."
+      },
+      {
+        "title": "Unajmite",
+        "text": "Uvijek najnovija oprema bez vezanja za zastarjelu tehniku. Vratite ili zamijenite kad se potrebe promijene."
+      },
+      {
+        "title": "Leasing",
+        "text": "Rasporedite trošak dok arena već ostvaruje prihod. Mogućnosti nadogradnje drže vas ispred lokalne konkurencije."
+      }
+    ],
+    "footer": "Svaka opcija uključuje potpuni demo, obuku, savjete o dizajnu arene i naše znanje o privlačenju klijenata.",
+    "cta": "Razgovarajmo o vašem početku"
+  },
+  "products": {
+    "title": "Obitelj Action Tag",
+    "subtitle": "Tri linije proizvoda, jedan proizvođač",
+    "shop": {
+      "title": "Trgovina LaserTag",
+      "text": "Kupujte taggere, senzore i dodatke izravno od proizvođača."
+    },
+    "vr": {
+      "text": "Free-roaming VR atrakcije za zabavne centre."
+    },
+    "softplay": {
+      "text": "Digitalna avantura za nove i postojeće dječje igraonice."
+    }
+  },
+  "contact": {
+    "title": "Zatražite demo",
+    "subtitle": "Recite nam nešto o svojoj areni ili planovima — odgovaramo osobno, obično isti dan.",
+    "name": "Vaše ime",
+    "email": "E-mail",
+    "phone": "Telefon (neobavezno)",
+    "search_country": "Pretraži državu…",
+    "message": "Što planirate?",
+    "send": "Pošalji poruku",
+    "sending": "Slanje…",
+    "success": "Hvala! Javit ćemo se uskoro.",
+    "error": "Nešto je pošlo po zlu. Pišite nam izravno na",
+    "phone_label": "Telefon",
+    "email_label": "E-mail",
+    "address_label": "Adresa",
+    "whatsapp": "Razgovor na WhatsAppu"
+  },
+  "footer": {
+    "tagline": "Razvoj i proizvodnja laser tag opreme — UK i EU, od 2004.",
+    "rights": "Sva prava pridržana."
+  }
+}

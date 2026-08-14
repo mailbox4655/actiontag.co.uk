@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Lasertag-varusteiden kehittäjä ja valmistaja | Iso-Britannia",
+    "description": "Olemme kehittäneet ja valmistaneet ammattimaisia lasertag-varusteita Isossa-Britanniassa ja EU:ssa vuodesta 2004. Taggerit, langattomat anturit, MilSim KillHouse -järjestelmät ja täysi tuki vuokrausyrityksille."
+  },
+  "nav": {
+    "devices": "Varusteet",
+    "props": "Ekosysteemi",
+    "milsim": "MilSim",
+    "business": "Perusta yritys",
+    "products": "Tuotteemme",
+    "contact": "Yhteystiedot",
+    "shop": "Kauppa"
+  },
+  "hero": {
+    "kicker": "Kehitystä ja valmistusta vuodesta 2004",
+    "title": "Ammattimaiset lasertag-varusteet, rakennettu kovimpaan vuokrauskäyttöön",
+    "subtitle": "Luotettava työkalu areenojen pitäjille — suunnittelijana tiimi, joka pyörittää itse lasertag-areenoja, ei pelkkä tehdas.",
+    "cta_devices": "Katso varusteet",
+    "cta_contact": "Pyydä esittely"
+  },
+  "why": {
+    "title": "Miksi yrittäjät valitsevat Action Tagin",
+    "items": [
+      {
+        "title": "Alan edelläkävijät",
+        "text": "Ensimmäisenä markkinoilla langattomat pääanturit 2006 ja lasertag-pistooli 2008. PC-käyttöliittymä, moniväriset joukkue-LEDit — me rakensimme ne ensin."
+      },
+      {
+        "title": "Valmistettu UK:ssa ja EU:ssa",
+        "text": "Tuotanto- ja varastotilamme sijaitsevat Isossa-Britanniassa ja EU:ssa. Lyhyet toimitusajat, aitoa tukea, ei harmaatuontia."
+      },
+      {
+        "title": "Rakennettu vuokrauskäyttöön",
+        "text": "Aselaatuiset ABS-rungot, 36 tunnin akunkesto, kilon painoiset täysikokoiset taggerit lapsille ja aikuisille. Varusteet, jotka tuottavat päivästä toiseen."
+      },
+      {
+        "title": "Pidämme sinua kädestä",
+        "text": "Täysi esittely, apua areenan suunnitteluun, peliskenaariot, henkilökunnan koulutus ja tuki jälkikäteen. Osta, vuokraa tai leasaa — aloittaminen on helppoa."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Taggerimme",
+    "subtitle": "Pelisetit, jotka ovat yhteensopivia keskenään ja kaikkien myymiemme lisävarusteiden kanssa",
+    "shop_cta": "Katso kaupassa",
+    "spec_labels": {
+      "weight": "Paino",
+      "length": "Pituus",
+      "range": "Tehokas kantama",
+      "battery": "Akunkesto"
+    },
+    "taglines": {
+      "ak15-warrior": "Klassinen AK-rynnäkkötagger",
+      "ak25-predator": "AK-alustan uusi sukupolvi",
+      "ar15-ranger": "AR-alustan työjuhta",
+      "ar-hellfire": "Rynnäkkökivääri, Hellfire-sarja",
+      "mg-hellfire": "Konekivääri, Hellfire-sarja",
+      "sg-hellfire": "Haulikko, Hellfire-sarja",
+      "mp9lt-phoenix": "Kompakti konepistooli",
+      "hornet": "Sivuaseeksi sopiva pistooli",
+      "sr-hellfire": "Tarkkuuskivääri, Hellfire-sarja",
+      "sr21-ghost": "Pitkän kantaman tarkkuuskivääri",
+      "laser-biathlon": "Harjoitussetti ampumahiihtoseuroille ja kouluille"
+    }
+  },
+  "props": {
+    "title": "Täydellinen peliekosysteemi",
+    "subtitle": "Lisävarusteet, jotka muuttavat areenan skenaarioiksi, joiden takia pelaajat palaavat",
+    "more_title": "…ja paljon muuta",
+    "more_cta": "Tutustu kaupassamme"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Ainutlaatuinen maailmassa",
+    "text1": "Maailman ainoa elektroninen ampumarata, joka toimii paintball-, airsoft- ja lasertag-varusteilla. Innoituksena poliisin ja erikoisjoukkojen CQB-harjoitustilat.",
+    "text2": "Elektroniset maalit on kytketty pistejärjestelmään: tuhoa kaikki radan varrella, pysäytä kello, riko ennätys. Yksi ampumapaikka tai jopa 60 metrin esterata 24 maalilla — kilpailullinen, adrenaliinintäyteinen ja loputtomasti uudelleenpelattava.",
+    "cta": "Kysy KillHousesta"
+  },
+  "business": {
+    "title": "Perusta oma lasertag-yritys",
+    "subtitle": "Tarvitset vähemmän pääomaa kuin luulet. Aloittamiseen on useita polkuja:",
+    "options": [
+      {
+        "title": "Osta",
+        "text": "Suora omistus jatkettavalla takuulla. Lisää varusteita milloin tahansa — kaikki pysyy yhteensopivana."
+      },
+      {
+        "title": "Vuokraa",
+        "text": "Aina uusimmat varusteet ilman sitoutumista vanhenevaan kalustoon. Palauta tai vaihda, kun tarpeesi muuttuvat."
+      },
+      {
+        "title": "Leasing",
+        "text": "Jaa kustannukset samalla kun areenasi jo tuottaa. Päivityspolut pitävät sinut paikallisen kilpailun edellä."
+      }
+    ],
+    "footer": "Jokaiseen vaihtoehtoon kuuluu täysi esittely, koulutus, areenasuunnittelun neuvonta ja osaamisemme asiakkaiden houkuttelussa.",
+    "cta": "Jutellaan aloituksestasi"
+  },
+  "products": {
+    "title": "Action Tag -perhe",
+    "subtitle": "Kolme tuotelinjaa, yksi valmistaja",
+    "shop": {
+      "title": "LaserTag-kauppa",
+      "text": "Osta taggerit, anturit ja lisävarusteet suoraan valmistajalta."
+    },
+    "vr": {
+      "text": "Vapaasti liikuttavat VR-elämykset viihdekeskuksiin."
+    },
+    "softplay": {
+      "text": "Digitaalinen seikkailu uusiin ja olemassa oleviin sisäleikkipaikkoihin."
+    }
+  },
+  "contact": {
+    "title": "Pyydä esittely",
+    "subtitle": "Kerro areenastasi tai suunnitelmistasi — vastaamme henkilökohtaisesti, yleensä samana päivänä.",
+    "name": "Nimesi",
+    "email": "Sähköposti",
+    "phone": "Puhelin (valinnainen)",
+    "search_country": "Hae maata…",
+    "message": "Mitä suunnittelet?",
+    "send": "Lähetä viesti",
+    "sending": "Lähetetään…",
+    "success": "Kiitos! Palaamme asiaan pian.",
+    "error": "Jokin meni pieleen. Kirjoita meille suoraan osoitteeseen",
+    "phone_label": "Puhelin",
+    "email_label": "Sähköposti",
+    "address_label": "Osoite",
+    "whatsapp": "Keskustele WhatsAppissa"
+  },
+  "footer": {
+    "tagline": "Lasertag-varusteiden kehittäjä ja valmistaja — UK ja EU, vuodesta 2004.",
+    "rights": "Kaikki oikeudet pidätetään."
+  }
+}

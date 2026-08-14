@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "actiontag-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "C:/WebDesign/ACTIONTAG.CO.UK/site"],
+      "port": 4321
+    }
+  ]
+}

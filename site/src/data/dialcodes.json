@@ -1,0 +1,1242 @@
+[
+{
+"cc": "AF",
+"name": "Afghanistan",
+"dial": "+93"
+},
+{
+"cc": "AL",
+"name": "Albania",
+"dial": "+355"
+},
+{
+"cc": "DZ",
+"name": "Algeria",
+"dial": "+213"
+},
+{
+"cc": "AS",
+"name": "American Samoa",
+"dial": "+1684"
+},
+{
+"cc": "AD",
+"name": "Andorra",
+"dial": "+376"
+},
+{
+"cc": "AO",
+"name": "Angola",
+"dial": "+244"
+},
+{
+"cc": "AI",
+"name": "Anguilla",
+"dial": "+1264"
+},
+{
+"cc": "AG",
+"name": "Antigua and Barbuda",
+"dial": "+1268"
+},
+{
+"cc": "AR",
+"name": "Argentina",
+"dial": "+54"
+},
+{
+"cc": "AM",
+"name": "Armenia",
+"dial": "+374"
+},
+{
+"cc": "AW",
+"name": "Aruba",
+"dial": "+297"
+},
+{
+"cc": "AU",
+"name": "Australia",
+"dial": "+61"
+},
+{
+"cc": "AT",
+"name": "Austria",
+"dial": "+43"
+},
+{
+"cc": "AZ",
+"name": "Azerbaijan",
+"dial": "+994"
+},
+{
+"cc": "BS",
+"name": "Bahamas",
+"dial": "+1242"
+},
+{
+"cc": "BH",
+"name": "Bahrain",
+"dial": "+973"
+},
+{
+"cc": "BD",
+"name": "Bangladesh",
+"dial": "+880"
+},
+{
+"cc": "BB",
+"name": "Barbados",
+"dial": "+1246"
+},
+{
+"cc": "BY",
+"name": "Belarus",
+"dial": "+375"
+},
+{
+"cc": "BE",
+"name": "Belgium",
+"dial": "+32"
+},
+{
+"cc": "BZ",
+"name": "Belize",
+"dial": "+501"
+},
+{
+"cc": "BJ",
+"name": "Benin",
+"dial": "+229"
+},
+{
+"cc": "BM",
+"name": "Bermuda",
+"dial": "+1441"
+},
+{
+"cc": "BT",
+"name": "Bhutan",
+"dial": "+975"
+},
+{
+"cc": "BO",
+"name": "Bolivia",
+"dial": "+591"
+},
+{
+"cc": "BA",
+"name": "Bosnia and Herzegovina",
+"dial": "+387"
+},
+{
+"cc": "BW",
+"name": "Botswana",
+"dial": "+267"
+},
+{
+"cc": "BV",
+"name": "Bouvet Island",
+"dial": "+47"
+},
+{
+"cc": "BR",
+"name": "Brazil",
+"dial": "+55"
+},
+{
+"cc": "IO",
+"name": "British Indian Ocean Territory",
+"dial": "+246"
+},
+{
+"cc": "VG",
+"name": "British Virgin Islands",
+"dial": "+1284"
+},
+{
+"cc": "BN",
+"name": "Brunei",
+"dial": "+673"
+},
+{
+"cc": "BG",
+"name": "Bulgaria",
+"dial": "+359"
+},
+{
+"cc": "BF",
+"name": "Burkina Faso",
+"dial": "+226"
+},
+{
+"cc": "BI",
+"name": "Burundi",
+"dial": "+257"
+},
+{
+"cc": "KH",
+"name": "Cambodia",
+"dial": "+855"
+},
+{
+"cc": "CM",
+"name": "Cameroon",
+"dial": "+237"
+},
+{
+"cc": "CA",
+"name": "Canada",
+"dial": "+1"
+},
+{
+"cc": "CV",
+"name": "Cape Verde",
+"dial": "+238"
+},
+{
+"cc": "BQ",
+"name": "Caribbean Netherlands",
+"dial": "+599"
+},
+{
+"cc": "KY",
+"name": "Cayman Islands",
+"dial": "+1345"
+},
+{
+"cc": "CF",
+"name": "Central African Republic",
+"dial": "+236"
+},
+{
+"cc": "TD",
+"name": "Chad",
+"dial": "+235"
+},
+{
+"cc": "CL",
+"name": "Chile",
+"dial": "+56"
+},
+{
+"cc": "CN",
+"name": "China",
+"dial": "+86"
+},
+{
+"cc": "CX",
+"name": "Christmas Island",
+"dial": "+61"
+},
+{
+"cc": "CC",
+"name": "Cocos (Keeling) Islands",
+"dial": "+61"
+},
+{
+"cc": "CO",
+"name": "Colombia",
+"dial": "+57"
+},
+{
+"cc": "KM",
+"name": "Comoros",
+"dial": "+269"
+},
+{
+"cc": "CG",
+"name": "Congo",
+"dial": "+242"
+},
+{
+"cc": "CK",
+"name": "Cook Islands",
+"dial": "+682"
+},
+{
+"cc": "CR",
+"name": "Costa Rica",
+"dial": "+506"
+},
+{
+"cc": "HR",
+"name": "Croatia",
+"dial": "+385"
+},
+{
+"cc": "CU",
+"name": "Cuba",
+"dial": "+53"
+},
+{
+"cc": "CW",
+"name": "Curaçao",
+"dial": "+599"
+},
+{
+"cc": "CY",
+"name": "Cyprus",
+"dial": "+357"
+},
+{
+"cc": "CZ",
+"name": "Czechia",
+"dial": "+420"
+},
+{
+"cc": "CD",
+"name": "DR Congo",
+"dial": "+243"
+},
+{
+"cc": "DK",
+"name": "Denmark",
+"dial": "+45"
+},
+{
+"cc": "DJ",
+"name": "Djibouti",
+"dial": "+253"
+},
+{
+"cc": "DM",
+"name": "Dominica",
+"dial": "+1767"
+},
+{
+"cc": "DO",
+"name": "Dominican Republic",
+"dial": "+1"
+},
+{
+"cc": "EC",
+"name": "Ecuador",
+"dial": "+593"
+},
+{
+"cc": "EG",
+"name": "Egypt",
+"dial": "+20"
+},
+{
+"cc": "SV",
+"name": "El Salvador",
+"dial": "+503"
+},
+{
+"cc": "GQ",
+"name": "Equatorial Guinea",
+"dial": "+240"
+},
+{
+"cc": "ER",
+"name": "Eritrea",
+"dial": "+291"
+},
+{
+"cc": "EE",
+"name": "Estonia",
+"dial": "+372"
+},
+{
+"cc": "SZ",
+"name": "Eswatini",
+"dial": "+268"
+},
+{
+"cc": "ET",
+"name": "Ethiopia",
+"dial": "+251"
+},
+{
+"cc": "FK",
+"name": "Falkland Islands",
+"dial": "+500"
+},
+{
+"cc": "FO",
+"name": "Faroe Islands",
+"dial": "+298"
+},
+{
+"cc": "FJ",
+"name": "Fiji",
+"dial": "+679"
+},
+{
+"cc": "FI",
+"name": "Finland",
+"dial": "+358"
+},
+{
+"cc": "FR",
+"name": "France",
+"dial": "+33"
+},
+{
+"cc": "GF",
+"name": "French Guiana",
+"dial": "+594"
+},
+{
+"cc": "PF",
+"name": "French Polynesia",
+"dial": "+689"
+},
+{
+"cc": "TF",
+"name": "French Southern and Antarctic Lands",
+"dial": "+262"
+},
+{
+"cc": "GA",
+"name": "Gabon",
+"dial": "+241"
+},
+{
+"cc": "GM",
+"name": "Gambia",
+"dial": "+220"
+},
+{
+"cc": "GE",
+"name": "Georgia",
+"dial": "+995"
+},
+{
+"cc": "DE",
+"name": "Germany",
+"dial": "+49"
+},
+{
+"cc": "GH",
+"name": "Ghana",
+"dial": "+233"
+},
+{
+"cc": "GI",
+"name": "Gibraltar",
+"dial": "+350"
+},
+{
+"cc": "GR",
+"name": "Greece",
+"dial": "+30"
+},
+{
+"cc": "GL",
+"name": "Greenland",
+"dial": "+299"
+},
+{
+"cc": "GD",
+"name": "Grenada",
+"dial": "+1473"
+},
+{
+"cc": "GP",
+"name": "Guadeloupe",
+"dial": "+590"
+},
+{
+"cc": "GU",
+"name": "Guam",
+"dial": "+1671"
+},
+{
+"cc": "GT",
+"name": "Guatemala",
+"dial": "+502"
+},
+{
+"cc": "GG",
+"name": "Guernsey",
+"dial": "+44"
+},
+{
+"cc": "GN",
+"name": "Guinea",
+"dial": "+224"
+},
+{
+"cc": "GW",
+"name": "Guinea-Bissau",
+"dial": "+245"
+},
+{
+"cc": "GY",
+"name": "Guyana",
+"dial": "+592"
+},
+{
+"cc": "HT",
+"name": "Haiti",
+"dial": "+509"
+},
+{
+"cc": "HN",
+"name": "Honduras",
+"dial": "+504"
+},
+{
+"cc": "HK",
+"name": "Hong Kong",
+"dial": "+852"
+},
+{
+"cc": "HU",
+"name": "Hungary",
+"dial": "+36"
+},
+{
+"cc": "IS",
+"name": "Iceland",
+"dial": "+354"
+},
+{
+"cc": "IN",
+"name": "India",
+"dial": "+91"
+},
+{
+"cc": "ID",
+"name": "Indonesia",
+"dial": "+62"
+},
+{
+"cc": "IR",
+"name": "Iran",
+"dial": "+98"
+},
+{
+"cc": "IQ",
+"name": "Iraq",
+"dial": "+964"
+},
+{
+"cc": "IE",
+"name": "Ireland",
+"dial": "+353"
+},
+{
+"cc": "IM",
+"name": "Isle of Man",
+"dial": "+44"
+},
+{
+"cc": "IL",
+"name": "Israel",
+"dial": "+972"
+},
+{
+"cc": "IT",
+"name": "Italy",
+"dial": "+39"
+},
+{
+"cc": "CI",
+"name": "Ivory Coast",
+"dial": "+225"
+},
+{
+"cc": "JM",
+"name": "Jamaica",
+"dial": "+1876"
+},
+{
+"cc": "JP",
+"name": "Japan",
+"dial": "+81"
+},
+{
+"cc": "JE",
+"name": "Jersey",
+"dial": "+44"
+},
+{
+"cc": "JO",
+"name": "Jordan",
+"dial": "+962"
+},
+{
+"cc": "KZ",
+"name": "Kazakhstan",
+"dial": "+7"
+},
+{
+"cc": "KE",
+"name": "Kenya",
+"dial": "+254"
+},
+{
+"cc": "KI",
+"name": "Kiribati",
+"dial": "+686"
+},
+{
+"cc": "XK",
+"name": "Kosovo",
+"dial": "+383"
+},
+{
+"cc": "KW",
+"name": "Kuwait",
+"dial": "+965"
+},
+{
+"cc": "KG",
+"name": "Kyrgyzstan",
+"dial": "+996"
+},
+{
+"cc": "LA",
+"name": "Laos",
+"dial": "+856"
+},
+{
+"cc": "LV",
+"name": "Latvia",
+"dial": "+371"
+},
+{
+"cc": "LB",
+"name": "Lebanon",
+"dial": "+961"
+},
+{
+"cc": "LS",
+"name": "Lesotho",
+"dial": "+266"
+},
+{
+"cc": "LR",
+"name": "Liberia",
+"dial": "+231"
+},
+{
+"cc": "LY",
+"name": "Libya",
+"dial": "+218"
+},
+{
+"cc": "LI",
+"name": "Liechtenstein",
+"dial": "+423"
+},
+{
+"cc": "LT",
+"name": "Lithuania",
+"dial": "+370"
+},
+{
+"cc": "LU",
+"name": "Luxembourg",
+"dial": "+352"
+},
+{
+"cc": "MO",
+"name": "Macau",
+"dial": "+853"
+},
+{
+"cc": "MG",
+"name": "Madagascar",
+"dial": "+261"
+},
+{
+"cc": "MW",
+"name": "Malawi",
+"dial": "+265"
+},
+{
+"cc": "MY",
+"name": "Malaysia",
+"dial": "+60"
+},
+{
+"cc": "MV",
+"name": "Maldives",
+"dial": "+960"
+},
+{
+"cc": "ML",
+"name": "Mali",
+"dial": "+223"
+},
+{
+"cc": "MT",
+"name": "Malta",
+"dial": "+356"
+},
+{
+"cc": "MH",
+"name": "Marshall Islands",
+"dial": "+692"
+},
+{
+"cc": "MQ",
+"name": "Martinique",
+"dial": "+596"
+},
+{
+"cc": "MR",
+"name": "Mauritania",
+"dial": "+222"
+},
+{
+"cc": "MU",
+"name": "Mauritius",
+"dial": "+230"
+},
+{
+"cc": "YT",
+"name": "Mayotte",
+"dial": "+262"
+},
+{
+"cc": "MX",
+"name": "Mexico",
+"dial": "+52"
+},
+{
+"cc": "FM",
+"name": "Micronesia",
+"dial": "+691"
+},
+{
+"cc": "MD",
+"name": "Moldova",
+"dial": "+373"
+},
+{
+"cc": "MC",
+"name": "Monaco",
+"dial": "+377"
+},
+{
+"cc": "MN",
+"name": "Mongolia",
+"dial": "+976"
+},
+{
+"cc": "ME",
+"name": "Montenegro",
+"dial": "+382"
+},
+{
+"cc": "MS",
+"name": "Montserrat",
+"dial": "+1664"
+},
+{
+"cc": "MA",
+"name": "Morocco",
+"dial": "+212"
+},
+{
+"cc": "MZ",
+"name": "Mozambique",
+"dial": "+258"
+},
+{
+"cc": "MM",
+"name": "Myanmar",
+"dial": "+95"
+},
+{
+"cc": "NA",
+"name": "Namibia",
+"dial": "+264"
+},
+{
+"cc": "NR",
+"name": "Nauru",
+"dial": "+674"
+},
+{
+"cc": "NP",
+"name": "Nepal",
+"dial": "+977"
+},
+{
+"cc": "NL",
+"name": "Netherlands",
+"dial": "+31"
+},
+{
+"cc": "NC",
+"name": "New Caledonia",
+"dial": "+687"
+},
+{
+"cc": "NZ",
+"name": "New Zealand",
+"dial": "+64"
+},
+{
+"cc": "NI",
+"name": "Nicaragua",
+"dial": "+505"
+},
+{
+"cc": "NE",
+"name": "Niger",
+"dial": "+227"
+},
+{
+"cc": "NG",
+"name": "Nigeria",
+"dial": "+234"
+},
+{
+"cc": "NU",
+"name": "Niue",
+"dial": "+683"
+},
+{
+"cc": "NF",
+"name": "Norfolk Island",
+"dial": "+672"
+},
+{
+"cc": "KP",
+"name": "North Korea",
+"dial": "+850"
+},
+{
+"cc": "MK",
+"name": "North Macedonia",
+"dial": "+389"
+},
+{
+"cc": "MP",
+"name": "Northern Mariana Islands",
+"dial": "+1670"
+},
+{
+"cc": "NO",
+"name": "Norway",
+"dial": "+47"
+},
+{
+"cc": "OM",
+"name": "Oman",
+"dial": "+968"
+},
+{
+"cc": "PK",
+"name": "Pakistan",
+"dial": "+92"
+},
+{
+"cc": "PW",
+"name": "Palau",
+"dial": "+680"
+},
+{
+"cc": "PS",
+"name": "Palestine",
+"dial": "+970"
+},
+{
+"cc": "PA",
+"name": "Panama",
+"dial": "+507"
+},
+{
+"cc": "PG",
+"name": "Papua New Guinea",
+"dial": "+675"
+},
+{
+"cc": "PY",
+"name": "Paraguay",
+"dial": "+595"
+},
+{
+"cc": "PE",
+"name": "Peru",
+"dial": "+51"
+},
+{
+"cc": "PH",
+"name": "Philippines",
+"dial": "+63"
+},
+{
+"cc": "PN",
+"name": "Pitcairn Islands",
+"dial": "+64"
+},
+{
+"cc": "PL",
+"name": "Poland",
+"dial": "+48"
+},
+{
+"cc": "PT",
+"name": "Portugal",
+"dial": "+351"
+},
+{
+"cc": "PR",
+"name": "Puerto Rico",
+"dial": "+1"
+},
+{
+"cc": "QA",
+"name": "Qatar",
+"dial": "+974"
+},
+{
+"cc": "RO",
+"name": "Romania",
+"dial": "+40"
+},
+{
+"cc": "RU",
+"name": "Russia",
+"dial": "+7"
+},
+{
+"cc": "RW",
+"name": "Rwanda",
+"dial": "+250"
+},
+{
+"cc": "RE",
+"name": "Réunion",
+"dial": "+262"
+},
+{
+"cc": "BL",
+"name": "Saint Barthélemy",
+"dial": "+590"
+},
+{
+"cc": "SH",
+"name": "Saint Helena, Ascension and Tristan da Cunha",
+"dial": "+2"
+},
+{
+"cc": "KN",
+"name": "Saint Kitts and Nevis",
+"dial": "+1869"
+},
+{
+"cc": "LC",
+"name": "Saint Lucia",
+"dial": "+1758"
+},
+{
+"cc": "MF",
+"name": "Saint Martin",
+"dial": "+590"
+},
+{
+"cc": "PM",
+"name": "Saint Pierre and Miquelon",
+"dial": "+508"
+},
+{
+"cc": "VC",
+"name": "Saint Vincent and the Grenadines",
+"dial": "+1784"
+},
+{
+"cc": "WS",
+"name": "Samoa",
+"dial": "+685"
+},
+{
+"cc": "SM",
+"name": "San Marino",
+"dial": "+378"
+},
+{
+"cc": "SA",
+"name": "Saudi Arabia",
+"dial": "+966"
+},
+{
+"cc": "SN",
+"name": "Senegal",
+"dial": "+221"
+},
+{
+"cc": "RS",
+"name": "Serbia",
+"dial": "+381"
+},
+{
+"cc": "SC",
+"name": "Seychelles",
+"dial": "+248"
+},
+{
+"cc": "SL",
+"name": "Sierra Leone",
+"dial": "+232"
+},
+{
+"cc": "SG",
+"name": "Singapore",
+"dial": "+65"
+},
+{
+"cc": "SX",
+"name": "Sint Maarten",
+"dial": "+1721"
+},
+{
+"cc": "SK",
+"name": "Slovakia",
+"dial": "+421"
+},
+{
+"cc": "SI",
+"name": "Slovenia",
+"dial": "+386"
+},
+{
+"cc": "SB",
+"name": "Solomon Islands",
+"dial": "+677"
+},
+{
+"cc": "SO",
+"name": "Somalia",
+"dial": "+252"
+},
+{
+"cc": "ZA",
+"name": "South Africa",
+"dial": "+27"
+},
+{
+"cc": "GS",
+"name": "South Georgia",
+"dial": "+500"
+},
+{
+"cc": "KR",
+"name": "South Korea",
+"dial": "+82"
+},
+{
+"cc": "SS",
+"name": "South Sudan",
+"dial": "+211"
+},
+{
+"cc": "ES",
+"name": "Spain",
+"dial": "+34"
+},
+{
+"cc": "LK",
+"name": "Sri Lanka",
+"dial": "+94"
+},
+{
+"cc": "SD",
+"name": "Sudan",
+"dial": "+249"
+},
+{
+"cc": "SR",
+"name": "Suriname",
+"dial": "+597"
+},
+{
+"cc": "SJ",
+"name": "Svalbard and Jan Mayen",
+"dial": "+4779"
+},
+{
+"cc": "SE",
+"name": "Sweden",
+"dial": "+46"
+},
+{
+"cc": "CH",
+"name": "Switzerland",
+"dial": "+41"
+},
+{
+"cc": "SY",
+"name": "Syria",
+"dial": "+963"
+},
+{
+"cc": "ST",
+"name": "São Tomé and Príncipe",
+"dial": "+239"
+},
+{
+"cc": "TW",
+"name": "Taiwan",
+"dial": "+886"
+},
+{
+"cc": "TJ",
+"name": "Tajikistan",
+"dial": "+992"
+},
+{
+"cc": "TZ",
+"name": "Tanzania",
+"dial": "+255"
+},
+{
+"cc": "TH",
+"name": "Thailand",
+"dial": "+66"
+},
+{
+"cc": "TL",
+"name": "Timor-Leste",
+"dial": "+670"
+},
+{
+"cc": "TG",
+"name": "Togo",
+"dial": "+228"
+},
+{
+"cc": "TK",
+"name": "Tokelau",
+"dial": "+690"
+},
+{
+"cc": "TO",
+"name": "Tonga",
+"dial": "+676"
+},
+{
+"cc": "TT",
+"name": "Trinidad and Tobago",
+"dial": "+1868"
+},
+{
+"cc": "TN",
+"name": "Tunisia",
+"dial": "+216"
+},
+{
+"cc": "TM",
+"name": "Turkmenistan",
+"dial": "+993"
+},
+{
+"cc": "TC",
+"name": "Turks and Caicos Islands",
+"dial": "+1649"
+},
+{
+"cc": "TV",
+"name": "Tuvalu",
+"dial": "+688"
+},
+{
+"cc": "TR",
+"name": "Türkiye",
+"dial": "+90"
+},
+{
+"cc": "UG",
+"name": "Uganda",
+"dial": "+256"
+},
+{
+"cc": "UA",
+"name": "Ukraine",
+"dial": "+380"
+},
+{
+"cc": "AE",
+"name": "United Arab Emirates",
+"dial": "+971"
+},
+{
+"cc": "GB",
+"name": "United Kingdom",
+"dial": "+44"
+},
+{
+"cc": "US",
+"name": "United States",
+"dial": "+1"
+},
+{
+"cc": "UM",
+"name": "United States Minor Outlying Islands",
+"dial": "+268"
+},
+{
+"cc": "VI",
+"name": "United States Virgin Islands",
+"dial": "+1340"
+},
+{
+"cc": "UY",
+"name": "Uruguay",
+"dial": "+598"
+},
+{
+"cc": "UZ",
+"name": "Uzbekistan",
+"dial": "+998"
+},
+{
+"cc": "VU",
+"name": "Vanuatu",
+"dial": "+678"
+},
+{
+"cc": "VA",
+"name": "Vatican City",
+"dial": "+3"
+},
+{
+"cc": "VE",
+"name": "Venezuela",
+"dial": "+58"
+},
+{
+"cc": "VN",
+"name": "Vietnam",
+"dial": "+84"
+},
+{
+"cc": "WF",
+"name": "Wallis and Futuna",
+"dial": "+681"
+},
+{
+"cc": "EH",
+"name": "Western Sahara",
+"dial": "+2"
+},
+{
+"cc": "YE",
+"name": "Yemen",
+"dial": "+967"
+},
+{
+"cc": "ZM",
+"name": "Zambia",
+"dial": "+260"
+},
+{
+"cc": "ZW",
+"name": "Zimbabwe",
+"dial": "+263"
+},
+{
+"cc": "AX",
+"name": "Åland Islands",
+"dial": "+35818"
+}
+]

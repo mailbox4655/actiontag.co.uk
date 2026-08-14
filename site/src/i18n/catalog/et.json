@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Lasertag-varustuse arendaja ja tootja | Ühendkuningriik",
+    "description": "Arendame ja toodame professionaalset lasertag-varustust Ühendkuningriigis ja EL-is alates 2004. aastast. Taggerid, juhtmevabad andurid, MilSim KillHouse süsteemid ja täielik tugi rendiärile."
+  },
+  "nav": {
+    "devices": "Varustus",
+    "props": "Ökosüsteem",
+    "milsim": "MilSim",
+    "business": "Alusta äri",
+    "products": "Meie tooted",
+    "contact": "Kontakt",
+    "shop": "Pood"
+  },
+  "hero": {
+    "kicker": "Arendame ja toodame alates 2004. aastast",
+    "title": "Professionaalne lasertag-varustus, ehitatud kõige karmimaks rendikasutuseks",
+    "subtitle": "Töökindel tööriist operaatoritele — loodud meeskonna poolt, kes ise haldab lasertag-areene, mitte pelgalt tehase poolt.",
+    "cta_devices": "Vaata varustust",
+    "cta_contact": "Küsi demo"
+  },
+  "why": {
+    "title": "Miks operaatorid valivad Action Tagi",
+    "items": [
+      {
+        "title": "Valdkonna pioneerid",
+        "text": "Esimesena turul juhtmevabade peaanduritega 2006. aastal ja lasertag-püstoliga 2008. aastal. PC-liides, mitmevärvilised tiimi LED-id — meie ehitasime need esimesena."
+      },
+      {
+        "title": "Toodetud UK-s ja EL-is",
+        "text": "Meie tootmis- ja laohooned asuvad Ühendkuningriigis ja EL-is. Lühikesed tarneajad, päris tugi, mitte mingit halli importi."
+      },
+      {
+        "title": "Ehitatud rentimiseks",
+        "text": "Relvakvaliteediga ABS-korpused, 36-tunnine aku, kilogrammised täissuuruses taggerid lastele ja täiskasvanutele. Varustus, mis teenib päevast päeva."
+      },
+      {
+        "title": "Hoiame teil käest kinni",
+        "text": "Täielik demo, abi areeni kujundamisel, mängustsenaariumid, personali koolitus ja hilisem tugi. Osta, rendi või liisi — alustamine on lihtne."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Meie taggerid",
+    "subtitle": "Mängukomplektid, mis ühilduvad omavahel ja kõigi meie müüdavate tarvikutega",
+    "shop_cta": "Vaata poes",
+    "spec_labels": {
+      "weight": "Kaal",
+      "length": "Pikkus",
+      "range": "Efektiivne laskeulatus",
+      "battery": "Aku kestvus"
+    },
+    "taglines": {
+      "ak15-warrior": "Klassikaline AK rünnakutagger",
+      "ak25-predator": "AK platvormi uus põlvkond",
+      "ar15-ranger": "AR platvormi tööhobune",
+      "ar-hellfire": "Ründerelv, Hellfire'i seeria",
+      "mg-hellfire": "Kuulipilduja, Hellfire'i seeria",
+      "sg-hellfire": "Haavlipüss, Hellfire'i seeria",
+      "mp9lt-phoenix": "Kompaktne püstolkuulipilduja",
+      "hornet": "Lisapüstol",
+      "sr-hellfire": "Täpsuspüss, Hellfire'i seeria",
+      "sr21-ghost": "Kaugmaa snaipripüss",
+      "laser-biathlon": "Treeningkomplekt laskesuusatamise klubidele ja koolidele"
+    }
+  },
+  "props": {
+    "title": "Terviklik mängu ökosüsteem",
+    "subtitle": "Tarvikud, mis muudavad areeni stsenaariumideks, kuhu mängijad tagasi tulevad",
+    "more_title": "…ja palju muud",
+    "more_cta": "Vaata meie poes"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Ainulaadne maailmas",
+    "text1": "Maailma ainus elektrooniline lasketiir, mis töötab paintballi, airsofti ja lasertagi varustusega. Inspireeritud politsei ja eriüksuste CQB treeningrajatistest.",
+    "text2": "Elektroonilised märklauad on ühendatud punktisüsteemiga: kõrvalda kõik rajal, peata taimer, löö rekord. Üks laskepositsioon või kuni 60-meetrine takistusrada 24 märklauaga — võistluslik, adrenaliinirohke ja lõputult korratav.",
+    "cta": "Küsi KillHouse'i kohta"
+  },
+  "business": {
+    "title": "Alusta oma lasertag-äri",
+    "subtitle": "Kapitali on vaja vähem, kui arvad. Alustamiseks on mitu võimalust:",
+    "options": [
+      {
+        "title": "Osta",
+        "text": "Otsene omand pikendatava garantiiga. Lisa varustust igal ajal — kõik jääb ühilduvaks."
+      },
+      {
+        "title": "Rendi",
+        "text": "Alati uusim varustus, ilma et jääksid vananeva tehnika külge kinni. Tagasta või vaheta, kui vajadused muutuvad."
+      },
+      {
+        "title": "Liising",
+        "text": "Jaota kulud, samal ajal kui areen juba teenib. Uuendusvõimalused hoiavad sind kohalikust konkurentsist ees."
+      }
+    ],
+    "footer": "Iga variant sisaldab täielikku demot, koolitust, areeni kujundamise nõustamist ja meie oskusteavet klientide leidmisel.",
+    "cta": "Räägime sinu stardist"
+  },
+  "products": {
+    "title": "Action Tagi perekond",
+    "subtitle": "Kolm tootesarja, üks tootja",
+    "shop": {
+      "title": "LaserTagi pood",
+      "text": "Osta taggerid, andurid ja tarvikud otse tootjalt."
+    },
+    "vr": {
+      "text": "Vabalt liikuvad VR-atraktsioonid meelelahutuskeskustele."
+    },
+    "softplay": {
+      "text": "Digitaalne seiklus uutele ja olemasolevatele mängutubadele."
+    }
+  },
+  "contact": {
+    "title": "Küsi demo",
+    "subtitle": "Räägi meile oma areenist või plaanidest — vastame isiklikult, tavaliselt samal päeval.",
+    "name": "Sinu nimi",
+    "email": "E-post",
+    "phone": "Telefon (valikuline)",
+    "search_country": "Otsi riiki…",
+    "message": "Mida plaanid?",
+    "send": "Saada sõnum",
+    "sending": "Saatmine…",
+    "success": "Aitäh! Võtame peagi ühendust.",
+    "error": "Midagi läks valesti. Kirjuta meile otse",
+    "phone_label": "Telefon",
+    "email_label": "E-post",
+    "address_label": "Aadress",
+    "whatsapp": "Vestle WhatsAppis"
+  },
+  "footer": {
+    "tagline": "Lasertag-varustuse arendaja ja tootja — UK ja EL, alates 2004.",
+    "rights": "Kõik õigused kaitstud."
+  }
+}

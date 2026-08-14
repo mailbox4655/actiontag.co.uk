@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Progettazione e produzione di attrezzature laser tag | Regno Unito",
+    "description": "Progettiamo e produciamo attrezzature professionali per il laser tag nel Regno Unito e nell'UE dal 2004. Tagger, sensori wireless, sistemi MilSim KillHouse e supporto completo per le attività di noleggio."
+  },
+  "nav": {
+    "devices": "Attrezzature",
+    "props": "Ecosistema",
+    "milsim": "MilSim",
+    "business": "Avvia un'attività",
+    "products": "I nostri prodotti",
+    "contact": "Contatti",
+    "shop": "Shop"
+  },
+  "hero": {
+    "kicker": "Progettiamo e produciamo dal 2004",
+    "title": "Attrezzature professionali per il laser tag, costruite per l'uso a noleggio più intenso",
+    "subtitle": "Uno strumento di lavoro affidabile per i gestori — progettato da un team che gestisce i propri campi di laser tag, non solo una fabbrica.",
+    "cta_devices": "Scopri le attrezzature",
+    "cta_contact": "Richiedi una demo"
+  },
+  "why": {
+    "title": "Perché i gestori scelgono Action Tag",
+    "items": [
+      {
+        "title": "Pionieri del settore",
+        "text": "Primi sul mercato con i sensori wireless per la testa nel 2006 e la pistola laser tag nel 2008. Interfaccia PC, LED multicolore per le squadre — li abbiamo creati noi per primi."
+      },
+      {
+        "title": "Prodotto in UK e UE",
+        "text": "I nostri stabilimenti di produzione e magazzino si trovano nel Regno Unito e nell'UE. Tempi rapidi, supporto vero, niente importazioni parallele."
+      },
+      {
+        "title": "Nato per il noleggio",
+        "text": "Corpi in ABS di grado militare, 36 ore di batteria, tagger a grandezza naturale da un chilo adatti a bambini e adulti. Attrezzatura che rende, giorno dopo giorno."
+      },
+      {
+        "title": "Ti seguiamo passo passo",
+        "text": "Demo completa, aiuto nella progettazione del campo, scenari di gioco, formazione dello staff e assistenza successiva. Acquisto, noleggio o leasing — iniziare è facile."
+      }
+    ]
+  },
+  "devices": {
+    "title": "I nostri tagger",
+    "subtitle": "Set di gioco compatibili tra loro e con tutti gli accessori che vendiamo",
+    "shop_cta": "Vedi nello shop",
+    "spec_labels": {
+      "weight": "Peso",
+      "length": "Lunghezza",
+      "range": "Portata effettiva",
+      "battery": "Autonomia"
+    },
+    "taglines": {
+      "ak15-warrior": "Il classico tagger d'assalto AK",
+      "ak25-predator": "La nuova generazione della piattaforma AK",
+      "ar15-ranger": "Il cavallo di battaglia della piattaforma AR",
+      "ar-hellfire": "Fucile d'assalto, serie Hellfire",
+      "mg-hellfire": "Mitragliatrice, serie Hellfire",
+      "sg-hellfire": "Fucile a pompa, serie Hellfire",
+      "mp9lt-phoenix": "Mitraglietta compatta",
+      "hornet": "Pistola di supporto",
+      "sr-hellfire": "Fucile di precisione, serie Hellfire",
+      "sr21-ghost": "Fucile da cecchino a lungo raggio",
+      "laser-biathlon": "Set di allenamento per club e scuole di biathlon"
+    }
+  },
+  "props": {
+    "title": "Un ecosistema di gioco completo",
+    "subtitle": "Accessori che trasformano un campo in scenari a cui i giocatori vogliono tornare",
+    "more_title": "…e molto altro",
+    "more_cta": "Scoprilo nel nostro shop"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Unico al mondo",
+    "text1": "L'unico poligono di tiro elettronico al mondo compatibile con attrezzature paintball, softair e laser tag. Ispirato alle strutture di addestramento CQB delle forze dell'ordine e delle forze speciali.",
+    "text2": "I bersagli elettronici sono collegati a un sistema di punteggio: eliminali tutti lungo il percorso, ferma il cronometro, batti il record. Postazione di tiro singola o percorso a ostacoli fino a 60 metri con 24 bersagli — competitivo, adrenalinico e infinitamente rigiocabile.",
+    "cta": "Chiedi del KillHouse"
+  },
+  "business": {
+    "title": "Avvia la tua attività di laser tag",
+    "subtitle": "Serve meno capitale di quanto pensi. Abbiamo diverse formule per farti partire:",
+    "options": [
+      {
+        "title": "Acquista",
+        "text": "Proprietà diretta con garanzia estendibile. Aggiungi attrezzatura in qualsiasi momento — tutto resta compatibile."
+      },
+      {
+        "title": "Noleggia",
+        "text": "Usa sempre l'attrezzatura più recente senza legarti a materiale che invecchia. Restituisci o cambia quando le esigenze cambiano."
+      },
+      {
+        "title": "Leasing",
+        "text": "Distribuisci il costo mentre il tuo campo genera incassi. Gli upgrade ti tengono davanti alla concorrenza locale."
+      }
+    ],
+    "footer": "Ogni formula include demo completa, formazione, consulenza sulla progettazione del campo e la nostra esperienza nell'attirare clienti.",
+    "cta": "Parliamo del tuo progetto"
+  },
+  "products": {
+    "title": "La famiglia Action Tag",
+    "subtitle": "Tre linee di prodotto, un unico produttore",
+    "shop": {
+      "title": "Shop LaserTag",
+      "text": "Acquista tagger, sensori e accessori direttamente dal produttore."
+    },
+    "vr": {
+      "text": "Attrazioni di realtà virtuale free-roaming per centri di intrattenimento."
+    },
+    "softplay": {
+      "text": "Avventura digitale per aree soft play nuove ed esistenti."
+    }
+  },
+  "contact": {
+    "title": "Richiedi una demo",
+    "subtitle": "Raccontaci del tuo campo o dei tuoi progetti — rispondiamo personalmente, di solito in giornata.",
+    "name": "Il tuo nome",
+    "email": "E-mail",
+    "phone": "Telefono (facoltativo)",
+    "search_country": "Cerca paese…",
+    "message": "Cosa hai in mente?",
+    "send": "Invia messaggio",
+    "sending": "Invio in corso…",
+    "success": "Grazie! Ti risponderemo al più presto.",
+    "error": "Qualcosa è andato storto. Scrivici direttamente a",
+    "phone_label": "Telefono",
+    "email_label": "E-mail",
+    "address_label": "Indirizzo",
+    "whatsapp": "Chatta su WhatsApp"
+  },
+  "footer": {
+    "tagline": "Progettazione e produzione di attrezzature laser tag — UK e UE, dal 2004.",
+    "rights": "Tutti i diritti riservati."
+  }
+}

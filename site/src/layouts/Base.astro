@@ -1,0 +1,72 @@
+---
+import { locales, getLocale } from '../i18n/locales';
+import '../styles/global.css';
+
+interface Props {
+  lang: string;
+  title: string;
+  description: string;
+}
+
+const { lang, title, description } = Astro.props;
+const locale = getLocale(lang);
+const canonical = new URL(`/${lang}/`, Astro.site);
+---
+
+<!doctype html>
+<html lang={locale.hreflang} dir={locale.dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {locales.map((l) => (
+      <link rel="alternate" hreflang={l.hreflang} href={new URL(`/${l.code}/`, Astro.site)} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL('/en/', Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/assets/brand/kit/actiontag-logo-dark.png', Astro.site)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Action Tag Ltd',
+        url: 'https://actiontag.co.uk',
+        logo: 'https://actiontag.co.uk/assets/brand/kit/actiontag-logo-dark.png',
+        foundingDate: '2004',
+        telephone: '+447889444393',
+        email: 'sales@actiontag.co.uk',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '36 Grizedale Road',
+          addressLocality: 'Blackpool',
+          postalCode: 'FY4 4TL',
+          addressCountry: 'GB',
+        },
+        description,
+        sameAs: [
+          'https://www.facebook.com/ActionTagLtd/',
+          'https://www.youtube.com/user/actiontaglasertag/',
+          'https://lasertagsale.com/',
+          'https://actionvirtualreality.com/',
+          'https://treasurehuntheroes.com/',
+        ],
+      })}
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

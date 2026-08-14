@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Dezvoltator și producător de echipamente laser tag | Regatul Unit",
+    "description": "Dezvoltăm și producem echipamente profesionale de laser tag în Regatul Unit și UE din 2004. Taggere, senzori wireless, sisteme MilSim KillHouse și suport complet pentru afacerile de închiriere."
+  },
+  "nav": {
+    "devices": "Echipamente",
+    "props": "Ecosistem",
+    "milsim": "MilSim",
+    "business": "Pornește o afacere",
+    "products": "Produsele noastre",
+    "contact": "Contact",
+    "shop": "Magazin"
+  },
+  "hero": {
+    "kicker": "Dezvoltăm și producem din 2004",
+    "title": "Echipamente profesionale de laser tag, construite pentru cea mai dură utilizare în închiriere",
+    "subtitle": "Un instrument de lucru fiabil pentru operatori — proiectat de o echipă care își administrează propriile arene de laser tag, nu doar o fabrică.",
+    "cta_devices": "Vezi echipamentele",
+    "cta_contact": "Solicită o demonstrație"
+  },
+  "why": {
+    "title": "De ce operatorii aleg Action Tag",
+    "items": [
+      {
+        "title": "Pionierii industriei",
+        "text": "Primii pe piață cu senzori wireless pentru cap în 2006 și pistolul de laser tag în 2008. Interfață PC, LED-uri multicolore pentru echipe — noi le-am construit primii."
+      },
+      {
+        "title": "Fabricat în UK și UE",
+        "text": "Unitățile noastre de producție și depozitare se află în Regatul Unit și UE. Termene scurte, suport real, fără importuri paralele."
+      },
+      {
+        "title": "Construit pentru închiriere",
+        "text": "Corpuri din ABS de calitate militară, 36 de ore autonomie, taggere de mărime naturală de un kilogram, potrivite copiilor și adulților. Echipament care produce bani, zi de zi."
+      },
+      {
+        "title": "Te însoțim la fiecare pas",
+        "text": "Demonstrație completă, ajutor la proiectarea arenei, scenarii de joc, instruirea personalului și suport ulterior. Cumpără, închiriază sau ia în leasing — începutul devine simplu."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Taggerele noastre",
+    "subtitle": "Seturi de joc compatibile între ele și cu toate accesoriile pe care le vindem",
+    "shop_cta": "Vezi în magazin",
+    "spec_labels": {
+      "weight": "Greutate",
+      "length": "Lungime",
+      "range": "Rază efectivă",
+      "battery": "Autonomie"
+    },
+    "taglines": {
+      "ak15-warrior": "Taggerul de asalt AK clasic",
+      "ak25-predator": "Noua generație a platformei AK",
+      "ar15-ranger": "Calul de povară al platformei AR",
+      "ar-hellfire": "Pușcă de asalt, seria Hellfire",
+      "mg-hellfire": "Mitralieră, seria Hellfire",
+      "sg-hellfire": "Pușcă cu alice, seria Hellfire",
+      "mp9lt-phoenix": "Pistol-mitralieră compact",
+      "hornet": "Pistol secundar",
+      "sr-hellfire": "Pușcă de precizie, seria Hellfire",
+      "sr21-ghost": "Pușcă de lunetist cu rază lungă",
+      "laser-biathlon": "Set de antrenament pentru cluburi și școli de biatlon"
+    }
+  },
+  "props": {
+    "title": "Un ecosistem de joc complet",
+    "subtitle": "Accesorii care transformă o arenă în scenarii la care jucătorii revin",
+    "more_title": "…și multe altele",
+    "more_cta": "Descoperă în magazinul nostru"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Unic în lume",
+    "text1": "Singurul poligon de tragere electronic din lume care funcționează cu echipamente de paintball, airsoft și laser tag. Inspirat de facilitățile de antrenament CQB folosite de forțele de ordine și forțele speciale.",
+    "text2": "Țintele electronice sunt conectate la un sistem de punctaj: elimină-le pe toate de-a lungul traseului, oprește cronometrul, bate recordul. Poziție unică de tragere sau traseu cu obstacole de până la 60 de metri cu 24 de ținte — competitiv, plin de adrenalină și rejucabil la nesfârșit.",
+    "cta": "Întreabă despre KillHouse"
+  },
+  "business": {
+    "title": "Pornește-ți afacerea de laser tag",
+    "subtitle": "Ai nevoie de mai puțin capital decât crezi. Avem mai multe căi de a începe:",
+    "options": [
+      {
+        "title": "Cumpără",
+        "text": "Proprietate directă cu garanție extensibilă. Adaugă echipamente oricând — totul rămâne compatibil."
+      },
+      {
+        "title": "Închiriază",
+        "text": "Folosește mereu cel mai nou echipament fără să rămâi legat de aparatură învechită. Returnează sau schimbă când nevoile se schimbă."
+      },
+      {
+        "title": "Leasing",
+        "text": "Împarte costul în timp ce arena ta produce venituri. Opțiunile de upgrade te mențin înaintea concurenței locale."
+      }
+    ],
+    "footer": "Fiecare opțiune include demonstrație completă, instruire, consultanță pentru proiectarea arenei și know-how-ul nostru în atragerea clienților.",
+    "cta": "Hai să vorbim despre începutul tău"
+  },
+  "products": {
+    "title": "Familia Action Tag",
+    "subtitle": "Trei linii de produse, un singur producător",
+    "shop": {
+      "title": "Magazin LaserTag",
+      "text": "Cumpără taggere, senzori și accesorii direct de la producător."
+    },
+    "vr": {
+      "text": "Atracții de realitate virtuală free-roaming pentru centre de divertisment."
+    },
+    "softplay": {
+      "text": "Aventură digitală pentru locuri de joacă noi sau existente."
+    }
+  },
+  "contact": {
+    "title": "Solicită o demonstrație",
+    "subtitle": "Povestește-ne despre arena sau planurile tale — răspundem personal, de obicei în aceeași zi.",
+    "name": "Numele tău",
+    "email": "E-mail",
+    "phone": "Telefon (opțional)",
+    "search_country": "Caută țara…",
+    "message": "Ce planuri ai?",
+    "send": "Trimite mesajul",
+    "sending": "Se trimite…",
+    "success": "Mulțumim! Revenim în curând.",
+    "error": "Ceva n-a mers. Scrie-ne direct la",
+    "phone_label": "Telefon",
+    "email_label": "E-mail",
+    "address_label": "Adresă",
+    "whatsapp": "Discută pe WhatsApp"
+  },
+  "footer": {
+    "tagline": "Dezvoltator și producător de echipamente laser tag — UK și UE, din 2004.",
+    "rights": "Toate drepturile rezervate."
+  }
+}

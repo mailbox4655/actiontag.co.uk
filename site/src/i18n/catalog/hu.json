@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Action Tag — Lézerharc-felszerelések fejlesztője és gyártója | Egyesült Királyság",
+    "description": "2004 óta fejlesztünk és gyártunk professzionális lézerharc-felszereléseket az Egyesült Királyságban és az EU-ban. Taggerek, vezeték nélküli érzékelők, MilSim KillHouse rendszerek és teljes körű támogatás kölcsönző vállalkozásoknak."
+  },
+  "nav": {
+    "devices": "Eszközök",
+    "props": "Ökoszisztéma",
+    "milsim": "MilSim",
+    "business": "Vállalkozásindítás",
+    "products": "Termékeink",
+    "contact": "Kapcsolat",
+    "shop": "Webshop"
+  },
+  "hero": {
+    "kicker": "Fejlesztés és gyártás 2004 óta",
+    "title": "Professzionális lézerharc-felszerelés, a legkeményebb kölcsönzői használatra építve",
+    "subtitle": "Megbízható munkaeszköz üzemeltetőknek — olyan csapat tervezte, amely maga is lézerharc-pályákat üzemeltet, nem csupán egy gyár.",
+    "cta_devices": "Eszközök megtekintése",
+    "cta_contact": "Demó kérése"
+  },
+  "why": {
+    "title": "Miért az Action Taget választják az üzemeltetők",
+    "items": [
+      {
+        "title": "Az iparág úttörői",
+        "text": "Elsőként jelentünk meg a piacon vezeték nélküli fejérzékelőkkel 2006-ban és lézerharc-pisztollyal 2008-ban. PC-interfész, többszínű csapat-LED-ek — mi építettük meg őket először."
+      },
+      {
+        "title": "UK-ban és az EU-ban gyártva",
+        "text": "Gyártó- és raktárbázisaink az Egyesült Királyságban és az EU-ban találhatók. Rövid határidők, valódi támogatás, semmilyen szürkeimport."
+      },
+      {
+        "title": "Kölcsönzésre tervezve",
+        "text": "Fegyverminőségű ABS burkolatok, 36 órás akkumulátor-üzemidő, egykilós, teljes méretű taggerek gyerekeknek és felnőtteknek egyaránt. Felszerelés, amely nap mint nap termel."
+      },
+      {
+        "title": "Végigkísérjük az úton",
+        "text": "Teljes demó, segítség a pálya kialakításában, játékforgatókönyvek, személyzeti képzés és utólagos támogatás. Vásárlás, bérlés vagy lízing — az indulás egyszerű."
+      }
+    ]
+  },
+  "devices": {
+    "title": "Taggereink",
+    "subtitle": "Egymással és minden általunk forgalmazott kiegészítővel kompatibilis játékszettek",
+    "shop_cta": "Megtekintés a webshopban",
+    "spec_labels": {
+      "weight": "Tömeg",
+      "length": "Hossz",
+      "range": "Hatásos lőtávolság",
+      "battery": "Üzemidő"
+    },
+    "taglines": {
+      "ak15-warrior": "A klasszikus AK rohamtagger",
+      "ak25-predator": "Az AK platform új generációja",
+      "ar15-ranger": "Az AR platform igáslova",
+      "ar-hellfire": "Gépkarabély, Hellfire sorozat",
+      "mg-hellfire": "Géppuska, Hellfire sorozat",
+      "sg-hellfire": "Sörétes puska, Hellfire sorozat",
+      "mp9lt-phoenix": "Kompakt géppisztoly",
+      "hornet": "Másodlagos pisztoly",
+      "sr-hellfire": "Mesterlövészpuska, Hellfire sorozat",
+      "sr21-ghost": "Nagy hatótávú mesterlövészpuska",
+      "laser-biathlon": "Edzőszett biatlonkluboknak és iskoláknak"
+    }
+  },
+  "props": {
+    "title": "Teljes játék-ökoszisztéma",
+    "subtitle": "Kiegészítők, amelyek a pályát olyan forgatókönyvekké változtatják, amelyekért a játékosok visszajárnak",
+    "more_title": "…és még sok minden más",
+    "more_cta": "Fedezze fel webshopunkban"
+  },
+  "milsim": {
+    "title": "MilSim KillHouse",
+    "kicker": "Egyedülálló a világon",
+    "text1": "A világ egyetlen elektronikus lőtere, amely paintball-, airsoft- és lézerharc-felszereléssel is működik. A rendőrség és a különleges egységek CQB kiképzőlétesítményei ihlették.",
+    "text2": "Az elektronikus célpontok pontozórendszerhez csatlakoznak: iktassa ki mindet a pályán, állítsa meg az órát, döntse meg a rekordot. Egyetlen lőállás vagy akár 60 méteres akadálypálya 24 célponttal — versengő, adrenalindús és végtelenül újrajátszható.",
+    "cta": "Érdeklődjön a KillHouse-ról"
+  },
+  "business": {
+    "title": "Indítsa el lézerharc-vállalkozását",
+    "subtitle": "Kevesebb tőke kell hozzá, mint gondolná. Több út is van az induláshoz:",
+    "options": [
+      {
+        "title": "Vásárlás",
+        "text": "Közvetlen tulajdon meghosszabbítható garanciával. Bármikor bővíthet — minden kompatibilis marad."
+      },
+      {
+        "title": "Bérlés",
+        "text": "Mindig a legújabb felszerelés, anélkül hogy öregedő eszközökhöz kötné magát. Visszaadhatja vagy lecserélheti, ha igényei változnak."
+      },
+      {
+        "title": "Lízing",
+        "text": "Ossza el a költségeket, miközben a pálya már bevételt termel. A fejlesztési lehetőségek a helyi versenytársak előtt tartják."
+      }
+    ],
+    "footer": "Minden konstrukcióhoz teljes demó, képzés, pályatervezési tanácsadás és ügyfélszerzési know-how-nk jár.",
+    "cta": "Beszéljünk az indulásáról"
+  },
+  "products": {
+    "title": "Az Action Tag család",
+    "subtitle": "Három termékcsalád, egyetlen gyártó",
+    "shop": {
+      "title": "LaserTag webshop",
+      "text": "Vásároljon taggereket, érzékelőket és kiegészítőket közvetlenül a gyártótól."
+    },
+    "vr": {
+      "text": "Szabadon bejárható VR-attrakciók szórakoztatóközpontoknak."
+    },
+    "softplay": {
+      "text": "Digitális kalandélmény új és meglévő beltéri játszóházakhoz."
+    }
+  },
+  "contact": {
+    "title": "Kérjen demót",
+    "subtitle": "Meséljen pályájáról vagy terveiről — személyesen válaszolunk, általában még aznap.",
+    "name": "Az Ön neve",
+    "email": "E-mail",
+    "phone": "Telefon (nem kötelező)",
+    "search_country": "Ország keresése…",
+    "message": "Mit tervez?",
+    "send": "Üzenet küldése",
+    "sending": "Küldés…",
+    "success": "Köszönjük! Hamarosan jelentkezünk.",
+    "error": "Hiba történt. Írjon nekünk közvetlenül:",
+    "phone_label": "Telefon",
+    "email_label": "E-mail",
+    "address_label": "Cím",
+    "whatsapp": "Csevegés WhatsAppon"
+  },
+  "footer": {
+    "tagline": "Lézerharc-felszerelések fejlesztője és gyártója — UK és EU, 2004 óta.",
+    "rights": "Minden jog fenntartva."
+  }
+}
