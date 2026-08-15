@@ -120,6 +120,7 @@ const waIcon =
   @media (max-width: 980px) {
     .contact-grid { grid-template-columns: 1fr; }
     .info-wrap { grid-template-columns: 1fr; }
+    .info-wrap, .contact-form { min-width: 0; }
   }
 
   .contact-details { margin-block: 2.2rem 0; display: grid; gap: 1.3rem; }
@@ -176,6 +177,7 @@ const waIcon =
   }
 
   .contact-form { padding: 2rem; display: grid; gap: 1.1rem; }
+  .contact-form > *, .contact-form .field > * { min-width: 0; }
   .contact-form label, .contact-form .field { display: grid; gap: 0.4rem; }
   .contact-form label span, .field-label {
     font-size: 0.85rem;

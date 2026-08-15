@@ -149,6 +149,7 @@ const waIcon =
     max-height: none;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
   }
+  .lang-switch:not([open]) ul { display: none; }
   .lang-switch a {
     display: block;
     padding: 0.4rem 0.7rem;
@@ -175,6 +176,7 @@ const waIcon =
   @media (max-width: 900px) {
     .main-nav { display: none; }
   }
+  @media (max-width: 480px) { .lang-switch ul { grid-template-columns: repeat(2, minmax(7.5rem, 1fr)); max-height: calc(100vh - 5.5rem); overflow-y: auto; } }
 </style>
 
 <script>
