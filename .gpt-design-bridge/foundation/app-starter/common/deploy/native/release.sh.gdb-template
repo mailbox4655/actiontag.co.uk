@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly PORT="@@APPLICATION_PORT@@"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+readonly RECONSTRUCTION_REF="${GDB_RECONSTRUCTION_REMOTE_REF:-origin/main}"
+readonly HEALTH_TIMEOUT_SECONDS="${GDB_DEPLOY_HEALTH_TIMEOUT_SECONDS:-0}"
+readonly HEALTH_PROGRESS_SECONDS="${GDB_DEPLOY_HEALTH_PROGRESS_SECONDS:-5}"
+fail() { printf 'NATIVE RELEASE FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "${EUID}" -eq 0 ]] || fail "run as root"
+[[ "$#" -eq 3 ]] || fail "usage: release.sh RELEASE_ID SOURCE_DIR BACKUP_EVIDENCE.json"
+readonly RELEASE_ID="$1"
+readonly SOURCE_DIR="$(realpath -- "$2")"
+readonly BACKUP_EVIDENCE="$(realpath -- "$3")"
+[[ "$RELEASE_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] ||
+  fail "release ID must be 1-64 safe characters"
+[[ -d "$SOURCE_DIR" ]] || fail "source directory is missing: $SOURCE_DIR"
+[[ -f "$BACKUP_EVIDENCE" ]] || fail "backup evidence is missing: $BACKUP_EVIDENCE"
+[[ -f "$ENV_FILE" ]] || fail "production environment is missing: $ENV_FILE"
+[[ ! -e "${SOURCE_DIR}/.env" ]] || fail "source directory contains a secret .env file"
+[[ "$RECONSTRUCTION_REF" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._/-]+$ ]] ||
+  fail "GDB_RECONSTRUCTION_REMOTE_REF must look like remote/branch: $RECONSTRUCTION_REF"
+[[ "$HEALTH_TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] ||
+  fail "GDB_DEPLOY_HEALTH_TIMEOUT_SECONDS must be zero (no deadline) or whole seconds"
+[[ "$HEALTH_PROGRESS_SECONDS" =~ ^[1-9][0-9]*$ ]] ||
+  fail "GDB_DEPLOY_HEALTH_PROGRESS_SECONDS must be positive whole seconds"
+readonly BLACKBOX="${SOURCE_DIR}/.gpt-design-bridge/tools/gpt_blackbox.py"
+[[ -f "$BLACKBOX" ]] || fail "project-local BlackBox release gate is missing: $BLACKBOX"
+command -v python3 >/dev/null || fail "python3 is required for the BlackBox release gate"
+command -v git >/dev/null || fail "git is required to prove remote reconstruction"
+command -v du >/dev/null || fail "du is required to measure obsolete releases before pruning"
+command -v cut >/dev/null || fail "cut is required to parse the measured release byte count"
+readonly PYTHON="$(command -v python3)"
+"$PYTHON" -X utf8 "$BLACKBOX" --repo "$SOURCE_DIR" release-gate ||
+  fail "BlackBox release gate blocked deployment; settle or seal every reported task first"
+git -C "$SOURCE_DIR" diff --quiet -- ||
+  fail "tracked source has uncommitted working-tree changes; commit and push before deployment"
+git -C "$SOURCE_DIR" diff --cached --quiet -- ||
+  fail "tracked source has staged but uncommitted changes; commit and push before deployment"
+readonly UNTRACKED_SOURCE="$(
+  git -C "$SOURCE_DIR" ls-files --others --exclude-standard |
+    grep -Ev '^(evidence|dist|design-bridge-stage|\.artifacts|\.gpt-design-bridge/runtime)(/|$)' || true
+)"
+[[ -z "$UNTRACKED_SOURCE" ]] ||
+  fail "untracked source prevents reconstruction proof: ${UNTRACKED_SOURCE//$'\n'/, }"
+readonly SOURCE_COMMIT="$(git -C "$SOURCE_DIR" rev-parse HEAD)"
+readonly RECONSTRUCTION_REMOTE="${RECONSTRUCTION_REF%%/*}"
+readonly RECONSTRUCTION_BRANCH="${RECONSTRUCTION_REF#*/}"
+git -C "$SOURCE_DIR" fetch --quiet "$RECONSTRUCTION_REMOTE" "$RECONSTRUCTION_BRANCH" ||
+  fail "could not refresh reconstruction ref $RECONSTRUCTION_REF"
+git -C "$SOURCE_DIR" merge-base --is-ancestor "$SOURCE_COMMIT" "$RECONSTRUCTION_REF" ||
+  fail "source commit $SOURCE_COMMIT is not reconstructable from $RECONSTRUCTION_REF"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+[[ "${APP_ENV:-}" == "production" ]] || fail "APP_ENV must be production"
+[[ "${APP_HOST:-}" == "127.0.0.1" ]] || fail "APP_HOST must be loopback"
+[[ "${APP_PORT:-}" == "$PORT" ]] || fail "APP_PORT must be $PORT"
+env | grep -q 'SPECIMEN_' && fail "production environment still contains SPECIMEN values"
+
+/usr/bin/node - "$BACKUP_EVIDENCE" "${DATABASE_KIND:-}" <<'NODE'
+const fs=require("fs"),crypto=require("crypto"),path=require("path");
+const evidencePath=process.argv[2],engine=process.argv[3];
+const value=JSON.parse(fs.readFileSync(evidencePath,"utf8"));
+if(value.schema!=="gpt-design-bridge/backup/v1"||value.engine!==engine)
+  throw new Error("backup evidence schema or engine mismatch");
+const artifact=path.resolve(path.dirname(evidencePath),value.artifact);
+const bytes=fs.readFileSync(artifact);
+const hash=crypto.createHash("sha256").update(bytes).digest("hex");
+if(bytes.length!==value.bytes||hash!==value.sha256)throw new Error("backup artifact hash mismatch");
+const age=Date.now()-Date.parse(value.created_at);
+if(!Number.isFinite(age)||age<0||age>86400000)throw new Error("backup evidence is not fresh (24h)");
+process.stdout.write(`backup evidence accepted: ${value.sha256}\n`);
+NODE
+
+readonly RELEASES="/opt/${APP}/releases"
+readonly DESTINATION="${RELEASES}/${RELEASE_ID}"
+readonly PARTIAL="${RELEASES}/.${RELEASE_ID}.partial.$$"
+[[ ! -e "$DESTINATION" && ! -e "$PARTIAL" ]] || fail "release already exists"
+install -d -o "$APP" -g "$APP" -m 0750 "$PARTIAL"
+cleanup() { [[ -d "$PARTIAL" ]] && rm -rf -- "$PARTIAL"; }
+trap cleanup EXIT
+tar --exclude=.git --exclude=.gpt-design-bridge/runtime --exclude=node_modules \
+  --exclude=dist --exclude=design-bridge-stage --exclude=.artifacts --exclude=.env \
+  -C "$SOURCE_DIR" -cf - . | tar -C "$PARTIAL" -xf -
+chown -R "$APP:$APP" "$PARTIAL"
+runuser -u "$APP" -- /usr/bin/npm --prefix "$PARTIAL" ci --strict-allow-scripts
+runuser -u "$APP" -- /usr/bin/npm --prefix "$PARTIAL" run audit
+runuser -u "$APP" -- /usr/bin/npm --prefix "$PARTIAL" run build
+runuser -u "$APP" -- /usr/bin/npm --prefix "$PARTIAL" prune --omit=dev
+(
+  cd "$PARTIAL"
+  runuser -u "$APP" --preserve-environment -- /usr/bin/node \
+    dist/server/server/src/migrate.js
+  runuser -u "$APP" --preserve-environment -- /usr/bin/node \
+    dist/server/server/src/database-proof.js
+)
+/usr/bin/node - "$PARTIAL/.gpt-release-artifact.json" "$RELEASE_ID" \
+  "$SOURCE_COMMIT" "$RECONSTRUCTION_REF" <<'NODE'
+const fs=require("fs");
+const [path,releaseId,sourceCommit,remoteRef]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({
+  schema:"gpt-design-bridge/server-release/v1",
+  release_id:releaseId,
+  source_commit:sourceCommit,
+  reconstruction_ref:remoteRef,
+},null,2)+"\n",{encoding:"utf8",flag:"wx"});
+NODE
+mv -- "$PARTIAL" "$DESTINATION"
+trap - EXIT
+readonly CURRENT="/opt/${APP}/current"
+PREVIOUS=""
+if [[ -L "$CURRENT" ]]; then
+  PREVIOUS="$(readlink -f -- "$CURRENT")"
+fi
+readonly PREVIOUS
+if [[ -n "$PREVIOUS" ]]; then
+  ln -sfn -- "$PREVIOUS" "/opt/${APP}/previous"
+fi
+ln -s -- "$DESTINATION" "/opt/${APP}/.current.$$"
+mv -Tf -- "/opt/${APP}/.current.$$" "$CURRENT"
+systemctl restart "${APP}.service"
+readonly HEALTH_STARTED="$(date +%s)"
+NEXT_HEALTH_PROGRESS="$HEALTH_PROGRESS_SECONDS"
+while true; do
+  if curl --fail --silent --connect-timeout 5 --max-time 10 \
+    "http://127.0.0.1:${PORT}/api/health" >/dev/null; then
+    break
+  fi
+  NOW="$(date +%s)"
+  ELAPSED="$((NOW - HEALTH_STARTED))"
+  if (( ELAPSED >= NEXT_HEALTH_PROGRESS )); then
+    printf 'NATIVE RELEASE PROGRESS: release=%s health pending; elapsed=%ss; service=%s\n' \
+      "$RELEASE_ID" "$ELAPSED" "${APP}.service" >&2
+    NEXT_HEALTH_PROGRESS="$((ELAPSED + HEALTH_PROGRESS_SECONDS))"
+  fi
+  if (( HEALTH_TIMEOUT_SECONDS > 0 && ELAPSED >= HEALTH_TIMEOUT_SECONDS )); then
+    journalctl -u "${APP}.service" -n 80 --no-pager >&2 ||
+      printf 'journal collection failed\n' >&2
+    fail "health did not pass within the explicit ${HEALTH_TIMEOUT_SECONDS}s deployment policy"
+  fi
+  sleep 2
+done
+
+readonly CURRENT_TARGET="$(readlink -f -- "$CURRENT")"
+readonly PREVIOUS_LINK="/opt/${APP}/previous"
+PREVIOUS_TARGET=""
+if [[ -L "$PREVIOUS_LINK" ]]; then
+  PREVIOUS_TARGET="$(readlink -f -- "$PREVIOUS_LINK")"
+fi
+readonly PREVIOUS_TARGET
+REMOVED_RELEASES=0
+for CANDIDATE in "$RELEASES"/*; do
+  [[ -d "$CANDIDATE" && ! -L "$CANDIDATE" ]] || continue
+  RESOLVED_CANDIDATE="$(realpath -- "$CANDIDATE")"
+  [[ "$(dirname -- "$RESOLVED_CANDIDATE")" == "$RELEASES" ]] ||
+    fail "release cleanup candidate escaped the release root: $RESOLVED_CANDIDATE"
+  [[ "$RESOLVED_CANDIDATE" != "$CURRENT_TARGET" ]] || continue
+  [[ -z "$PREVIOUS_TARGET" || "$RESOLVED_CANDIDATE" != "$PREVIOUS_TARGET" ]] || continue
+  MARKER="$RESOLVED_CANDIDATE/.gpt-release-artifact.json"
+  if [[ ! -f "$MARKER" ]]; then
+    printf 'NATIVE RELEASE RETAIN: unmarked historical directory requires owner review: %s\n' \
+      "$RESOLVED_CANDIDATE" >&2
+    continue
+  fi
+  OLD_COMMIT="$(/usr/bin/node - "$MARKER" <<'NODE'
+const fs=require("fs");
+const value=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+if(value.schema!=="gpt-design-bridge/server-release/v1"||
+   !/^[0-9a-f]{40,64}$/.test(value.source_commit))process.exit(2);
+process.stdout.write(value.source_commit);
+NODE
+  )" || fail "invalid release cleanup marker: $MARKER"
+  git -C "$SOURCE_DIR" cat-file -e "${OLD_COMMIT}^{commit}" ||
+    fail "historical release $RESOLVED_CANDIDATE has unavailable source commit $OLD_COMMIT"
+  git -C "$SOURCE_DIR" merge-base --is-ancestor "$OLD_COMMIT" "$RECONSTRUCTION_REF" ||
+    fail "historical release $RESOLVED_CANDIDATE is not reconstructable from $RECONSTRUCTION_REF"
+  CANDIDATE_BYTES="$(du -sb -- "$RESOLVED_CANDIDATE" | cut -f1)" ||
+    fail "cannot measure obsolete release before cleanup: $RESOLVED_CANDIDATE"
+  printf 'NATIVE RELEASE PRUNE: path=%s bytes=%s source=%s reconstruction=%s\n' \
+    "$RESOLVED_CANDIDATE" "$CANDIDATE_BYTES" "$OLD_COMMIT" "$RECONSTRUCTION_REF" >&2
+  rm -rf --one-file-system -- "$RESOLVED_CANDIDATE"
+  [[ ! -e "$RESOLVED_CANDIDATE" ]] || fail "obsolete release remains after cleanup: $RESOLVED_CANDIDATE"
+  REMOVED_RELEASES="$((REMOVED_RELEASES + 1))"
+done
+
+printf 'NATIVE RELEASE PASS: app=%s release=%s backup=%s source=%s removed_obsolete=%s\n' \
+  "$APP" "$RELEASE_ID" "$BACKUP_EVIDENCE" "$SOURCE_COMMIT" "$REMOVED_RELEASES"

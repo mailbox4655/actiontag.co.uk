@@ -1,0 +1,88 @@
+import { describe, expect, it } from "vitest";
+import { createDirectSocket } from "../app/src/api/direct-socket.js";
+import { createHttpSocket, RemoteRouteError } from "../app/src/api/http-socket.js";
+import { createMemoryTaskStore } from "../app/src/state/memory-store.js";
+import { createApplication } from "../server/src/app.js";
+
+function store() {
+  let sequence = 0;
+  return createMemoryTaskStore({
+    initialTasks: [],
+    clock: () => "2026-08-01T00:00:00.000Z",
+    idFactory: () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, "0")}`,
+  });
+}
+
+function serverSocket(taskStore) {
+  const errors = [];
+  const app = createApplication({
+    config: {
+      environment: "test",
+      host: "127.0.0.1",
+      port: @@APPLICATION_PORT@@,
+      origin: "https://" + @@HOSTNAME_JSON@@,
+      database:
+        @@DATABASE_ENGINE_JSON@@ === "sqlite"
+          ? { kind: "sqlite", path: "unused", journalMode: "DELETE" }
+          : { kind: "postgresql", url: "postgresql://unused/test" },
+      mail: { mode: "disabled" },
+    },
+    store: taskStore,
+    mail: {
+      async sendSystemMessage() {
+        throw new Error("TEST: mail was not expected");
+      },
+    },
+    logger: {
+      info() {},
+      error(event) {
+        errors.push(event);
+      },
+    },
+  });
+  return {
+    errors,
+    socket: createHttpSocket({
+      baseUrl: "https://" + @@HOSTNAME_JSON@@ + "/",
+      fetchImpl: (input, init) => app.request(input, init),
+    }),
+  };
+}
+
+describe("direct and HTTP route parity", () => {
+  it("returns identical validated outputs for the complete task sequence", async () => {
+    const direct = createDirectSocket(store());
+    const server = serverSocket(store());
+    const sequence = [
+      ["tasks.list", {}],
+      ["tasks.create", { title: "Transport-neutral task" }],
+      [
+        "tasks.setCompleted",
+        { id: "00000000-0000-4000-8000-000000000001", completed: true },
+      ],
+      ["tasks.delete", { id: "00000000-0000-4000-8000-000000000001" }],
+    ];
+    for (const [routeId, input] of sequence) {
+      const directOutput = await direct.request(routeId, input);
+      const httpOutput = await server.socket.request(routeId, input);
+      expect(httpOutput).toEqual(directOutput);
+    }
+    expect(server.errors).toEqual([]);
+  });
+
+  it("makes invalid input and missing records visible on both transports", async () => {
+    const direct = createDirectSocket(store());
+    const server = serverSocket(store());
+    await expect(direct.request("tasks.create", { title: "" })).rejects.toMatchObject({
+      code: "INVALID_INPUT",
+    });
+    await expect(server.socket.request("tasks.create", { title: "" })).rejects.toMatchObject({
+      code: "INVALID_INPUT",
+    });
+    await expect(
+      server.socket.request("tasks.delete", {
+        id: "00000000-0000-4000-8000-000000000099",
+      }),
+    ).rejects.toBeInstanceOf(RemoteRouteError);
+  });
+});

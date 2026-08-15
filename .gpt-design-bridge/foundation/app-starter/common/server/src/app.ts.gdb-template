@@ -1,0 +1,146 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { Hono, type Context } from "hono";
+import {
+  RouteContractError,
+  routeDefinition,
+  routes,
+} from "../../app/src/api/routes.js";
+import { executeRoute } from "../../app/src/engine/task-service.js";
+import { TaskStoreError } from "../../app/src/state/memory-store.js";
+import type { AppConfig } from "./config.js";
+import type { MailService } from "./mail.js";
+import type { TaskStore } from "./database/types.js";
+
+export interface StructuredLogger {
+  info(event: Record<string, unknown>): void;
+  error(event: Record<string, unknown>): void;
+}
+
+export interface AppDependencies {
+  config: Readonly<AppConfig>;
+  store: TaskStore;
+  mail: MailService;
+  logger: StructuredLogger;
+}
+
+function errorBody(code: string, message: string) {
+  return { error: { code, message } };
+}
+
+async function requestInput(context: Context, routeId: string) {
+  if (routeDefinition(routeId).method === "GET") return {};
+  try {
+    return await context.req.json();
+  } catch (error) {
+    throw new RouteContractError(
+      "INVALID_JSON",
+      `ROUTE CONTRACT: ${routeId} requires a valid JSON body`,
+      { cause: error },
+    );
+  }
+}
+
+export function createApplication(dependencies: AppDependencies) {
+  const app = new Hono<{ Variables: { requestId: string } }>();
+  app.use("*", async (context, next) => {
+    const requestId = crypto.randomUUID();
+    context.set("requestId", requestId);
+    context.header("X-Request-ID", requestId);
+    context.header("X-Content-Type-Options", "nosniff");
+    context.header("X-Frame-Options", "DENY");
+    context.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    await next();
+  });
+
+  app.get("/api/health", (context) =>
+    context.json({
+      ok: true,
+      database: dependencies.config.database.kind,
+      mail: dependencies.config.mail.mode,
+    }),
+  );
+
+  for (const [routeId, definition] of Object.entries(routes)) {
+    const handler = async (context: Context) => {
+      const input = await requestInput(context, routeId);
+      const output = await executeRoute(dependencies.store, routeId, input);
+      return context.json(output);
+    };
+    switch (definition.method) {
+      case "GET":
+        app.get(definition.path, handler);
+        break;
+      case "POST":
+        app.post(definition.path, handler);
+        break;
+      case "PATCH":
+        app.patch(definition.path, handler);
+        break;
+      case "DELETE":
+        app.delete(definition.path, handler);
+        break;
+      default:
+        throw new Error(`SERVER: unsupported route method ${definition.method}`);
+    }
+  }
+
+  app.all("/api/*", (context) =>
+    context.json(errorBody("API_ROUTE_NOT_FOUND", "The requested API route does not exist"), 404),
+  );
+
+  app.onError((error, context) => {
+    if (error instanceof RouteContractError) {
+      return context.json(errorBody(error.code, error.message), 400);
+    }
+    if (error instanceof TaskStoreError) {
+      const status = error.code === "TASK_NOT_FOUND" ? 404 : 409;
+      return context.json(errorBody(error.code, error.message), status);
+    }
+    const requestId = context.get("requestId");
+    dependencies.logger.error({
+      event: "request_failed",
+      requestId,
+      method: context.req.method,
+      path: context.req.path,
+      errorName: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
+    return context.json(
+      errorBody(
+        "INTERNAL_SERVER_ERROR",
+        `The server failed this request. Reference ${requestId}.`,
+      ),
+      500,
+    );
+  });
+  return app;
+}
+
+export function registerClientFiles(
+  app: ReturnType<typeof createApplication>,
+  clientRoot: string,
+) {
+  const resolved = path.resolve(clientRoot);
+  const index = path.join(resolved, "index.html");
+  if (!path.isAbsolute(clientRoot) || !fs.statSync(index, { throwIfNoEntry: false })?.isFile()) {
+    throw new Error(`SERVER: compiled client index is missing: ${index}`);
+  }
+  app.use("/*", serveStatic({ root: resolved }));
+  app.get("*", serveStatic({ path: index }));
+}
+
+export function consoleLogger(): StructuredLogger {
+  return Object.freeze({
+    info(event: Record<string, unknown>) {
+      process.stdout.write(`${JSON.stringify(event)}\n`);
+    },
+    error(event: Record<string, unknown>) {
+      process.stderr.write(`${JSON.stringify(event)}\n`);
+    },
+  });
+}

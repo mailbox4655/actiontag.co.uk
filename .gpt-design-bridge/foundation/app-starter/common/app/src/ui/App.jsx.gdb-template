@@ -1,0 +1,205 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { CircleAlert, ListChecks, Plus, RefreshCw } from "lucide-react";
+import { TaskRow } from "./TaskRow.jsx";
+
+function messageFrom(error) {
+  return error instanceof Error
+    ? error.message
+    : `The application received a non-Error failure: ${String(error)}`;
+}
+
+export function App({ projectName, socket, onMounted }) {
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [phase, setPhase] = useState("loading");
+  const [error, setError] = useState(null);
+  const [activeTaskId, setActiveTaskId] = useState(null);
+
+  const load = useCallback(async () => {
+    setPhase("loading");
+    setError(null);
+    try {
+      const response = await socket.request("tasks.list", {});
+      setTasks(response.tasks);
+      setPhase("ready");
+    } catch (failure) {
+      setError(messageFrom(failure));
+      setPhase("failed");
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    onMounted();
+    void load();
+  }, [load, onMounted]);
+
+  const completion = useMemo(() => {
+    const done = tasks.filter((task) => task.completed).length;
+    return { done, total: tasks.length };
+  }, [tasks]);
+
+  async function addTask(event) {
+    event.preventDefault();
+    const proposedTitle = title.trim();
+    if (!proposedTitle) {
+      setError("Enter a task before adding it.");
+      return;
+    }
+    setPhase("working");
+    setError(null);
+    try {
+      const response = await socket.request("tasks.create", { title: proposedTitle });
+      setTasks((current) => [...current, response.task]);
+      setTitle("");
+      setPhase("ready");
+    } catch (failure) {
+      setError(messageFrom(failure));
+      setPhase("failed");
+    }
+  }
+
+  async function setCompleted(task) {
+    setActiveTaskId(task.id);
+    setPhase("working");
+    setError(null);
+    try {
+      const response = await socket.request("tasks.setCompleted", {
+        id: task.id,
+        completed: !task.completed,
+      });
+      setTasks((current) =>
+        current.map((item) => (item.id === task.id ? response.task : item)),
+      );
+      setPhase("ready");
+    } catch (failure) {
+      setError(messageFrom(failure));
+      setPhase("failed");
+    } finally {
+      setActiveTaskId(null);
+    }
+  }
+
+  async function removeTask(task) {
+    setActiveTaskId(task.id);
+    setPhase("working");
+    setError(null);
+    try {
+      await socket.request("tasks.delete", { id: task.id });
+      setTasks((current) => current.filter((item) => item.id !== task.id));
+      setPhase("ready");
+    } catch (failure) {
+      setError(messageFrom(failure));
+      setPhase("failed");
+    } finally {
+      setActiveTaskId(null);
+    }
+  }
+
+  const busy = phase === "loading" || phase === "working";
+
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <a className="brand" href="#main-content" aria-label={`${projectName} home`}>
+          <span className="brand-mark" aria-hidden="true">
+            <ListChecks size={22} strokeWidth={2.2} />
+          </span>
+          <span>{projectName}</span>
+        </a>
+        <div className="status-chip" data-status={phase}>
+          <span className="status-dot" aria-hidden="true" />
+          <span>{phase === "failed" ? "Needs attention" : "Connected workspace"}</span>
+        </div>
+      </header>
+
+      <main id="main-content" className="workspace">
+        <section className="intro" aria-labelledby="workspace-title">
+          <p className="eyebrow">Project cockpit</p>
+          <h1 id="workspace-title">Keep the next move visible.</h1>
+          <p className="intro-copy">
+            This starter proves the complete application path. Replace its product meaning,
+            but preserve the route, proof, and designer boundaries.
+          </p>
+        </section>
+
+        <section className="task-panel" aria-labelledby="task-panel-title">
+          <div className="panel-heading">
+            <div>
+              <p className="section-label">Working set</p>
+              <h2 id="task-panel-title">Tasks</h2>
+            </div>
+            <p className="task-count" aria-live="polite">
+              {completion.done} of {completion.total} complete
+            </p>
+          </div>
+
+          <form className="task-form" onSubmit={addTask}>
+            <label htmlFor="new-task">Add a task</label>
+            <div className="task-form-row">
+              <input
+                id="new-task"
+                name="new-task"
+                type="text"
+                maxLength={160}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Describe one concrete next step"
+                disabled={busy}
+              />
+              <button className="primary-button" type="submit" disabled={busy}>
+                <Plus size={18} aria-hidden="true" />
+                <span>Add task</span>
+              </button>
+            </div>
+          </form>
+
+          {error ? (
+            <div className="error-panel" role="alert">
+              <CircleAlert size={20} aria-hidden="true" />
+              <div>
+                <strong>Operation failed</strong>
+                <p>{error}</p>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === "loading" ? (
+            <div className="loading-state" role="status">
+              <RefreshCw className="spin" size={22} aria-hidden="true" />
+              <span>Loading the current tasks</span>
+            </div>
+          ) : null}
+
+          {phase !== "loading" && tasks.length === 0 ? (
+            <div className="empty-state">
+              <ListChecks size={28} aria-hidden="true" />
+              <h3>No tasks yet</h3>
+              <p>Add the first task above. Nothing has been invented or hidden.</p>
+            </div>
+          ) : null}
+
+          {tasks.length > 0 ? (
+            <ul className="task-list" aria-label="Current tasks">
+              {tasks.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  task={task}
+                  busy={activeTaskId === task.id}
+                  onToggle={() => void setCompleted(task)}
+                  onDelete={() => void removeTask(task)}
+                />
+              ))}
+            </ul>
+          ) : null}
+
+          {phase === "failed" ? (
+            <button className="secondary-button retry-button" type="button" onClick={() => void load()}>
+              <RefreshCw size={17} aria-hidden="true" />
+              <span>Retry loading</span>
+            </button>
+          ) : null}
+        </section>
+      </main>
+    </div>
+  );
+}

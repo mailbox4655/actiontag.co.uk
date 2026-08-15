@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+fail() { printf 'SQLITE RESTORE PROOF FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "$(id -un)" == "$APP" ]] || fail "run as the ${APP} service account"
+[[ "$#" -eq 1 && -f "$1" ]] || fail "usage: restore-proof.sh BACKUP_EVIDENCE.json"
+[[ -f "$ENV_FILE" ]] || fail "environment file is missing: $ENV_FILE"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+readonly PROOF_ROOT="/var/lib/${APP}/restore-proofs"
+mkdir -p -- "$PROOF_ROOT"
+readonly TEMPORARY="$(mktemp -d "${PROOF_ROOT}/proof.XXXXXX")"
+cleanup() { rm -rf -- "$TEMPORARY"; }
+trap cleanup EXIT
+/usr/bin/node scripts/sqlite-restore-proof.mjs \
+  --evidence "$(realpath -- "$1")" \
+  --destination "${TEMPORARY}/restored.sqlite3" \
+  --release-dir "$(pwd)" |
+  tee "${TEMPORARY}/restore-proof.json"
+printf 'SQLITE RESTORE PROOF PASS: evidence=%s\n' "$(realpath -- "$1")"

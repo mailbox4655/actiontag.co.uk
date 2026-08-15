@@ -1,0 +1,106 @@
+# @@PROJECT_NAME_MARKDOWN@@
+
+This repository starts in the production shape expected by GPT Design Bridge. It is
+one application with two outputs:
+
+- the production web app: React/Vite in the browser, a typed Hono server, Postmark
+  behind the server, and the selected production database;
+- the travelling designer drop: a no-build, no-secret, offline-capable browser
+  package generated from the same designer-owned JSX and CSS.
+
+External designer participation is optional and begins only when the owner requests a
+round. If it happens, the designer is not expected to clone this repository, install
+packages, run a build, understand the server, or receive a loose bundle of engineering
+code. Engineering ships the runnable drop and later adopts the returned designer
+surface wholesale through the recorded bridge procedure.
+
+Accepted designer JSX/CSS is executable interface source, not inspiration. Outbound
+screens default to `exact` adoption, which seals returned JSX, CSS, assets, hierarchy,
+classes, and visible copy. Production uses React/ReactDOM and Vite; do not introduce
+Vue or translate an accepted return into another framework. Brownfield legacy routes
+host exact React screens as isolated mounts with adapters outside the sealed UI.
+
+## First run
+
+The repository requires the exact Node 24 LTS line declared in `.nvmrc` and
+`package.json`. Do not bypass the engine check.
+
+```text
+npm ci --strict-allow-scripts
+npm run check
+npm run dev:server
+npm run dev:web
+```
+
+The two development commands run in separate terminals. Copy the selected example
+environment file to `.env`; every mode and path is explicit.
+
+## Commands
+
+| Command | Meaning |
+|---|---|
+| `npm run check` | Runtime, policy, type, unit, integration, and route-parity gates |
+| `npm run audit` | Query the registry and fail on a high or critical dependency advisory |
+| `npm run build` | Re-run checks, then build browser and server outputs |
+| `npm run start` | Start the compiled native server |
+| `npm run migrate` | Apply recorded forward migrations to the configured database |
+| `npm run database:proof` | Open the configured database and prove representative reads |
+| `npm run deploy:doctor` | Fail-loud service/selected-proxy/loopback/origin/public proof |
+| `npm run backup -- <release-id>` | Create database-aware backup plus hash evidence |
+| `npm run restore:proof -- <evidence>` | Restore into a separate proof target and exercise the app adapter |
+| `npm run design:seed` | Deterministically rebuild the travelling SQLite specimen |
+| `npm run design:prepare` | Build the no-build stage for the active designer round |
+
+`npm run build` removes stale reproducible `dist/server` immediately before replacing
+it; Vite replaces `dist/client`. Other registered artifacts use:
+
+```text
+python .gpt-design-bridge/tools/artifact_lifecycle.py report --output evidence/artifact-report.json
+python .gpt-design-bridge/tools/artifact_lifecycle.py preview --output evidence/artifact-preview.json
+```
+
+Prune requires the unchanged preview hash and explicit `--apply`. Databases, uploads,
+secrets, designer returns/escrow, adoption baselines, required evidence, current
+release, and sole rollback are never ordinary build output.
+
+The project-local lifecycle command is:
+
+```text
+python .gpt-design-bridge/tools/gpt_design_bridge.py status
+```
+
+Read `.gpt-design-bridge/contract/ROUND-TRIP.md` before opening a designer round.
+Read `.gpt-design-bridge/contract/OWNER-RULES.md` before any work:
+`OWNER-RULES-GENERAL.md` applies to every task and `OWNER-RULES-DESIGN.md` applies to
+any visible interface or design work, including direct work with no external round.
+The exact production database selected for this project is `@@DATABASE_ENGINE@@`.
+Read `deploy/README.md` before any host mutation. Generated deployment files are a
+procedure, not proof that Hetzner, Cloudflare, the selected Caddy/Nginx proxy,
+Postmark, or backups are live.
+Read `docs/FALLBACK-LOG.md` first when troubleshooting a possible degraded path; its
+stable IDs distinguish registered fallback behavior from a genuine error.
+The complete local Lucide/Twemoji asset packs and owner-supplied picker core are under
+`public/assets/pickers/icon-picker/`. Read `docs/ICON-PICKER-TEMPLATE.md` before the
+first import; the raw source requires one project policy adapter and is not direct-use
+UI.
+The engineering project keeps those full packs. A designer stage carries every used
+asset plus a clearly marked 30-Lucide/30-Twemoji picker sample, measured in
+`TRAVELLING-ASSETS.json`; dynamic selections belong in
+`designer-assets.json`.
+The owner color-picker template is `app/src/ui/ColorPicker.jsx` with
+`app/src/styles/color-picker.css`. Read `docs/COLOR-PICKER-TEMPLATE.md` before using
+it; the parent owns its `{ hex, opacity }` state and durable persistence.
+
+## Non-negotiable defaults
+
+- Native systemd behind the host's explicitly selected existing Caddy or additive
+  Nginx service on a Hetzner VPS; containers are prohibited.
+- Cloudflare owns DNS/proxy policy; it does not replace origin hardening or backups.
+- Postmark credentials remain server-only.
+- The canonical general and design owner rulebooks govern product truth and interface
+  behavior; the generated policy checker enforces selected mechanical constraints.
+- Browser proof uses
+  `.gpt-design-bridge/tools/controlled_chrome.mjs` and its visible pinned Chrome for
+  Testing child/fresh profile. The owner's browser/profile and in-app browser do not
+  satisfy the release gate. The owned controller proves `file://` directly without
+  disabling file security.

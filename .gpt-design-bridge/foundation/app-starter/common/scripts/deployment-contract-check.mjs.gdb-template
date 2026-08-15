@@ -1,0 +1,76 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const required = [
+  ".env.production.example", "deploy/README.md", "deploy/caddy/app.caddy",
+  "deploy/nginx/app.nginx",
+  "deploy/native/backup.sh", "deploy/native/doctor.sh", "deploy/native/install-host.sh",
+  "deploy/native/release.sh", "deploy/native/restore-proof.sh", "deploy/native/rollback.sh",
+  "deploy/systemd/app.service", "server/src/database-proof.ts", "server/src/migrate.ts",
+];
+const failures = [];
+const files = new Map();
+for (const relative of required) {
+  const file = path.resolve(relative);
+  if (!fs.statSync(file, { throwIfNoEntry: false })?.isFile()) {
+    failures.push(`missing deployment artifact: ${relative}`);
+    continue;
+  }
+  const content = fs.readFileSync(file, "utf8");
+  files.set(relative, content);
+  if (content.includes("@@")) failures.push(`unrendered template token: ${relative}`);
+}
+const hostname = "@@DEPLOYMENT_HOSTNAME@@";
+if (hostname.startsWith("SPECIMEN_")) failures.push("deployment hostname remains SPECIMEN");
+if (!files.get("deploy/caddy/app.caddy")?.startsWith(`${hostname} {\n`)) {
+  failures.push("Caddy does not begin with the configured hostname");
+}
+const unit = files.get("deploy/systemd/app.service") ?? "";
+for (const line of [
+  "User=@@PROJECT_SLUG@@", "WorkingDirectory=/opt/@@PROJECT_SLUG@@/current",
+  "EnvironmentFile=/etc/@@PROJECT_SLUG@@/@@PROJECT_SLUG@@.env",
+  "ExecStart=/usr/bin/node dist/server/server/src/index.js",
+  "ReadWritePaths=/var/lib/@@PROJECT_SLUG@@",
+]) {
+  if (!unit.includes(line)) failures.push(`systemd contract is missing: ${line}`);
+}
+if (!(files.get("deploy/caddy/app.caddy") ?? "")
+  .includes("reverse_proxy 127.0.0.1:@@APPLICATION_PORT@@")) {
+  failures.push("Caddy does not proxy to the generated loopback port");
+}
+const nginx = files.get("deploy/nginx/app.nginx") ?? "";
+if (!nginx.includes(`server_name ${hostname};`)) {
+  failures.push("Nginx does not declare the configured hostname");
+}
+if (!nginx.includes("proxy_pass http://127.0.0.1:@@APPLICATION_PORT@@;")) {
+  failures.push("Nginx does not proxy to the generated loopback port");
+}
+const installer = files.get("deploy/native/install-host.sh") ?? "";
+if (!installer.includes("usage: install-host.sh caddy|nginx")) {
+  failures.push("host installer does not require explicit Caddy/Nginx selection");
+}
+const doctor = files.get("deploy/native/doctor.sh") ?? "";
+for (const marker of [
+  "origin HTTPS",
+  "public HTTPS",
+  "GDB_DOCTOR_DEADLINE_SECONDS",
+  "while true",
+  "DEPLOY DOCTOR WAIT:",
+]) {
+  if (!doctor.includes(marker)) failures.push(`deployment doctor lacks ${marker}`);
+}
+const native = [...files].filter(([name]) => name.endsWith(".sh"))
+  .map(([, content]) => content).join("\n");
+if (/\b(?:docker|podman)\b/i.test(native)) failures.push("native scripts invoke containers");
+const environment = files.get(".env.production.example") ?? "";
+for (const value of [
+  "APP_ENV=production", "APP_HOST=127.0.0.1", "MAIL_MODE=postmark",
+  "SPECIMEN_REQUIRED_POSTMARK_SERVER_TOKEN",
+]) {
+  if (!environment.includes(value)) failures.push(`production environment lacks ${value}`);
+}
+if (failures.length) {
+  throw new AggregateError(failures.map((item) => new Error(item)),
+    `DEPLOYMENT CONTRACT: ${failures.length} failure(s)\n${failures.join("\n")}`);
+}
+process.stdout.write(`deployment contract passed: files=${required.length} hostname=${hostname}\n`);

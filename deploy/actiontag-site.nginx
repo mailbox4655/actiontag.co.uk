@@ -1,0 +1,7 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name actiontag.co.uk www.actiontag.co.uk *.actiontag.co.uk actiontag.redevelopingdeveloper.uk;
+
+    include /etc/nginx/snippets/actiontag-managed.conf;
+}

@@ -1,0 +1,374 @@
+import React, { useEffect, useId, useRef, useState } from "react";
+
+export const TAILWIND_SHADE_LABELS = Object.freeze(
+  [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+);
+
+export const TAILWIND_COLOR_FAMILIES = Object.freeze({
+  slate: Object.freeze(["#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1", "#94a3b8", "#64748b", "#475569", "#334155", "#1e293b", "#0f172a", "#020617"]),
+  gray: Object.freeze(["#f9fafb", "#f3f4f6", "#e5e7eb", "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151", "#1f2937", "#111827", "#030712"]),
+  zinc: Object.freeze(["#fafafa", "#f4f4f5", "#e4e4e7", "#d4d4d8", "#a1a1aa", "#71717a", "#52525b", "#3f3f46", "#27272a", "#18181b", "#09090b"]),
+  neutral: Object.freeze(["#fafafa", "#f5f5f5", "#e5e5e5", "#d4d4d4", "#a3a3a3", "#737373", "#525252", "#404040", "#262626", "#171717", "#0a0a0a"]),
+  stone: Object.freeze(["#fafaf9", "#f5f5f4", "#e7e5e4", "#d6d3d1", "#a8a29e", "#78716c", "#57534e", "#44403c", "#292524", "#1c1917", "#0c0a09"]),
+  red: Object.freeze(["#fef2f2", "#fee2e2", "#fecaca", "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d", "#450a0a"]),
+  orange: Object.freeze(["#fff7ed", "#ffedd5", "#fed7aa", "#fdba74", "#fb923c", "#f97316", "#ea580c", "#c2410c", "#9a3412", "#7c2d12", "#431407"]),
+  amber: Object.freeze(["#fffbeb", "#fef3c7", "#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#b45309", "#92400e", "#78350f", "#451a03"]),
+  yellow: Object.freeze(["#fefce8", "#fef9c3", "#fef08a", "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207", "#854d0e", "#713f12", "#422006"]),
+  lime: Object.freeze(["#f7fee7", "#ecfccb", "#d9f99d", "#bef264", "#a3e635", "#84cc16", "#65a30d", "#4d7c0f", "#3f6212", "#365314", "#1a2e05"]),
+  green: Object.freeze(["#f0fdf4", "#dcfce7", "#bbf7d0", "#86efac", "#4ade80", "#22c55e", "#16a34a", "#15803d", "#166534", "#14532d", "#052e16"]),
+  emerald: Object.freeze(["#ecfdf5", "#d1fae5", "#a7f3d0", "#6ee7b7", "#34d399", "#10b981", "#059669", "#047857", "#065f46", "#064e3b", "#022c22"]),
+  teal: Object.freeze(["#f0fdfa", "#ccfbf1", "#99f6e4", "#5eead4", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e", "#115e59", "#134e4a", "#042f2e"]),
+  cyan: Object.freeze(["#ecfeff", "#cffafe", "#a5f3fc", "#67e8f9", "#22d3ee", "#06b6d4", "#0891b2", "#0e7490", "#155e75", "#164e63", "#083344"]),
+  sky: Object.freeze(["#f0f9ff", "#e0f2fe", "#bae6fd", "#7dd3fc", "#38bdf8", "#0ea5e9", "#0284c7", "#0369a1", "#075985", "#0c4a6e", "#082f49"]),
+  blue: Object.freeze(["#eff6ff", "#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af", "#1e3a8a", "#172554"]),
+  indigo: Object.freeze(["#eef2ff", "#e0e7ff", "#c7d2fe", "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca", "#3730a3", "#312e81", "#1e1b4b"]),
+  violet: Object.freeze(["#f5f3ff", "#ede9fe", "#ddd6fe", "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9", "#5b21b6", "#4c1d95", "#2e1065"]),
+  purple: Object.freeze(["#faf5ff", "#f3e8ff", "#e9d5ff", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"]),
+  fuchsia: Object.freeze(["#fdf4ff", "#fae8ff", "#f5d0fe", "#f0abfc", "#e879f9", "#d946ef", "#c026d3", "#a21caf", "#86198f", "#701a75", "#4a044e"]),
+  pink: Object.freeze(["#fdf2f8", "#fce7f3", "#fbcfe8", "#f9a8d4", "#f472b6", "#ec4899", "#db2777", "#be185d", "#9d174d", "#831843", "#500724"]),
+  rose: Object.freeze(["#fff1f2", "#ffe4e6", "#fecdd3", "#fda4af", "#fb7185", "#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337", "#4c0519"]),
+});
+
+const FAMILY_NAMES = Object.freeze(Object.keys(TAILWIND_COLOR_FAMILIES));
+
+export function colorFamilyForHex(hex) {
+  const normalized = normalizeHex(hex);
+  if (!normalized.ok) return null;
+  return FAMILY_NAMES.find(
+    (family) => TAILWIND_COLOR_FAMILIES[family].includes(normalized.value),
+  ) || null;
+}
+
+export function normalizeHex(raw) {
+  const supplied = typeof raw === "string" ? raw.trim() : "";
+  let digits = supplied.startsWith("#") ? supplied.slice(1) : supplied;
+  if (/^[0-9a-fA-F]{3}$/.test(digits)) {
+    digits = digits.split("").map((character) => character + character).join("");
+  }
+  if (!/^[0-9a-fA-F]{6}$/.test(digits)) {
+    return {
+      ok: false,
+      error: `Expected 3 or 6 hexadecimal digits with an optional #; received ${JSON.stringify(supplied || "(empty)")}.`,
+    };
+  }
+  return { ok: true, value: `#${digits.toLowerCase()}` };
+}
+
+export function validateColorValue(value, label = "ColorPicker value") {
+  if (!value || typeof value !== "object") {
+    throw new TypeError(`${label} must be an object with hex and opacity fields.`);
+  }
+  const normalized = normalizeHex(value.hex);
+  if (!normalized.ok) {
+    throw new TypeError(`${label}.hex is invalid. ${normalized.error}`);
+  }
+  if (typeof value.opacity !== "number" || !Number.isFinite(value.opacity)
+    || value.opacity < 0 || value.opacity > 100) {
+    throw new RangeError(`${label}.opacity must be a finite number from 0 through 100.`);
+  }
+  return { hex: normalized.value, opacity: value.opacity };
+}
+
+export function colorFamilySelection(family, opacity) {
+  if (!FAMILY_NAMES.includes(family)) {
+    throw new RangeError(
+      `Color family must be one of ${FAMILY_NAMES.join(", ")}; received ${JSON.stringify(family)}.`,
+    );
+  }
+  if (typeof opacity !== "number" || !Number.isFinite(opacity)
+    || opacity < 0 || opacity > 100) {
+    throw new RangeError("Color family opacity must be a finite number from 0 through 100.");
+  }
+  return {
+    color: { hex: TAILWIND_COLOR_FAMILIES[family][5], opacity },
+    openFamily: { name: family },
+  };
+}
+
+export function ColorPicker({
+  id: suppliedId,
+  label = "Color",
+  value,
+  onChange,
+  initialCustomColors = [],
+}) {
+  const generatedId = useId().replace(/:/g, "");
+  const id = suppliedId || `owner-color-picker-${generatedId}`;
+  const current = validateColorValue(value, `${id} value`);
+  if (typeof onChange !== "function") {
+    throw new TypeError(`${id} requires an onChange function.`);
+  }
+
+  const [hexInput, setHexInput] = useState("");
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
+  const [openFamily, setOpenFamily] = useState(() => ({
+    name: colorFamilyForHex(current.hex) || FAMILY_NAMES[0],
+  }));
+  const [customColors, setCustomColors] = useState(() => {
+    if (!Array.isArray(initialCustomColors)) {
+      throw new TypeError(`${id} initialCustomColors must be an array.`);
+    }
+    return [...new Set(initialCustomColors.map((candidate, index) => {
+      const normalized = normalizeHex(candidate);
+      if (!normalized.ok) {
+        throw new TypeError(`${id} initialCustomColors[${index}] is invalid. ${normalized.error}`);
+      }
+      return normalized.value;
+    }))];
+  });
+  const shadeRef = useRef(null);
+  const originRef = useRef(null);
+  const touchTimerRef = useRef(null);
+  const longPressRef = useRef(false);
+
+  useEffect(() => () => window.clearTimeout(touchTimerRef.current), []);
+
+  useEffect(() => {
+    if (!originRef.current) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      shadeRef.current?.querySelector("button")?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [openFamily]);
+
+  function choose(hex, description) {
+    onChange({ hex, opacity: current.opacity });
+    setError("");
+    setStatus(`Selected ${description}: ${hex} at ${current.opacity}% opacity.`);
+  }
+
+  function returnFocus() {
+    window.requestAnimationFrame(() => originRef.current?.focus());
+  }
+
+  function toggleFamily(family, button) {
+    originRef.current = button;
+    setOpenFamily({ name: family });
+    setStatus(`Showing ${family} shades from 50 through 950 in the fixed shade tray.`);
+  }
+
+  function selectFamily(family, button) {
+    const selection = colorFamilySelection(family, current.opacity);
+    originRef.current = button;
+    setOpenFamily(selection.openFamily);
+    onChange(selection.color);
+    setError("");
+    setStatus(
+      `Selected ${family} 500: ${selection.color.hex} at ${current.opacity}% opacity; `
+      + `showing ${family} shades from 50 through 950 in the fixed shade tray.`,
+    );
+  }
+
+  function cancelTouchTimer() {
+    window.clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = null;
+  }
+
+  function startTouchTimer(event, family) {
+    if (event.pointerType !== "touch") return;
+    cancelTouchTimer();
+    const button = event.currentTarget;
+    touchTimerRef.current = window.setTimeout(() => {
+      longPressRef.current = true;
+      toggleFamily(family, button);
+    }, 550);
+  }
+
+  function addCustomColor() {
+    const normalized = normalizeHex(hexInput);
+    if (!normalized.ok) {
+      setError(
+        `Cannot add custom color ${JSON.stringify(hexInput.trim() || "(empty)")}. `
+        + `${normalized.error} The picker needs a valid CSS hex color; enter a value such as #22d3ee.`,
+      );
+      return;
+    }
+    setCustomColors((colors) => (
+      colors.includes(normalized.value) ? colors : [...colors, normalized.value]
+    ));
+    setHexInput("");
+    choose(normalized.value, "custom color");
+  }
+
+  function changeOpacity(event) {
+    const opacity = Number(event.target.value);
+    onChange({ hex: current.hex, opacity });
+    setError("");
+    setStatus(`Set ${current.hex} opacity to ${opacity}%.`);
+  }
+
+  return (
+    <section className="owner-color-picker" aria-labelledby={`${id}-label`}>
+      <div className="owner-color-picker__heading">
+        <div>
+          <h3 id={`${id}-label`}>{label}</h3>
+          <p id={`${id}-help`}>
+            Select a family to choose its 500 shade and immediately show that family
+            from 50 through 950 in the fixed shade tray. Right-click, press Shift+F10,
+            or press and hold to switch the tray without changing the selected color.
+          </p>
+        </div>
+        <div className="owner-color-picker__current" aria-label={`Current color ${current.hex} at ${current.opacity}% opacity`}>
+          <span className="owner-color-picker__preview">
+            <span style={{ backgroundColor: current.hex, opacity: current.opacity / 100 }} />
+          </span>
+          <strong>{current.hex}</strong>
+          <span>{current.opacity}%</span>
+        </div>
+      </div>
+
+      <div className="owner-color-picker__palette" role="group"
+        aria-describedby={`${id}-help`} aria-label="Tailwind color families">
+        {FAMILY_NAMES.map((family) => {
+          const shades = TAILWIND_COLOR_FAMILIES[family];
+          const base = shades[5];
+          const selected = shades.includes(current.hex);
+          return (
+            <button
+              key={family}
+              className="owner-color-picker__swatch"
+              type="button"
+              style={{ backgroundColor: base }}
+              aria-label={`${family} 500 ${base}; select and show shades`}
+              aria-pressed={selected}
+              data-color-family={family}
+              data-selected={selected ? "true" : "false"}
+              data-tooltip={`${family} 500; select and show shades`}
+              onClick={(event) => {
+                if (longPressRef.current) {
+                  longPressRef.current = false;
+                  return;
+                }
+                selectFamily(family, event.currentTarget);
+              }}
+              onContextMenu={(event) => {
+                event.preventDefault();
+                cancelTouchTimer();
+                toggleFamily(family, event.currentTarget);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+                  event.preventDefault();
+                  toggleFamily(family, event.currentTarget);
+                }
+              }}
+              onPointerDown={(event) => startTouchTimer(event, family)}
+              onPointerUp={cancelTouchTimer}
+              onPointerCancel={cancelTouchTimer}
+              onPointerLeave={cancelTouchTimer}
+            />
+          );
+        })}
+        {customColors.map((hex) => (
+          <button
+            key={hex}
+            className="owner-color-picker__swatch owner-color-picker__swatch--custom"
+            type="button"
+            style={{ backgroundColor: hex }}
+            aria-label={`Custom color ${hex}`}
+            aria-pressed={current.hex === hex}
+            data-custom-color={hex}
+            data-selected={current.hex === hex ? "true" : "false"}
+            data-tooltip={`Custom color ${hex}`}
+            onClick={() => choose(hex, "custom color")}
+          />
+        ))}
+
+        <div
+          className="owner-color-picker__shades"
+          ref={shadeRef}
+          role="group"
+          aria-label={`${openFamily.name} shades 50 through 950`}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setStatus(`${openFamily.name} shade tray remains open.`);
+              returnFocus();
+            }
+          }}
+        >
+          <div className="owner-color-picker__shade-heading">
+            <strong>{openFamily.name}</strong>
+            <span>50 to 950</span>
+          </div>
+          <div className="owner-color-picker__shade-list">
+            {TAILWIND_COLOR_FAMILIES[openFamily.name].map((hex, index) => {
+              const shade = TAILWIND_SHADE_LABELS[index];
+              return (
+                <button
+                  key={shade}
+                  className="owner-color-picker__shade"
+                  type="button"
+                  style={{ backgroundColor: hex }}
+                  aria-label={`${openFamily.name} ${shade} ${hex}`}
+                  aria-pressed={current.hex === hex}
+                  data-color-shade={shade}
+                  data-tooltip={`${shade}: ${hex}`}
+                  onClick={() => {
+                    choose(hex, `${openFamily.name} ${shade}`);
+                    returnFocus();
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="owner-color-picker__hex">
+        <label htmlFor={`${id}-hex`}>Custom color (hex)</label>
+        <div>
+          <input
+            id={`${id}-hex`}
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            spellCheck="false"
+            placeholder="#22d3ee"
+            value={hexInput}
+            aria-invalid={error ? "true" : "false"}
+            aria-describedby={error ? `${id}-hex-error` : undefined}
+            onChange={(event) => {
+              setHexInput(event.target.value);
+              if (error) setError("");
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                addCustomColor();
+              }
+            }}
+          />
+          <button type="button" onClick={addCustomColor}>Add</button>
+        </div>
+        {error ? <p id={`${id}-hex-error`} role="alert">{error}</p> : null}
+      </div>
+
+      <div className="owner-color-picker__opacity">
+        <div>
+          <label htmlFor={`${id}-opacity`}>Opacity</label>
+          <output htmlFor={`${id}-opacity`}>{current.opacity}%</output>
+        </div>
+        <input
+          id={`${id}-opacity`}
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value={current.opacity}
+          aria-valuetext={`${current.opacity}% opacity`}
+          style={{
+            "--owner-opacity-color": current.hex,
+            "--owner-opacity-position": `${current.opacity}%`,
+          }}
+          onChange={changeOpacity}
+        />
+      </div>
+
+      <p className="owner-color-picker__status" role="status" aria-live="polite">
+        {status || `Current selection is ${current.hex} at ${current.opacity}% opacity.`}
+      </p>
+    </section>
+  );
+}

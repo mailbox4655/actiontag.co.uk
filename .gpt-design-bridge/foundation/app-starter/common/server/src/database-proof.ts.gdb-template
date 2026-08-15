@@ -1,0 +1,34 @@
+import process from "node:process";
+import { readConfig } from "./config.js";
+import { createTaskStore } from "./database/adapter.js";
+
+async function proveDatabase() {
+  const config = readConfig(process.env);
+  const store = await createTaskStore(config.database);
+  try {
+    const tasks = await store.listTasks();
+    process.stdout.write(
+      `${JSON.stringify({
+        event: "database_proof_passed",
+        database: config.database.kind,
+        representativeTaskCount: tasks.length,
+      })}\n`,
+    );
+  } finally {
+    await store.close();
+  }
+}
+
+proveDatabase().catch((error) => {
+  const failure =
+    error instanceof Error ? error : new Error(`Non-Error database proof failure: ${String(error)}`);
+  process.stderr.write(
+    `${JSON.stringify({
+      event: "database_proof_failed",
+      name: failure.name,
+      message: failure.message,
+      stack: failure.stack,
+    })}\n`,
+  );
+  process.exitCode = 1;
+});

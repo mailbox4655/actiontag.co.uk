@@ -1,0 +1,183 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import { taskSchema } from "../../../app/src/api/routes.js";
+import { TaskStoreError } from "../../../app/src/state/memory-store.js";
+import type { DatabaseConfig } from "../config.js";
+import type { Task, TaskStore } from "./types.js";
+
+interface SqliteRuntime {
+  clock(): string;
+  idFactory(): string;
+  migrationRoot: string;
+}
+
+interface TaskRow {
+  id: unknown;
+  title: unknown;
+  completed: unknown;
+  created_at: unknown;
+}
+
+function sha256(content: string): string {
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+function migrationFiles(root: string): Array<{ name: string; sql: string; sha256: string }> {
+  const resolved = path.resolve(root);
+  if (!fs.statSync(resolved, { throwIfNoEntry: false })?.isDirectory()) {
+    throw new Error(`SQLITE: migration directory is missing: ${resolved}`);
+  }
+  const names = fs.readdirSync(resolved).filter((name) => /^[0-9]{3}_[a-z0-9_]+\.sql$/.test(name));
+  names.sort();
+  if (!names.length) {
+    throw new Error(`SQLITE: no migration files found in ${resolved}`);
+  }
+  return names.map((name) => {
+    const sql = fs.readFileSync(path.join(resolved, name), "utf8");
+    if (!sql.trim()) throw new Error(`SQLITE: migration is empty: ${name}`);
+    return { name, sql, sha256: sha256(sql) };
+  });
+}
+
+function runMigrations(database: DatabaseSync, root: string) {
+  database.exec(
+    "CREATE TABLE IF NOT EXISTS gdb_schema_migrations("
+      + "name TEXT PRIMARY KEY NOT NULL, sha256 TEXT NOT NULL) STRICT;",
+  );
+  const existing = database.prepare(
+    "SELECT sha256 FROM gdb_schema_migrations WHERE name = ?",
+  );
+  const record = database.prepare(
+    "INSERT INTO gdb_schema_migrations(name, sha256) VALUES (?, ?)",
+  );
+  for (const migration of migrationFiles(root)) {
+    const applied = existing.get(migration.name) as { sha256?: unknown } | undefined;
+    if (applied) {
+      if (applied.sha256 !== migration.sha256) {
+        throw new Error(
+          `SQLITE: applied migration ${migration.name} hash changed; create a new migration`,
+        );
+      }
+      continue;
+    }
+    database.exec("BEGIN IMMEDIATE;");
+    try {
+      database.exec(migration.sql);
+      record.run(migration.name, migration.sha256);
+      database.exec("COMMIT;");
+    } catch (error) {
+      try {
+        database.exec("ROLLBACK;");
+      } catch (rollbackError) {
+        throw new AggregateError(
+          [error, rollbackError],
+          `SQLITE: migration ${migration.name} and rollback both failed`,
+        );
+      }
+      throw error;
+    }
+  }
+}
+
+function taskFromRow(row: TaskRow): Task {
+  if (row.completed !== 0 && row.completed !== 1) {
+    throw new Error(`SQLITE: task ${String(row.id)} has invalid completed value`);
+  }
+  return taskSchema.parse({
+    id: row.id,
+    title: row.title,
+    completed: row.completed === 1,
+    createdAt: row.created_at,
+  });
+}
+
+export async function createSqliteTaskStore(
+  config: Extract<DatabaseConfig, { kind: "sqlite" }>,
+  runtime: SqliteRuntime,
+): Promise<TaskStore> {
+  if (config.journalMode !== "DELETE") {
+    throw new Error(`SQLITE: unsupported journal mode ${config.journalMode}`);
+  }
+  fs.mkdirSync(path.dirname(config.path), { recursive: true });
+  const database = new DatabaseSync(config.path, {
+    timeout: 5_000,
+    defensive: true,
+  });
+  try {
+    database.exec("PRAGMA foreign_keys = ON;");
+    database.exec("PRAGMA journal_mode = DELETE;");
+    const journal = database.prepare("PRAGMA journal_mode;").get() as
+      | { journal_mode?: unknown }
+      | undefined;
+    if (String(journal?.journal_mode).toUpperCase() !== "DELETE") {
+      throw new Error(`SQLITE: journal mode is ${String(journal?.journal_mode)}, expected DELETE`);
+    }
+    runMigrations(database, runtime.migrationRoot);
+  } catch (error) {
+    database.close();
+    throw error;
+  }
+
+  const list = database.prepare(
+    "SELECT id, title, completed, created_at FROM tasks ORDER BY created_at, id",
+  );
+  const select = database.prepare(
+    "SELECT id, title, completed, created_at FROM tasks WHERE id = ?",
+  );
+  const insert = database.prepare(
+    "INSERT INTO tasks(id, title, completed, created_at) VALUES (?, ?, 0, ?)",
+  );
+  const update = database.prepare("UPDATE tasks SET completed = ? WHERE id = ?");
+  const remove = database.prepare("DELETE FROM tasks WHERE id = ?");
+
+  function selected(id: string): Task {
+    const row = select.get(id) as TaskRow | undefined;
+    if (!row) throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+    return taskFromRow(row);
+  }
+
+  return Object.freeze({
+    async listTasks() {
+      return (list.all() as unknown as TaskRow[]).map(taskFromRow);
+    },
+    async createTask(title: string) {
+      const task = taskSchema.parse({
+        id: runtime.idFactory(),
+        title,
+        completed: false,
+        createdAt: runtime.clock(),
+      });
+      insert.run(task.id, task.title, task.createdAt);
+      return selected(task.id);
+    },
+    async setTaskCompleted(id: string, completed: boolean) {
+      const result = update.run(completed ? 1 : 0, id);
+      if (Number(result.changes) !== 1) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+      return selected(id);
+    },
+    async deleteTask(id: string) {
+      const result = remove.run(id);
+      if (Number(result.changes) !== 1) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+    },
+    async close() {
+      database.close();
+    },
+  });
+}
+
+export function createTaskStore(config: DatabaseConfig): Promise<TaskStore> {
+  if (config.kind !== "sqlite") {
+    throw new Error(`SQLITE: adapter received ${config.kind} configuration`);
+  }
+  return createSqliteTaskStore(config, {
+    clock: () => new Date().toISOString(),
+    idFactory: () => crypto.randomUUID(),
+    migrationRoot: path.resolve("server/migrations"),
+  });
+}

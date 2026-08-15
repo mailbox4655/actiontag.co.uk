@@ -1,0 +1,12 @@
+import type { z } from "zod";
+import { taskSchema } from "../../../app/src/api/routes.js";
+
+export type Task = z.infer<typeof taskSchema>;
+
+export interface TaskStore {
+  listTasks(): Promise<Task[]>;
+  createTask(title: string): Promise<Task>;
+  setTaskCompleted(id: string, completed: boolean): Promise<Task>;
+  deleteTask(id: string): Promise<void>;
+  close(): Promise<void>;
+}

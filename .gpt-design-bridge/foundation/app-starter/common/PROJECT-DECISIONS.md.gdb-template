@@ -1,0 +1,18 @@
+# Project Decisions
+
+<!-- PROJECT-DECISIONS-SCHEMA:1 -->
+
+This tracked file is the authoritative, harness-neutral record of durable project
+decisions. Codex and Claude read active decisions before substantive work. The
+owner's current instruction remains higher authority.
+
+Add decisions only through `.project-decisions/project_decisions.py promote`.
+History is append-only: replace or withdraw a decision by adding a new record whose
+`supersedes` field names the earlier active decision. Never silently edit history.
+
+The ignored `.project-decisions/outcomes.jsonl` file is non-authoritative working
+history. Do not load it routinely; inspect only relevant outcomes when resuming,
+promoting, handing over, or auditing work.
+
+## Decision ledger
+

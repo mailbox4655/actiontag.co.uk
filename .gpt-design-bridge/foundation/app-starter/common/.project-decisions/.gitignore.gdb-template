@@ -1,0 +1,4 @@
+# Non-authoritative per-response working history
+outcomes.jsonl
+write.lock
+.*.tmp

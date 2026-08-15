@@ -1,0 +1,12 @@
+{
+  "bundle_manifests": [
+    "bundles/icon-picker-template.json"
+  ],
+  "common_root": "common",
+  "database_roots": {
+    "postgresql": "database/postgresql",
+    "sqlite": "database/sqlite"
+  },
+  "schema": "gpt-design-bridge/app-foundation/v2",
+  "template_suffix": ".gdb-template"
+}

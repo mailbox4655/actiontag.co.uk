@@ -1,0 +1,120 @@
+import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "vite";
+
+const SCHEMA = "gpt-design-bridge/designer-lucide-input/v1";
+const VIRTUAL_ENTRY = "\0gdb-designer-lucide";
+
+function argumentsOf(argv) {
+  if (argv.length !== 4 || argv[0] !== "--icons" || argv[2] !== "--out") {
+    throw new Error(
+      "DESIGNER ICONS: usage: node scripts/build-designer-icons.mjs " +
+      "--icons ICONS_JSON --out NEW_DIRECTORY",
+    );
+  }
+  return { iconsFile: path.resolve(argv[1]), output: path.resolve(argv[3]) };
+}
+
+function loadIcons(file) {
+  const value = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (
+    !value || typeof value !== "object" || Array.isArray(value) ||
+    Object.keys(value).sort().join(",") !== "icons,schema" ||
+    value.schema !== SCHEMA || !Array.isArray(value.icons)
+  ) {
+    throw new Error(`DESIGNER ICONS: invalid strict icon input: ${file}`);
+  }
+  const icons = value.icons;
+  if (
+    icons.some((name) => typeof name !== "string" || !/^[A-Z][A-Za-z0-9]*$/.test(name)) ||
+    new Set(icons).size !== icons.length ||
+    icons.join("\n") !== [...icons].sort().join("\n")
+  ) {
+    throw new Error("DESIGNER ICONS: icon names must be unique, sorted React identifiers");
+  }
+  return icons;
+}
+
+function subsetPlugin(icons) {
+  const source = icons.length
+    ? `import { ${icons.join(", ")} } from "lucide-react";\n` +
+      `globalThis.LucideReact=Object.freeze({${icons.join(",")}});\n`
+    : "globalThis.LucideReact=Object.freeze({});\n";
+  return {
+    name: "gdb-designer-lucide-subset",
+    resolveId(id) {
+      return id === "gdb-designer-lucide" ? VIRTUAL_ENTRY : null;
+    },
+    load(id) {
+      return id === VIRTUAL_ENTRY ? source : null;
+    },
+  };
+}
+
+export async function buildDesignerIcons(iconsFile, outputPath) {
+  if (process.version !== "v24.18.0") {
+    throw new Error(`DESIGNER ICONS: Node 24.18.0 is required; running ${process.version}`);
+  }
+  const icons = loadIcons(iconsFile);
+  const project = process.cwd();
+  const output = path.resolve(outputPath);
+  for (const protectedPath of [project, path.resolve("app"), path.resolve("dist"), path.resolve("node_modules")]) {
+    if (output === protectedPath || protectedPath.startsWith(`${output}${path.sep}`)) {
+      throw new Error(`DESIGNER ICONS: unsafe output directory ${output}`);
+    }
+  }
+  if (fs.existsSync(output)) {
+    throw new Error(`DESIGNER ICONS: output must not exist: ${output}`);
+  }
+  await build({
+    root: project,
+    publicDir: false,
+    configFile: false,
+    logLevel: "warn",
+    plugins: [subsetPlugin(icons)],
+    build: {
+      outDir: output,
+      emptyOutDir: true,
+      modulePreload: false,
+      sourcemap: false,
+      minify: true,
+      rollupOptions: {
+        input: "gdb-designer-lucide",
+        external: ["react"],
+        output: {
+          format: "iife",
+          name: "GdbLucideSubset",
+          globals: { react: "React" },
+          entryFileNames: "lucide-react.min.js",
+          inlineDynamicImports: true,
+        },
+      },
+    },
+  });
+  const files = fs.readdirSync(output, { recursive: true }).map(String).sort();
+  if (files.length !== 1 || files[0] !== "lucide-react.min.js") {
+    throw new Error(
+      `DESIGNER ICONS: expected only lucide-react.min.js, emitted ${JSON.stringify(files)}`,
+    );
+  }
+  return Object.freeze({
+    output,
+    bundle: path.join(output, files[0]),
+    bytes: fs.statSync(path.join(output, files[0])).size,
+    icons,
+    files,
+  });
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    const args = argumentsOf(process.argv.slice(2));
+    process.stdout.write(`${JSON.stringify(await buildDesignerIcons(args.iconsFile, args.output))}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `DESIGNER ICONS FAILED: ${error instanceof Error ? error.message : String(error)}\n`,
+    );
+    process.exitCode = 1;
+  }
+}

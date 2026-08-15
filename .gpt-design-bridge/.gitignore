@@ -1,0 +1,13 @@
+runtime/*
+!runtime/.gitkeep
+outbound/*
+!outbound/.gitkeep
+returns/inbox/*
+!returns/inbox/.gitkeep
+returns/quarantine/*
+!returns/quarantine/.gitkeep
+baselines/*/adoption-*/
+records/provenance/*
+!records/provenance/.gitkeep
+evidence/*
+!evidence/.gitkeep

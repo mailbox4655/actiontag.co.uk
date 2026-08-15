@@ -1,0 +1,55 @@
+import { describe, expect, it } from "vitest";
+import { executeRoute } from "../app/src/engine/task-service.js";
+import {
+  TaskStoreError,
+  createMemoryTaskStore,
+} from "../app/src/state/memory-store.js";
+
+function runtime() {
+  let sequence = 0;
+  return {
+    initialTasks: [],
+    clock: () => "2026-08-01T00:00:00.000Z",
+    idFactory: () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, "0")}`,
+  };
+}
+
+describe("task domain", () => {
+  it("executes the full route contract without a transport", async () => {
+    const store = createMemoryTaskStore(runtime());
+    expect(await executeRoute(store, "tasks.list", {})).toEqual({ tasks: [] });
+    const created = await executeRoute(store, "tasks.create", { title: "  Measured task  " });
+    expect(created.task).toMatchObject({
+      title: "Measured task",
+      completed: false,
+      createdAt: "2026-08-01T00:00:00.000Z",
+    });
+    const completed = await executeRoute(store, "tasks.setCompleted", {
+      id: created.task.id,
+      completed: true,
+    });
+    expect(completed.task.completed).toBe(true);
+    expect(await executeRoute(store, "tasks.delete", { id: created.task.id })).toEqual({
+      deletedId: created.task.id,
+    });
+    await expect(
+      executeRoute(store, "tasks.delete", { id: created.task.id }),
+    ).rejects.toMatchObject({ code: "TASK_NOT_FOUND" });
+  });
+
+  it("rejects invalid input and duplicate generated IDs instead of substituting", async () => {
+    const duplicateId = "00000000-0000-4000-8000-000000000001";
+    const store = createMemoryTaskStore({
+      initialTasks: [],
+      clock: () => "2026-08-01T00:00:00.000Z",
+      idFactory: () => duplicateId,
+    });
+    await expect(executeRoute(store, "tasks.create", { title: " " })).rejects.toMatchObject({
+      code: "INVALID_INPUT",
+    });
+    await executeRoute(store, "tasks.create", { title: "First" });
+    await expect(executeRoute(store, "tasks.create", { title: "Second" })).rejects.toBeInstanceOf(
+      TaskStoreError,
+    );
+  });
+});

@@ -1,0 +1,57 @@
+const MIRROR_STORE = "images";
+const MIRROR_KEY = "tasks.sqlite3";
+const MIRROR_VERSION = 1;
+
+export function openMirrorDatabase(indexedDB, name) {
+  if (!indexedDB || typeof indexedDB.open !== "function") {
+    return Promise.reject(new Error("this browser context has no IndexedDB"));
+  }
+  return new Promise((resolve, reject) => {
+    let request;
+    try {
+      request = indexedDB.open(name, MIRROR_VERSION);
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(MIRROR_STORE)) {
+        database.createObjectStore(MIRROR_STORE);
+      }
+    };
+    request.onblocked = () =>
+      reject(new Error("another tab is blocking the travelling database upgrade"));
+    request.onerror = () =>
+      reject(request.error || new Error("IndexedDB refused the travelling database"));
+    request.onsuccess = () => {
+      const database = request.result;
+      database.onversionchange = () => database.close();
+      resolve(database);
+    };
+  });
+}
+
+function idbRequest(request, label) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error(`${label} failed`));
+  });
+}
+
+export function readMirror(idb) {
+  return idbRequest(
+    idb.transaction(MIRROR_STORE, "readonly").objectStore(MIRROR_STORE).get(MIRROR_KEY),
+    "travelling database read",
+  );
+}
+
+export function writeMirror(idb, bytes) {
+  return idbRequest(
+    idb
+      .transaction(MIRROR_STORE, "readwrite")
+      .objectStore(MIRROR_STORE)
+      .put(bytes, MIRROR_KEY),
+    "travelling database write",
+  );
+}

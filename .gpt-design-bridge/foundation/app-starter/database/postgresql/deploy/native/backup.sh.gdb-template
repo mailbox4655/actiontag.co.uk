@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+fail() { printf 'POSTGRESQL BACKUP FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "$(id -un)" == "$APP" ]] || fail "run as the ${APP} service account"
+[[ "$#" -eq 1 && "$1" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] ||
+  fail "usage: backup.sh CURRENT_RELEASE_ID"
+[[ -f "$ENV_FILE" ]] || fail "environment file is missing: $ENV_FILE"
+command -v pg_dump >/dev/null 2>&1 || fail "pg_dump is missing"
+command -v pg_restore >/dev/null 2>&1 || fail "pg_restore is missing"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+[[ "${DATABASE_KIND:-}" == "postgresql" && -n "${DATABASE_URL:-}" ]] ||
+  fail "environment does not select PostgreSQL with DATABASE_URL"
+readonly STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+readonly ROOT="/var/backups/${APP}"
+readonly ARTIFACT="${ROOT}/${APP}-${STAMP}-$1.dump"
+readonly EVIDENCE="${ARTIFACT}.json"
+readonly PARTIAL="${ARTIFACT}.partial"
+[[ ! -e "$ARTIFACT" && ! -e "$EVIDENCE" && ! -e "$PARTIAL" ]] ||
+  fail "backup output already exists"
+mkdir -p -- "$ROOT"
+cleanup() { rm -f -- "$PARTIAL"; }
+trap cleanup EXIT
+pg_dump --format=custom --no-owner --no-privileges --file="$PARTIAL" "$DATABASE_URL"
+pg_restore --list "$PARTIAL" >/dev/null
+mv -- "$PARTIAL" "$ARTIFACT"
+trap - EXIT
+/usr/bin/node - "$ARTIFACT" "$EVIDENCE" "$1" <<'NODE'
+const fs=require("fs"),crypto=require("crypto"),path=require("path");
+const artifact=process.argv[2],evidence=process.argv[3],release=process.argv[4];
+const bytes=fs.readFileSync(artifact);
+const record={
+ schema:"gpt-design-bridge/backup/v1",
+ engine:"postgresql",
+ release,
+ created_at:new Date().toISOString(),
+ artifact:path.basename(artifact),
+ bytes:bytes.length,
+ sha256:crypto.createHash("sha256").update(bytes).digest("hex"),
+ pg_restore_list:"ok"
+};
+fs.writeFileSync(evidence,`${JSON.stringify(record,null,2)}\n`,{encoding:"utf8",flag:"wx"});
+process.stdout.write(`${JSON.stringify(record)}\n`);
+NODE
+printf 'POSTGRESQL BACKUP PASS: artifact=%s evidence=%s\n' "$ARTIFACT" "$EVIDENCE"

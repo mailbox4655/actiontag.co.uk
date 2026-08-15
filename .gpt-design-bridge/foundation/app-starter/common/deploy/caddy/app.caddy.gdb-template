@@ -1,0 +1,11 @@
+@@DEPLOYMENT_HOSTNAME@@ {
+	encode zstd gzip
+
+	@api path /api/*
+	header @api Cache-Control "no-store"
+
+	reverse_proxy 127.0.0.1:@@APPLICATION_PORT@@ {
+		header_up X-Forwarded-Host {host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}

@@ -1,0 +1,87 @@
+import {
+  apiErrorSchema,
+  parseRouteInput,
+  parseRouteOutput,
+  routeDefinition,
+} from "./routes.js";
+
+export class RemoteRouteError extends Error {
+  constructor(routeId, status, code, message) {
+    super(`HTTP SOCKET: ${routeId} failed with ${status} ${code}: ${message}`);
+    this.name = "RemoteRouteError";
+    this.routeId = routeId;
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function readJson(response, routeId) {
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.toLowerCase().includes("application/json")) {
+    throw new Error(
+      `HTTP SOCKET: ${routeId} returned ${JSON.stringify(contentType)} instead of JSON`,
+    );
+  }
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(`HTTP SOCKET: ${routeId} returned malformed JSON`, { cause: error });
+  }
+}
+
+export function createHttpSocket({ baseUrl, fetchImpl }) {
+  let parsedBase;
+  try {
+    parsedBase = new URL(baseUrl);
+  } catch (error) {
+    throw new Error(`HTTP SOCKET: invalid base URL ${JSON.stringify(baseUrl)}`, {
+      cause: error,
+    });
+  }
+  if (!["http:", "https:"].includes(parsedBase.protocol)) {
+    throw new Error(`HTTP SOCKET: base URL must use HTTP(S), got ${parsedBase.protocol}`);
+  }
+  if (typeof fetchImpl !== "function") {
+    throw new Error("HTTP SOCKET: an explicit fetch implementation is required");
+  }
+
+  return Object.freeze({
+    kind: "http",
+    async request(routeId, untrustedInput) {
+      const definition = routeDefinition(routeId);
+      const input = parseRouteInput(routeId, untrustedInput);
+      const init = {
+        method: definition.method,
+        headers: { Accept: "application/json" },
+      };
+      if (definition.method !== "GET") {
+        init.headers["Content-Type"] = "application/json";
+        init.body = JSON.stringify(input);
+      }
+      let response;
+      try {
+        response = await fetchImpl(new URL(definition.path, parsedBase), init);
+      } catch (error) {
+        throw new Error(`HTTP SOCKET: ${routeId} could not reach the server`, {
+          cause: error,
+        });
+      }
+      const body = await readJson(response, routeId);
+      if (!response.ok) {
+        const parsedError = apiErrorSchema.safeParse(body);
+        if (!parsedError.success) {
+          throw new Error(
+            `HTTP SOCKET: ${routeId} failed with ${response.status} and an invalid error body`,
+          );
+        }
+        throw new RemoteRouteError(
+          routeId,
+          response.status,
+          parsedError.data.error.code,
+          parsedError.data.error.message,
+        );
+      }
+      return parseRouteOutput(routeId, body);
+    },
+  });
+}

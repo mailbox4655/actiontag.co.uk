@@ -1,0 +1,30 @@
+# Fallback log
+
+This is the project's canonical debug record for deliberate fallback and degraded
+behavior. It is deliberately empty at scaffold time. No entry means no fallback is
+approved.
+
+Read owner rule G2.8 before adding an entry or troubleshooting a possible fallback.
+A fallback is permitted only when it remains distinct from success, visible when
+appropriate, testable, approved, and linked to a discharge gate. Add its entry before
+adding the fallback code.
+
+For each fallback, create a heading using its stable ID and record all of these fields:
+
+1. Status: proposed, active, deferred, or discharged.
+2. Exact trigger.
+3. Affected operation and safe resource.
+4. Why the operation needs that resource.
+5. Unavailable data or capability.
+6. Visible behavior.
+7. Runtime diagnostic signature, including the same stable fallback ID.
+8. Test and exact evidence location.
+9. Owner or scoped owner ruling.
+10. Removal condition and discharge gate.
+11. Activation evidence or the declared diagnostic sink that records activations.
+
+Do not record an ordinary exception as a fallback. Do not use an entry to justify an
+empty catch, false success, invented value, or silent continuation. During
+troubleshooting, compare the observed trigger and diagnostic ID with this file before
+classifying the symptom. If no registered fallback matches, investigate it as a
+genuine error.

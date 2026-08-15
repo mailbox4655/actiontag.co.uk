@@ -1,0 +1,38 @@
+import React from "react";
+import { Check, Circle, LoaderCircle, Trash2 } from "lucide-react";
+
+export function TaskRow({ task, busy, onToggle, onDelete }) {
+  return (
+    <li className="task-row" data-completed={task.completed ? "true" : "false"}>
+      <button
+        className="task-toggle"
+        type="button"
+        aria-label={task.completed ? `Mark ${task.title} incomplete` : `Mark ${task.title} complete`}
+        aria-pressed={task.completed}
+        disabled={busy}
+        onClick={onToggle}
+      >
+        {busy ? (
+          <LoaderCircle className="spin" size={19} aria-hidden="true" />
+        ) : task.completed ? (
+          <Check size={19} aria-hidden="true" />
+        ) : (
+          <Circle size={19} aria-hidden="true" />
+        )}
+      </button>
+      <div className="task-copy">
+        <span className="task-title">{task.title}</span>
+        <span className="task-meta">{task.completed ? "Completed" : "Open"}</span>
+      </div>
+      <button
+        className="icon-button delete-button"
+        type="button"
+        aria-label={`Delete ${task.title}`}
+        disabled={busy}
+        onClick={onDelete}
+      >
+        <Trash2 size={18} aria-hidden="true" />
+      </button>
+    </li>
+  );
+}

@@ -1,0 +1,86 @@
+import path from "node:path";
+import process from "node:process";
+import { serve } from "@hono/node-server";
+import { createApplication, consoleLogger, registerClientFiles } from "./app.js";
+import { readConfig } from "./config.js";
+import { createTaskStore } from "./database/adapter.js";
+import { createMailService } from "./mail.js";
+
+const logger = consoleLogger();
+let startupStore: Awaited<ReturnType<typeof createTaskStore>> | null = null;
+
+async function start() {
+  const config = readConfig(process.env);
+  const store = await createTaskStore(config.database);
+  startupStore = store;
+  const mail = createMailService(config.mail);
+  const app = createApplication({ config, store, mail, logger });
+  registerClientFiles(app, path.resolve("dist/client"));
+  const server = serve(
+    {
+      fetch: app.fetch,
+      hostname: config.host,
+      port: config.port,
+    },
+    (address) => {
+      logger.info({
+        event: "server_listening",
+        host: address.address,
+        port: address.port,
+        environment: config.environment,
+        database: config.database.kind,
+      });
+    },
+  );
+  let stopping = false;
+  const shutdown = async (signal: string, exitCode: number) => {
+    if (stopping) return;
+    stopping = true;
+    logger.info({ event: "server_stopping", signal });
+    let finalCode = exitCode;
+    try {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    } catch (error) {
+      const failure = error instanceof Error ? error : new Error(String(error));
+      logger.error({ event: "listener_close_failed", message: failure.message, stack: failure.stack });
+      finalCode = 1;
+    }
+    try {
+      await store.close();
+    } catch (error) {
+      const failure = error instanceof Error ? error : new Error(String(error));
+      logger.error({ event: "store_close_failed", message: failure.message, stack: failure.stack });
+      finalCode = 1;
+    }
+    process.exitCode = finalCode;
+  };
+  process.once("SIGTERM", () => void shutdown("SIGTERM", 0));
+  process.once("SIGINT", () => void shutdown("SIGINT", 0));
+  process.once("uncaughtException", (error) => {
+    logger.error({ event: "uncaught_exception", message: error.message, stack: error.stack });
+    void shutdown("uncaughtException", 1);
+  });
+  process.once("unhandledRejection", (reason) => {
+    const error = reason instanceof Error ? reason : new Error(`Non-Error rejection: ${String(reason)}`);
+    logger.error({ event: "unhandled_rejection", message: error.message, stack: error.stack });
+    void shutdown("unhandledRejection", 1);
+  });
+}
+
+start().catch(async (error) => {
+  const failure = error instanceof Error ? error : new Error(`Non-Error startup failure: ${String(error)}`);
+  logger.error({ event: "startup_failed", message: failure.message, stack: failure.stack });
+  if (startupStore) {
+    try {
+      await startupStore.close();
+    } catch (closeError) {
+      const closing = closeError instanceof Error
+        ? closeError
+        : new Error(`Non-Error close failure: ${String(closeError)}`);
+      logger.error({ event: "startup_store_close_failed", message: closing.message, stack: closing.stack });
+    }
+  }
+  process.exitCode = 1;
+});

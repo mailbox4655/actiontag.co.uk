@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly DEPLOY_ROOT="$(cd -- "${HERE}/.." && pwd)"
+readonly PROXY_MARKER="/etc/${APP}/reverse-proxy"
+fail() { printf 'HOST INSTALL FAILED: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || fail "required command is missing: $1"; }
+
+[[ "${EUID}" -eq 0 ]] || fail "run as root"
+[[ "$#" -eq 1 ]] || fail "usage: install-host.sh caddy|nginx"
+readonly PROXY="$1"
+[[ "$PROXY" == "caddy" || "$PROXY" == "nginx" ]] ||
+  fail "reverse proxy must be exactly caddy or nginx; received: $PROXY"
+
+for command_name in useradd install systemctl cmp; do
+  need "$command_name"
+done
+
+if ! id "$APP" >/dev/null 2>&1; then
+  useradd --system --home-dir "/var/lib/${APP}" --shell /usr/sbin/nologin "$APP"
+fi
+install -d -o root -g "$APP" -m 0750 "/etc/${APP}"
+install -d -o root -g root -m 0755 "/opt/${APP}/releases"
+install -d -o "$APP" -g "$APP" -m 0750 "/var/lib/${APP}"
+install -d -o "$APP" -g "$APP" -m 0750 "/var/backups/${APP}"
+install -o root -g root -m 0644 "${DEPLOY_ROOT}/systemd/app.service" \
+  "/etc/systemd/system/${APP}.service"
+install -o root -g "$APP" -m 0640 "${DEPLOY_ROOT}/../.env.production.example" \
+  "/etc/${APP}/${APP}.env.example"
+
+if [[ -f "$PROXY_MARKER" ]]; then
+  [[ "$(tr -d '\r\n' < "$PROXY_MARKER")" == "$PROXY" ]] ||
+    fail "$PROXY_MARKER already selects a different proxy; inspect the host instead of overwriting it"
+fi
+
+case "$PROXY" in
+  caddy)
+    need caddy
+    grep -q 'SPECIMEN_SET_DEPLOYMENT_HOSTNAME' "${DEPLOY_ROOT}/caddy/app.caddy" &&
+      fail "initialize the project with a real deployment hostname first"
+    install -d -o root -g root -m 0755 /etc/caddy/apps-enabled
+    readonly CADDY_TARGET="/etc/caddy/apps-enabled/${APP}.caddy"
+    if [[ -e "$CADDY_TARGET" ]] && ! cmp -s "${DEPLOY_ROOT}/caddy/app.caddy" "$CADDY_TARGET"; then
+      fail "refusing to overwrite a different Caddy app file: $CADDY_TARGET"
+    fi
+    install -o root -g root -m 0644 "${DEPLOY_ROOT}/caddy/app.caddy" "$CADDY_TARGET"
+    if ! grep -Eq '^[[:space:]]*import[[:space:]]+/etc/caddy/apps-enabled/\*\.caddy' \
+      /etc/caddy/Caddyfile; then
+      fail "add 'import /etc/caddy/apps-enabled/*.caddy' to /etc/caddy/Caddyfile, then validate"
+    fi
+    caddy validate --config /etc/caddy/Caddyfile
+    ;;
+  nginx)
+    need nginx
+    need ln
+    grep -q 'SPECIMEN_SET_DEPLOYMENT_HOSTNAME' "${DEPLOY_ROOT}/nginx/app.nginx" &&
+      fail "initialize the project with a real deployment hostname first"
+    [[ -d /etc/nginx/sites-available && -d /etc/nginx/sites-enabled ]] ||
+      fail "Nginx sites-available/sites-enabled layout is missing; inspect this host before adapting it"
+    readonly NGINX_TARGET="/etc/nginx/sites-available/${APP}.conf"
+    readonly NGINX_LINK="/etc/nginx/sites-enabled/${APP}.conf"
+    if [[ -e "$NGINX_TARGET" ]] && ! cmp -s "${DEPLOY_ROOT}/nginx/app.nginx" "$NGINX_TARGET"; then
+      fail "refusing to overwrite a different Nginx app file: $NGINX_TARGET"
+    fi
+    install -o root -g root -m 0644 "${DEPLOY_ROOT}/nginx/app.nginx" "$NGINX_TARGET"
+    if [[ -L "$NGINX_LINK" ]]; then
+      [[ "$(readlink -f -- "$NGINX_LINK")" == "$NGINX_TARGET" ]] ||
+        fail "Nginx enabled link points somewhere unexpected: $NGINX_LINK"
+    elif [[ -e "$NGINX_LINK" ]]; then
+      fail "Nginx enabled path exists and is not the expected symlink: $NGINX_LINK"
+    else
+      ln -s -- "$NGINX_TARGET" "$NGINX_LINK"
+    fi
+    nginx -t
+    ;;
+esac
+
+printf '%s\n' "$PROXY" > "$PROXY_MARKER"
+chmod 0644 "$PROXY_MARKER"
+systemctl daemon-reload
+printf 'HOST INSTALL PASS: proxy=%s; create %s from its .example, remove every SPECIMEN value, release, activate TLS/proxy, then run doctor\n' \
+  "$PROXY" "/etc/${APP}/${APP}.env"

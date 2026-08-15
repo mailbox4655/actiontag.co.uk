@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gpt-design-bridge.local/schemas/contract-additions-v1.json",
+  "title": "Designer contract additions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "round_id",
+    "additions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gpt-design-bridge/contract-additions/v1"
+    },
+    "round_id": {
+      "type": "string",
+      "pattern": "^[0-9]{3,}$"
+    },
+    "additions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/addition"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "addition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "entity_or_path",
+        "shape",
+        "surfaces",
+        "behavior",
+        "rules",
+        "specimen",
+        "directive"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^CA-[1-9][0-9]*$"
+        },
+        "kind": {
+          "enum": [
+            "field",
+            "entity",
+            "route",
+            "asset",
+            "interaction",
+            "copy-rule"
+          ]
+        },
+        "entity_or_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "shape": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "surfaces": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "behavior": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "rules": {
+          "type": "string"
+        },
+        "specimen": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "used",
+            "example",
+            "marking"
+          ],
+          "properties": {
+            "used": {
+              "type": "boolean"
+            },
+            "example": {
+              "description": "One real-shaped fixture value, or null when used is false"
+            },
+            "marking": {
+              "type": "string",
+              "enum": [
+                "SPECIMEN",
+                "not-applicable"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "used": {
+                    "const": true
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "marking": {
+                    "const": "SPECIMEN"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "directive": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "by",
+            "date",
+            "note"
+          ],
+          "properties": {
+            "by": {
+              "enum": [
+                "owner",
+                "designer"
+              ]
+            },
+            "date": {
+              "type": "string",
+              "format": "date"
+            },
+            "note": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

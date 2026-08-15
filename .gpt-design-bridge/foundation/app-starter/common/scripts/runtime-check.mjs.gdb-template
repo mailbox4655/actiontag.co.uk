@@ -1,0 +1,99 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const expected = Object.freeze({
+  node: "24.18.0",
+  npm: "11.16.0",
+  sqlite: "3.53.1",
+  lockfileVersion: 3,
+});
+
+function fail(message) {
+  throw new Error(`RUNTIME CHECK: ${message}`);
+}
+
+function readText(relativePath) {
+  const resolved = path.resolve(relativePath);
+  try {
+    return fs.readFileSync(resolved, "utf8");
+  } catch (error) {
+    throw new Error(`RUNTIME CHECK: cannot read ${resolved}`, { cause: error });
+  }
+}
+
+function readJson(relativePath) {
+  const text = readText(relativePath);
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`RUNTIME CHECK: ${relativePath} is not valid JSON`, { cause: error });
+  }
+}
+
+function stable(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => [key, stable(entry)]),
+  );
+}
+
+function requireEqual(label, actual, required) {
+  if (JSON.stringify(stable(actual)) !== JSON.stringify(stable(required))) {
+    fail(`${label} does not match its required value`);
+  }
+}
+
+if (process.version !== `v${expected.node}`) {
+  fail(`Node ${expected.node} is required exactly; running ${process.version}`);
+}
+if (process.versions.sqlite !== expected.sqlite) {
+  fail(
+    `the Node runtime must bundle SQLite ${expected.sqlite}; running ${
+      process.versions.sqlite ?? "none"
+    }`,
+  );
+}
+
+const userAgent = process.env.npm_config_user_agent;
+if (!userAgent) {
+  fail("run this check through npm so the package-manager version is measurable");
+}
+const npmMatch = /^npm\/([^ ]+)/.exec(userAgent);
+if (!npmMatch || npmMatch[1] !== expected.npm) {
+  fail(`npm ${expected.npm} is required exactly; user agent is ${JSON.stringify(userAgent)}`);
+}
+
+const nvmrc = readText(".nvmrc").trim();
+if (nvmrc !== expected.node) fail(`.nvmrc declares ${JSON.stringify(nvmrc)}`);
+
+const packageJson = readJson("package.json");
+if (packageJson.packageManager !== `npm@${expected.npm}`) {
+  fail(`packageManager must be npm@${expected.npm}`);
+}
+requireEqual("Node engine", packageJson.engines?.node, ">=24.18.0 <25");
+requireEqual("npm engine", packageJson.engines?.npm, ">=11.16.0 <12");
+
+for (const group of ["dependencies", "devDependencies"]) {
+  for (const [name, version] of Object.entries(packageJson[group] ?? {})) {
+    if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(String(version))) {
+      fail(`${group}.${name} is not an exact version: ${JSON.stringify(version)}`);
+    }
+  }
+}
+
+const lock = readJson("package-lock.json");
+if (lock.lockfileVersion !== expected.lockfileVersion) {
+  fail(`package-lock.json must use lockfileVersion ${expected.lockfileVersion}`);
+}
+const root = lock.packages?.[""];
+if (!root) fail("package-lock.json has no root package record");
+requireEqual("lock root name", root.name, packageJson.name);
+requireEqual("lock root version", root.version, packageJson.version);
+requireEqual("locked dependencies", root.dependencies ?? {}, packageJson.dependencies ?? {});
+requireEqual("locked devDependencies", root.devDependencies ?? {}, packageJson.devDependencies ?? {});
+
+process.stdout.write(
+  `runtime check passed: node=${expected.node} npm=${expected.npm} sqlite=${expected.sqlite}\n`,
+);

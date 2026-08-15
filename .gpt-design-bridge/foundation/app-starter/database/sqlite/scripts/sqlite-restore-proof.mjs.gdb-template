@@ -1,0 +1,102 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { spawnSync } from "node:child_process";
+import { DatabaseSync } from "node:sqlite";
+
+function fail(message) { throw new Error(`SQLITE RESTORE PROOF: ${message}`); }
+function namedArguments(argv) {
+  const values = {};
+  for (let index = 0; index < argv.length; index += 2) {
+    const [flag, value] = argv.slice(index, index + 2);
+    if (!["--evidence", "--destination", "--release-dir"].includes(flag) || !value) {
+      fail("usage: --evidence FILE --destination NEW_FILE --release-dir DIRECTORY");
+    }
+    values[flag.slice(2)] = value;
+  }
+  if (Object.keys(values).length !== 3) fail("all three named arguments are required once");
+  return values;
+}
+const sha256 = (file) =>
+  crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+function runReleaseScript(release, relative, environment) {
+  const result = spawnSync(process.execPath, [path.join(release, relative)], {
+    cwd: release, env: environment, encoding: "utf8", windowsHide: true,
+  });
+  if (result.status !== 0) {
+    fail(`${relative} failed: ${(result.stderr || result.stdout || "no diagnostic").trim()}`);
+  }
+  return result.stdout.trim();
+}
+function inspect(file) {
+  const database = new DatabaseSync(file, { readOnly: true, defensive: true });
+  try {
+    const integrity = database.prepare("PRAGMA integrity_check").all();
+    if (integrity.length !== 1 || integrity[0]?.integrity_check !== "ok") {
+      fail(`integrity_check failed: ${JSON.stringify(integrity)}`);
+    }
+    const migrations = database.prepare(
+      "SELECT name, sha256 FROM gdb_schema_migrations ORDER BY name",
+    ).all();
+    const tasks = database.prepare("SELECT count(*) AS count FROM tasks").get();
+    if (!migrations.length || !Number.isSafeInteger(tasks?.count)) {
+      fail("restored database invariants are missing");
+    }
+    return { migrations, representativeTaskCount: tasks.count };
+  } finally {
+    database.close();
+  }
+}
+function main() {
+  if (process.version !== "v24.18.0" || process.versions.sqlite !== "3.53.1")
+    fail("exact Node 24.18.0 with SQLite 3.53.1 is required");
+  const selected = namedArguments(process.argv.slice(2));
+  const evidencePath = path.resolve(selected.evidence), destination = path.resolve(selected.destination);
+  const release = path.resolve(selected["release-dir"]);
+  if (fs.existsSync(destination)) fail(`destination must be new: ${destination}`);
+  const evidence = JSON.parse(fs.readFileSync(evidencePath, "utf8"));
+  if (evidence.schema !== "gpt-design-bridge/backup/v1" || evidence.engine !== "sqlite")
+    fail("evidence schema or engine is invalid");
+  if (!/^[A-Za-z0-9._-]+\.sqlite3$/.test(evidence.artifact))
+    fail("evidence artifact must be a safe SQLite filename");
+  const artifact = path.join(path.dirname(evidencePath), evidence.artifact);
+  if (
+    fs.statSync(artifact, { throwIfNoEntry: false })?.size !== evidence.bytes ||
+    sha256(artifact) !== evidence.sha256
+  ) fail("backup artifact does not match its evidence");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(artifact, destination, fs.constants.COPYFILE_EXCL);
+  fs.chmodSync(destination, 0o600);
+  const before = inspect(destination);
+  const environment = {
+    ...process.env, APP_ENV: "production", APP_HOST: "127.0.0.1",
+    DATABASE_KIND: "sqlite", SQLITE_PATH: destination,
+  };
+  runReleaseScript(release, "dist/server/server/src/migrate.js", environment);
+  const applicationProof = runReleaseScript(
+    release,
+    "dist/server/server/src/database-proof.js",
+    environment,
+  );
+  const after = inspect(destination);
+  if (before.representativeTaskCount !== after.representativeTaskCount)
+    fail("representative task count changed during restore proof");
+  process.stdout.write(
+    `${JSON.stringify({
+      schema: "gpt-design-bridge/restore-proof/v1",
+      engine: "sqlite",
+      backup_sha256: evidence.sha256,
+      integrity_check: "ok",
+      migrations: after.migrations,
+      representativeTaskCount: after.representativeTaskCount,
+      applicationProof,
+    })}\n`,
+  );
+}
+try {
+  main();
+} catch (error) {
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  process.exitCode = 1;
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "actiontag-dns-baseline-v1",
+  "zone": "actiontag.co.uk",
+  "source": "Public authoritative DNS queries reconciled with the owner-provided ADM.Tools zone screenshot before cutover",
+  "cloudflare_zone_id": "cb11cf0b0f783cfe331a619305f2ca1a",
+  "cloudflare_tunnel_id": "553735cd-9b48-4256-ac05-b8cb355ca10b",
+  "cloudflare_assigned_nameservers": ["lovisa.ns.cloudflare.com", "yew.ns.cloudflare.com"],
+  "dnssec_parent_ds_present": false,
+  "nameservers": [
+    "ns1.fastdns.hosting",
+    "ns2.fastdns.hosting",
+    "ns3.fastdns.hosting"
+  ],
+  "web_records_to_replace": [
+    { "type": "A", "name": "actiontag.co.uk", "content": "136.243.81.57" },
+    { "type": "AAAA", "name": "actiontag.co.uk", "content": "2a01:4f8:212:2f08::1" },
+    { "type": "A", "name": "www.actiontag.co.uk", "content": "136.243.81.57" },
+    { "type": "AAAA", "name": "www.actiontag.co.uk", "content": "2a01:4f8:212:2f08::1" },
+    { "type": "A", "name": "*.actiontag.co.uk", "content": "136.243.81.57" },
+    { "type": "AAAA", "name": "*.actiontag.co.uk", "content": "2a01:4f8:212:2f08::1" }
+  ],
+  "records_to_preserve_exactly": [
+    { "type": "CNAME", "name": "bounces.actiontag.co.uk", "content": "spgo.io", "proxied": false },
+    { "type": "CNAME", "name": "mail.actiontag.co.uk", "content": "mail.ukraine.com.ua", "proxied": false },
+    { "type": "MX", "name": "actiontag.co.uk", "content": "mx.services", "priority": 0, "proxied": false },
+    { "type": "TXT", "name": "_dmarc.actiontag.co.uk", "content": "v=DMARC1; p=none", "proxied": false },
+    { "type": "TXT", "name": "actiontag.co.uk", "content": "v=spf1 include:mxsspf.sendpulse.com include:_spf.ukraine.com.ua ip4:185.104.44.58 include:sparkpostmail.com include:mailgun.org ~all", "proxied": false },
+    { "type": "TXT", "name": "actiontag.co.uk", "content": "google-site-verification=swQwCHTWOxjLcCFdGXC2rkHz6qMXdFJkvr3X15gaRzs", "proxied": false },
+    { "type": "TXT", "name": "krs._domainkey.actiontag.co.uk", "content": "k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+pv93c7nEJVaJci0jgrdRPTpPcWAGlEPspBx2qNVd4ySEWcL8EWwD/YbpsiqNzTQuWruAQ7gCWQnYMhv/0bS0CVhzK1J5raeiyjCjHeiqnkx4Wi+HEGyoGI4kdwL58zayoaBbcTc9V9980VzDpVEofW6Os/pGbVY8mTb1svnsmwIDAQAB", "proxied": false },
+    { "type": "TXT", "name": "scph0917._domainkey.actiontag.co.uk", "content": "v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDE3PuVdaGEKxYgnJUS2NFX/rLvdm1Z5ceKkO2Cv4d9EupY5g8RTxzQvHitlrgxjtBzqRGD9qj4wDduRO0BGyegF5YRFqtOf7sKJ3o+gcCD8XV/1jh5lMXRN250U80KcVxqv10VydhkCB4puHw5czyeCTKCIP/nuD4hgq/VjRWQwwIDAQAB", "proxied": false },
+    { "type": "TXT", "name": "sign._domainkey.actiontag.co.uk", "content": "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCx4Nb1V6Tt1ya42eHvGjG03nDiSBH3/riCS8yDKjo4hCdii/5i5NoNBWX7OeoJwP9VgdeyKJM0KUyfPt7GJXQ3LhHnKbZ0enk+oo6Japr9D1uG12n/Zify5IS8GYmJsgXzN2YrDH2SOmoeU5TXArWphjSU9u8BQ0d4LjdR8feluQIDAQAB", "proxied": false },
+    { "type": "TXT", "name": "hosting._domainkey.actiontag.co.uk", "content": "v=DKIM1; k=rsa; s=email; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDjJd/6RRmEQc1e4ccTrrsQcsJwm58k+gcNnSoVwW1dndGf7NtGPnLSyGu3bG5p9Jp9bcsBg3jKhNsgNKpxe0i6tvfYuRPJ4Gz9eeaYrto9sakiYaUDP2uLO0lT9YOltVVdDCNbRIibMwhsuyQ7kBeeDy6xBP+f/savOGpp3N9OwwIDAQAB", "proxied": false }
+  ]
+}

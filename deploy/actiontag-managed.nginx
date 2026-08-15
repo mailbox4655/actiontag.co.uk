@@ -1,0 +1,78 @@
+# Managed by the ActionTag release. The outer server block is retained so
+# Certbot can add direct-origin TLS without later releases erasing its work.
+root /opt/actiontag/current/site/dist;
+index index.html;
+
+client_max_body_size 20k;
+
+# cloudflared is the only trusted local reverse proxy. This converts its
+# CF-Connecting-IP header into $remote_addr while preventing direct-origin
+# clients from spoofing the address used by the application rate limiter.
+set_real_ip_from 127.0.0.1;
+set_real_ip_from ::1;
+real_ip_header CF-Connecting-IP;
+real_ip_recursive off;
+
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+
+if ($host = www.actiontag.co.uk) {
+    return 301 https://actiontag.co.uk$request_uri;
+}
+if ($host ~* ^[^.]+\.actiontag\.co\.uk$) {
+    return 301 https://actiontag.co.uk$request_uri;
+}
+
+location = / {
+    return 301 /en/;
+}
+
+location = /en/price { return 301 /en/; }
+location = /en/rental-lasertag/our-rental-system { return 301 /en/#devices; }
+location = /en/rental-lasertag/taggers { return 301 /en/#devices; }
+location = /en/rental-lasertag/props { return 301 /en/#props; }
+location = /en/milsim-killhouse { return 301 /en/#milsim; }
+location = /en/soft-play { return 301 /en/#products; }
+location = /en/starting-your-business { return 301 /en/#business; }
+location = /en/home-lasertag { return 301 /en/; }
+location ^~ /cz/ { return 301 /cs/; }
+
+location = /api/contact {
+    limit_except POST { deny all; }
+    proxy_pass http://127.0.0.1:3021;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header CF-Connecting-IP $remote_addr;
+    proxy_connect_timeout 5s;
+    proxy_read_timeout 20s;
+    proxy_send_timeout 20s;
+    add_header Cache-Control "no-store" always;
+}
+
+location = /healthz {
+    proxy_pass http://127.0.0.1:3021;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_connect_timeout 3s;
+    proxy_read_timeout 5s;
+    add_header Cache-Control "no-store" always;
+}
+
+location ~* \.(?:css|js|gif|jpe?g|png|svg|webp|ico|woff2?|mp4|webm)$ {
+    try_files $uri =404;
+    expires 7d;
+    add_header Cache-Control "public, max-age=604800, immutable";
+}
+
+location ~* \.html$ {
+    try_files $uri =404;
+    add_header Cache-Control "no-cache";
+}
+
+location / {
+    try_files $uri $uri/ =404;
+}

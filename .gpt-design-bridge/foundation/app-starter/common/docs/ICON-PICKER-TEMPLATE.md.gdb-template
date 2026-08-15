@@ -1,0 +1,182 @@
+# Owner-supplied icon-picker template
+
+## What the scaffold installs
+
+Every application scaffold expands the verified picker core into:
+
+```text
+public/assets/pickers/icon-picker/
+  assets/lucide/       1,952 local SVG files
+  assets/twemoji/      3,720 local SVG files
+  licenses/            upstream license texts
+  src/                 picker, loaders, manifests, and SVG sanitizer
+  icon-picker.css
+  LICENSES.md
+```
+
+The source is the owner-supplied picker extracted from GPT-Mermaid. The foundation
+archive retains its complete 5,695-file source snapshot. `README.md` and `demo.html`
+remain in that provenance archive but are deliberately not expanded into the public
+application: the legacy demo contains optional remote-font requests and demonstrates
+behavior that predates the current owner rules.
+
+Approved source versions are Lucide Static 1.14.0, Twemoji SVG 15.0.0,
+unicode-emoji-json 0.9.0, and DOMPurify 3.4.7. Do not replace or upgrade them without a
+measured compatibility task and a regenerated integrity manifest.
+
+## What travels to a designer
+
+The full packs above are an engineering-project asset library. They do not all travel.
+Each prepared designer stage contains:
+
+1. every Lucide component imported by the designer-owned JSX;
+2. every Twemoji literal or picker-asset reference found in the designer surface;
+3. every dynamic Lucide, Twemoji, or custom SVG selection declared in
+   `designer-assets.json`;
+4. exactly 30 governed Lucide picker samples and 30 governed Twemoji picker samples;
+   and
+5. the picker runtime, sanitizer, styles, and required license files.
+
+The used and sample sets are merged without duplicate files. `TRAVELLING-ASSETS.json`
+labels every item by reason, byte count, path, and SHA-256. It also says explicitly
+that the picker is a limited sample, never the full library. Missing declared assets,
+unknown names, source/manifest disagreement, extra picker files, or hash drift block
+stage preparation.
+
+When a selected asset lives in application data rather than visible JSX/CSS, update
+`designer-assets.json` as part of the same implementation change. Do not wait for a
+designer prompt and do not add the full pack to avoid maintaining that declaration.
+The stage's generated Lucide React global likewise contains only components actually
+imported by the UI.
+
+## Template, not automatic permission
+
+Read owner rules D2.1 through D2.12 before using this component. Having the Twemoji
+pack and an Emoji tab in the raw source is asset capability; it is not permission to
+show emoji in a product. Ordinary UI chrome remains Lucide-only. Country flags use
+local Twemoji under D2.4. Any other emoji use needs a scoped owner request.
+
+Product code must not import the raw picker directly. Create one project-owned adapter
+as the only import boundary and adapt the supplied component before first use. The
+adapter must:
+
+1. expose only icon types authorized for that exact surface;
+2. map the picker `--ip-*` hooks to the product's dark-first design tokens;
+3. retain the supplied DOMPurify SVG sanitization and local asset resolution;
+4. replace native `title`-only hints with the product's designed tooltip component;
+5. replace `?`, native-glyph, swallowed-callback, and other silent fallback behavior
+   with actionable errors and general-rule G2.8 logging when degradation is approved;
+6. await durable host persistence and keep the dialog open on failure;
+7. restore focus, implement the required keyboard/dialog semantics, and route any
+   destructive action through a designed confirmation; and
+8. preserve the bundled license texts and Twemoji attribution.
+
+Before starting the BlackBox task, trace the complete integration surface: the raw
+picker entry, project adapter, launcher, containing dialog or popover, portal/layer
+host, product styles, persistence callback, unit tests, and Chrome path. Put every
+foreseeable project-owned path in the initial task contract. Do not begin with only
+the launcher and discover the adapter or layer path after editing. A genuinely
+unforeseeable path still follows BlackBox's owner-approved amendment rule.
+
+These are known adaptation points in the supplied source, not permission to discard
+the source and invent another picker. Change the smallest project-owned surface needed,
+keep its API recognizable, and prove the adapted behavior in visible independent
+Chrome.
+
+## Native modal and top-layer integration
+
+The provenance-locked raw picker mounts `.cat-editor-backdrop` under `document.body`.
+A native `<dialog>` opened with `showModal()` occupies the browser top layer. In that
+composition, the picker can exist in the DOM yet be hidden behind the dialog and
+receive no clicks.
+
+The scaffold provides:
+
+```text
+app/src/ui/owner-picker-layer.js
+tests/owner-picker-layer.test.js
+```
+
+The product adapter must capture the launcher and containing dialog before opening
+the raw picker, then place and prove the raw backdrop immediately:
+
+```js
+import {
+  assertOwnerPickerInteractable,
+  placeOwnerPickerBackdrop,
+} from "./owner-picker-layer.js";
+
+const origin = document.activeElement;
+rawPicker.openIconPicker(options);
+const backdrop = document.querySelector(".cat-editor-backdrop");
+const placement = placeOwnerPickerBackdrop({
+  backdrop,
+  origin,
+  layerRoot: settingsDialogRef.current,
+});
+
+requestAnimationFrame(() => {
+  assertOwnerPickerInteractable(backdrop);
+});
+```
+
+When no native modal is active, the helper retains the raw document-level mount.
+When a native modal is active, it fails unless the adapter identifies that front
+layer; it never silently leaves the picker behind it. Observe the returned
+`placement.host` (or the whole document subtree) for subsequent raw-picker mutations.
+On placement or hit-test failure, close the raw picker, preserve the user's unsaved
+selection, restore focus, and show the exact layer failure. Do not downgrade the
+failure to a body-level fallback.
+
+Visible Chrome proof must invoke the picker through the real launcher and show:
+
+1. a non-zero rendered picker rectangle;
+2. native center-point hit testing that returns the picker or its descendant;
+3. pointer and keyboard selection, Tab containment, Escape/cancel, and focus return;
+4. no console error, warning, DOM-nesting warning, or unhandled rejection;
+5. stable outer geometry across tabs and expected picker choices; and
+6. no document-level horizontal overflow at every supported narrow viewport,
+   including 390 CSS pixels when mobile is supported.
+
+DOM presence, a unit test of the helper, or a screenshot without interaction is not
+this proof.
+
+## Runtime boundary
+
+The unbundled ES modules and their assets are served from the same local directory.
+The raw entry point is:
+
+```text
+/assets/pickers/icon-picker/src/index.js
+```
+
+The raw stylesheet is:
+
+```text
+/assets/pickers/icon-picker/icon-picker.css
+```
+
+Only the project adapter may import that entry point. If a bundler relocates the
+module, call the supplied `configureIconPicker` with the local
+`/assets/pickers/icon-picker/assets/` base. No CDN fallback is permitted.
+
+For a country selector, derive the Twemoji key from the real ISO country code through
+the supplied loader and render the returned local SVG. If it does not resolve, show a
+specific error naming the safe country code, the local asset operation, and why the
+flag was required. Do not fall back to the operating system's Unicode flag glyph.
+
+## Attribution
+
+Keep `LICENSES.md` and all four files under `licenses/`. Twemoji artwork requires
+visible attribution in application documentation or an About/Credits surface:
+
+> Emoji artwork by Twemoji (Copyright Twitter, Inc and other contributors), licensed
+> under CC-BY 4.0. Icons by Lucide, licensed under ISC.
+
+## Verification
+
+The project scaffold record lists every expanded file with its byte count and SHA-256.
+The foundation checks also prove the archive hash, sorted safe paths, complete source
+inventory, selected public inventory, Lucide count, Twemoji count, required files, and
+license markers. Stage verification separately proves the reduced carried inventory.
+A mismatch blocks scaffolding or stage preparation before anything is shipped.

@@ -1,0 +1,805 @@
+#!/usr/bin/env python3
+"""Shared, low-overhead project decision ledger and response-outcome sidecar."""
+
+from __future__ import annotations
+
+import argparse
+import collections
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import uuid
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterator
+
+
+LEDGER_SCHEMA = "project-decisions/ledger/v1"
+DECISION_SCHEMA = "project-decisions/decision/v1"
+OUTCOME_SCHEMA = "project-decisions/outcome/v1"
+LEDGER_NAME = "PROJECT-DECISIONS.md"
+SUPPORT_DIRECTORY = ".project-decisions"
+HELPER_NAME = "project_decisions.py"
+OUTCOMES_NAME = "outcomes.jsonl"
+LOCK_NAME = "write.lock"
+DECISION_ID = re.compile(r"PD-(\d{4,})")
+OUTCOME_ID = re.compile(r"OUT-[0-9]{8}T[0-9]{6}\.[0-9]{3}Z-[0-9a-f]{8}")
+BLOCK_PATTERN = re.compile(
+    r"^## (PD-\d{4,}) — ([^\r\n]+)\r?\n\r?\n"
+    r"```project-decision\r?\n(\{.*?\})\r?\n```\r?\n?",
+    re.MULTILINE | re.DOTALL,
+)
+MARKER = "<!-- PROJECT-DECISIONS-SCHEMA:1 -->"
+IGNORE_LINES = (
+    "# Non-authoritative per-response working history",
+    OUTCOMES_NAME,
+    LOCK_NAME,
+    ".*.tmp",
+)
+DECISION_KEYS = {
+    "schema",
+    "id",
+    "status",
+    "decided_at",
+    "title",
+    "decision",
+    "scope",
+    "rationale",
+    "consequences",
+    "authority",
+    "supersedes",
+    "source_outcome",
+    "source",
+    "promotion_key",
+}
+OUTCOME_KEYS = {
+    "schema",
+    "id",
+    "captured_at",
+    "agent",
+    "status",
+    "outcome",
+    "task",
+    "scope",
+    "decision_candidate",
+    "decision_ids",
+    "affected_paths",
+    "idempotency_key",
+}
+
+
+class DecisionError(RuntimeError):
+    """An exact, owner-actionable decision-sidecar failure."""
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def canonical_json(value: Any, *, compact: bool = False) -> str:
+    if compact:
+        return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False)
+
+
+def atomic_write(path: Path, content: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
+    try:
+        with temporary.open("xb") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def run_git(path: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", "-C", str(path), *arguments],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+
+
+def resolve_repository(value: str) -> Path:
+    candidate = Path(value).resolve()
+    if not candidate.is_dir():
+        raise DecisionError(f"project root is not a directory: {candidate}")
+    completed = run_git(candidate, "rev-parse", "--show-toplevel")
+    if completed.returncode:
+        detail = completed.stderr.strip() or completed.stdout.strip() or "Git did not identify a repository"
+        raise DecisionError(
+            f"project decisions require a Git repository root; Git rejected {candidate}: {detail}"
+        )
+    root = Path(completed.stdout.strip()).resolve()
+    if os.path.normcase(str(root)) != os.path.normcase(str(candidate)):
+        raise DecisionError(
+            f"--repo must name the exact Git root; received {candidate}, resolved root is {root}"
+        )
+    return root
+
+
+def paths(root: Path) -> dict[str, Path]:
+    support = root / SUPPORT_DIRECTORY
+    return {
+        "ledger": root / LEDGER_NAME,
+        "support": support,
+        "helper": support / HELPER_NAME,
+        "ignore": support / ".gitignore",
+        "outcomes": support / OUTCOMES_NAME,
+        "lock": support / LOCK_NAME,
+    }
+
+
+def clean_text(value: str | None, label: str, *, required: bool = True) -> str | None:
+    if value is None:
+        if required:
+            raise DecisionError(f"{label} is required")
+        return None
+    normalized = " ".join(value.split())
+    if required and not normalized:
+        raise DecisionError(f"{label} must contain visible text")
+    if not normalized:
+        return None
+    if "-->" in normalized or any(ord(character) < 32 for character in normalized):
+        raise DecisionError(f"{label} contains an unsafe control or marker sequence")
+    return normalized
+
+
+def clean_key(value: str | None, label: str, *, required: bool = False) -> str | None:
+    normalized = clean_text(value, label, required=required)
+    if normalized is None:
+        return None
+    if len(normalized) > 200:
+        raise DecisionError(f"{label} must not exceed 200 characters")
+    return normalized
+
+
+def clean_relative_path(value: str) -> str:
+    normalized = value.replace("\\", "/").strip()
+    if (
+        not normalized
+        or normalized.startswith("/")
+        or re.match(r"^[A-Za-z]:", normalized)
+        or any(part in {"", ".", ".."} for part in normalized.split("/"))
+        or any(ord(character) < 32 for character in normalized)
+    ):
+        raise DecisionError(f"affected path must be repository-relative and normalized: {value!r}")
+    return normalized
+
+
+def ledger_template() -> str:
+    return f"""# Project Decisions
+
+{MARKER}
+
+This tracked file is the authoritative, harness-neutral record of durable project
+decisions. Codex and Claude read active decisions before substantive work. The
+owner's current instruction remains higher authority.
+
+Add decisions only through `.project-decisions/project_decisions.py promote`.
+History is append-only: replace or withdraw a decision by adding a new record whose
+`supersedes` field names the earlier active decision. Never silently edit history.
+
+The ignored `.project-decisions/{OUTCOMES_NAME}` file is non-authoritative working
+history. Do not load it routinely; inspect only relevant outcomes when resuming,
+promoting, handing over, or auditing work.
+
+## Decision ledger
+
+"""
+
+
+@contextmanager
+def write_lock(lock_path: Path, *, wait_seconds: float = 5.0) -> Iterator[None]:
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    token = f"{os.getpid()}:{uuid.uuid4().hex}:{time.time():.6f}"
+    deadline = time.monotonic() + wait_seconds
+    while True:
+        try:
+            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
+                stream.write(token + "\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            break
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                detail = ""
+                try:
+                    detail = lock_path.read_text(encoding="utf-8").strip()
+                except OSError:
+                    detail = "unreadable lock owner"
+                raise DecisionError(
+                    f"decision writer lock remained busy for {wait_seconds:.1f}s: "
+                    f"{lock_path}; observed owner {detail!r}"
+                )
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        try:
+            if lock_path.read_text(encoding="utf-8").strip() == token:
+                lock_path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            raise DecisionError(f"could not release decision writer lock {lock_path}: {exc}") from exc
+
+
+def ensure_ignore(path: Path) -> None:
+    existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+    if path.exists() and not path.is_file():
+        raise DecisionError(f"decision ignore path is not a regular file: {path}")
+    lines = existing.splitlines()
+    changed = False
+    for required in IGNORE_LINES:
+        if required not in lines:
+            lines.append(required)
+            changed = True
+    content = "\n".join(lines).rstrip() + "\n"
+    if changed or not path.exists():
+        atomic_write(path, content.encode("utf-8"))
+
+
+def install_helper(destination: Path, *, replace: bool) -> str:
+    source = Path(__file__).resolve()
+    if source == destination.resolve(strict=False):
+        return "current"
+    source_bytes = source.read_bytes()
+    if destination.exists():
+        if not destination.is_file() or destination.is_symlink():
+            raise DecisionError(f"project decision helper path is not a regular file: {destination}")
+        if destination.read_bytes() == source_bytes:
+            return "current"
+        if not replace:
+            raise DecisionError(
+                f"project decision helper differs from this harness: {destination}; "
+                "rerun init with --replace-helper only as an explicit harness update"
+            )
+    atomic_write(destination, source_bytes)
+    return "replaced" if destination.exists() else "installed"
+
+
+def initialize(root: Path, *, replace_helper: bool) -> dict[str, Any]:
+    location = paths(root)
+    location["support"].mkdir(parents=True, exist_ok=True)
+    if location["support"].is_symlink():
+        raise DecisionError(f"decision support directory may not be symbolic: {location['support']}")
+    with write_lock(location["lock"]):
+        helper_before = location["helper"].exists()
+        helper_result = install_helper(location["helper"], replace=replace_helper)
+        ensure_ignore(location["ignore"])
+        if location["ledger"].exists():
+            if not location["ledger"].is_file() or location["ledger"].is_symlink():
+                raise DecisionError(f"project decision ledger is not a regular file: {location['ledger']}")
+            parse_ledger(location["ledger"])
+            ledger_result = "preserved"
+        else:
+            atomic_write(location["ledger"], ledger_template().encode("utf-8"))
+            ledger_result = "created"
+        if location["outcomes"].exists() and (
+            not location["outcomes"].is_file() or location["outcomes"].is_symlink()
+        ):
+            raise DecisionError(f"outcome spool is not a regular file: {location['outcomes']}")
+        if not location["outcomes"].exists():
+            with location["outcomes"].open("xb") as stream:
+                stream.flush()
+                os.fsync(stream.fileno())
+        validate_all(root, include_outcomes=True)
+    return {
+        "status": "ready",
+        "ledger": str(location["ledger"]),
+        "outcomes": str(location["outcomes"]),
+        "helper": "installed" if not helper_before else helper_result,
+        "ledger_result": ledger_result,
+    }
+
+
+def validate_iso_timestamp(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", value
+    ):
+        raise DecisionError(f"{label} must be a UTC second timestamp ending in Z")
+    return value
+
+
+def validate_decision(record: Any, *, expected_id: str, expected_title: str) -> dict[str, Any]:
+    if not isinstance(record, dict) or set(record) != DECISION_KEYS:
+        raise DecisionError(
+            f"decision {expected_id} must contain exactly {sorted(DECISION_KEYS)}"
+        )
+    if record.get("schema") != DECISION_SCHEMA or record.get("id") != expected_id:
+        raise DecisionError(f"decision block identity does not match heading {expected_id}")
+    if record.get("title") != expected_title:
+        raise DecisionError(f"decision {expected_id} title differs between heading and record")
+    if record.get("status") not in {"active", "withdrawn"}:
+        raise DecisionError(f"decision {expected_id} has unsupported status {record.get('status')!r}")
+    validate_iso_timestamp(record.get("decided_at"), f"decision {expected_id}.decided_at")
+    for field in ("title", "decision", "scope", "rationale", "consequences", "source", "promotion_key"):
+        clean_text(record.get(field), f"decision {expected_id}.{field}")
+    if record.get("authority") != "owner":
+        raise DecisionError(f"decision {expected_id} authority must be owner")
+    supersedes = record.get("supersedes")
+    if not isinstance(supersedes, list) or len(supersedes) != len(set(supersedes)):
+        raise DecisionError(f"decision {expected_id}.supersedes must be a unique array")
+    for item in supersedes:
+        if not isinstance(item, str) or DECISION_ID.fullmatch(item) is None:
+            raise DecisionError(f"decision {expected_id} has invalid supersedes ID {item!r}")
+    source_outcome = record.get("source_outcome")
+    if source_outcome is not None and (
+        not isinstance(source_outcome, str) or OUTCOME_ID.fullmatch(source_outcome) is None
+    ):
+        raise DecisionError(f"decision {expected_id} has invalid source_outcome")
+    return record
+
+
+def parse_ledger(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file() or path.is_symlink():
+        raise DecisionError(f"project decision ledger is missing or non-regular: {path}")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise DecisionError(f"cannot read UTF-8 project decision ledger {path}: {exc}") from exc
+    if not text.startswith("# Project Decisions\n") or MARKER not in text:
+        raise DecisionError(f"project decision ledger header or schema marker is invalid: {path}")
+    records: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    seen_keys: set[str] = set()
+    expected_number = 1
+    for match in BLOCK_PATTERN.finditer(text):
+        decision_id, title, payload = match.groups()
+        try:
+            record = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise DecisionError(f"decision {decision_id} contains invalid JSON: {exc}") from exc
+        validate_decision(record, expected_id=decision_id, expected_title=title)
+        if decision_id in seen_ids:
+            raise DecisionError(f"duplicate decision ID in {path}: {decision_id}")
+        number = int(DECISION_ID.fullmatch(decision_id).group(1))
+        if number != expected_number:
+            raise DecisionError(
+                f"decision IDs must be contiguous append-only history; expected PD-{expected_number:04d}, found {decision_id}"
+            )
+        promotion_key = record["promotion_key"]
+        if promotion_key in seen_keys:
+            raise DecisionError(f"duplicate decision promotion_key: {promotion_key}")
+        unknown = [item for item in record["supersedes"] if item not in seen_ids]
+        if unknown:
+            raise DecisionError(
+                f"decision {decision_id} supersedes unknown or later IDs: {', '.join(unknown)}"
+            )
+        seen_ids.add(decision_id)
+        seen_keys.add(promotion_key)
+        expected_number += 1
+        records.append(record)
+    headings = re.findall(r"^## (PD-\d{4,}) — ", text, re.MULTILINE)
+    if headings != [record["id"] for record in records]:
+        raise DecisionError(f"ledger contains a decision heading without one strict record: {path}")
+    active_ids = {record["id"] for record in records if record["status"] == "active"}
+    for record in records:
+        for superseded in record["supersedes"]:
+            if superseded not in active_ids:
+                raise DecisionError(
+                    f"decision {record['id']} supersedes {superseded}, which was not active at that point"
+                )
+            active_ids.remove(superseded)
+        if record["status"] == "active":
+            active_ids.add(record["id"])
+    return records
+
+
+def validate_outcome(record: Any, *, line_number: int) -> dict[str, Any]:
+    label = f"outcome line {line_number}"
+    if not isinstance(record, dict) or set(record) != OUTCOME_KEYS:
+        raise DecisionError(f"{label} must contain exactly {sorted(OUTCOME_KEYS)}")
+    if record.get("schema") != OUTCOME_SCHEMA:
+        raise DecisionError(f"{label} has unsupported schema")
+    if not isinstance(record.get("id"), str) or OUTCOME_ID.fullmatch(record["id"]) is None:
+        raise DecisionError(f"{label} has invalid outcome ID")
+    validate_iso_timestamp(record.get("captured_at"), f"{label}.captured_at")
+    if record.get("agent") not in {"codex", "claude"}:
+        raise DecisionError(f"{label}.agent must be codex or claude")
+    if record.get("status") not in {"completed", "partial", "blocked"}:
+        raise DecisionError(f"{label}.status is unsupported")
+    clean_text(record.get("outcome"), f"{label}.outcome")
+    for optional in ("task", "scope", "decision_candidate", "idempotency_key"):
+        if record.get(optional) is not None:
+            clean_text(record[optional], f"{label}.{optional}")
+    decision_ids = record.get("decision_ids")
+    if not isinstance(decision_ids, list) or len(decision_ids) != len(set(decision_ids)):
+        raise DecisionError(f"{label}.decision_ids must be a unique array")
+    for decision_id in decision_ids:
+        if not isinstance(decision_id, str) or DECISION_ID.fullmatch(decision_id) is None:
+            raise DecisionError(f"{label} has invalid decision ID {decision_id!r}")
+    affected = record.get("affected_paths")
+    if not isinstance(affected, list) or affected != sorted(set(affected), key=str.casefold):
+        raise DecisionError(f"{label}.affected_paths must be a unique sorted array")
+    for item in affected:
+        if clean_relative_path(item) != item:
+            raise DecisionError(f"{label} has non-normalized affected path {item!r}")
+    return record
+
+
+def iter_outcomes(path: Path) -> Iterator[dict[str, Any]]:
+    if not path.is_file() or path.is_symlink():
+        raise DecisionError(f"outcome spool is missing or non-regular: {path}")
+    seen_ids: set[str] = set()
+    seen_keys: set[str] = set()
+    try:
+        with path.open("r", encoding="utf-8") as stream:
+            for line_number, line in enumerate(stream, start=1):
+                if not line.strip():
+                    raise DecisionError(f"outcome spool contains an empty record at line {line_number}: {path}")
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise DecisionError(f"outcome line {line_number} is invalid JSON: {exc}") from exc
+                validate_outcome(record, line_number=line_number)
+                if record["id"] in seen_ids:
+                    raise DecisionError(f"duplicate outcome ID at line {line_number}: {record['id']}")
+                key = record.get("idempotency_key")
+                if key is not None and key in seen_keys:
+                    raise DecisionError(f"duplicate outcome idempotency_key at line {line_number}: {key}")
+                seen_ids.add(record["id"])
+                if key is not None:
+                    seen_keys.add(key)
+                yield record
+    except UnicodeError as exc:
+        raise DecisionError(f"outcome spool is not valid UTF-8: {path}: {exc}") from exc
+
+
+def validate_all(root: Path, *, include_outcomes: bool) -> dict[str, int]:
+    location = paths(root)
+    records = parse_ledger(location["ledger"])
+    if not location["ignore"].is_file() or location["ignore"].is_symlink():
+        raise DecisionError(f"decision-sidecar ignore file is missing: {location['ignore']}")
+    ignore_lines = location["ignore"].read_text(encoding="utf-8").splitlines()
+    missing = [line for line in IGNORE_LINES if line not in ignore_lines]
+    if missing:
+        raise DecisionError(
+            f"decision-sidecar ignore file lacks required entries at {location['ignore']}: {missing}"
+        )
+    outcomes = sum(1 for _record in iter_outcomes(location["outcomes"])) if include_outcomes else 0
+    return {"decisions": len(records), "outcomes": outcomes}
+
+
+def active_decisions(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    active: dict[str, dict[str, Any]] = {}
+    for record in records:
+        for superseded in record["supersedes"]:
+            active.pop(superseded, None)
+        if record["status"] == "active":
+            active[record["id"]] = record
+    return list(active.values())
+
+
+def scope_matches(decision_scope: str, requested: str | None) -> bool:
+    if requested is None or decision_scope == "project":
+        return True
+    left = decision_scope.strip("/")
+    right = requested.strip("/")
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+
+
+def outcome_payload(record: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in record.items() if key not in {"id", "captured_at"}}
+
+
+def find_outcome(root: Path, outcome_id: str) -> dict[str, Any] | None:
+    for record in iter_outcomes(paths(root)["outcomes"]):
+        if record["id"] == outcome_id:
+            return record
+    return None
+
+
+def capture(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    location = paths(root)
+    validate_all(root, include_outcomes=False)
+    decision_ids = sorted(set(args.decision_id or []))
+    known_ids = {record["id"] for record in parse_ledger(location["ledger"])}
+    unknown_ids = sorted(set(decision_ids) - known_ids)
+    if unknown_ids:
+        raise DecisionError(f"capture references unknown decision IDs: {', '.join(unknown_ids)}")
+    affected = sorted({clean_relative_path(value) for value in (args.affected_path or [])}, key=str.casefold)
+    base = {
+        "schema": OUTCOME_SCHEMA,
+        "agent": args.agent,
+        "status": args.status,
+        "outcome": clean_text(args.outcome, "outcome"),
+        "task": clean_key(args.task, "task"),
+        "scope": clean_text(args.scope, "scope", required=False),
+        "decision_candidate": clean_text(
+            args.decision_candidate, "decision_candidate", required=False
+        ),
+        "decision_ids": decision_ids,
+        "affected_paths": affected,
+        "idempotency_key": clean_key(args.idempotency_key, "idempotency_key"),
+    }
+    with write_lock(location["lock"]):
+        if base["idempotency_key"] is not None:
+            for existing in iter_outcomes(location["outcomes"]):
+                if existing.get("idempotency_key") != base["idempotency_key"]:
+                    continue
+                if outcome_payload(existing) != base:
+                    raise DecisionError(
+                        "outcome idempotency key already exists with different content: "
+                        f"{base['idempotency_key']}"
+                    )
+                return {"status": "existing", "outcome_id": existing["id"]}
+        now = datetime.now(timezone.utc)
+        outcome_id = f"OUT-{now.strftime('%Y%m%dT%H%M%S')}.{now.microsecond // 1000:03d}Z-{uuid.uuid4().hex[:8]}"
+        record = {
+            **base,
+            "id": outcome_id,
+            "captured_at": now.isoformat(timespec="seconds").replace("+00:00", "Z"),
+        }
+        validate_outcome(record, line_number=1)
+        line = (canonical_json(record, compact=True) + "\n").encode("utf-8")
+        with location["outcomes"].open("ab") as stream:
+            stream.write(line)
+            stream.flush()
+            os.fsync(stream.fileno())
+    return {"status": "captured", "outcome_id": outcome_id}
+
+
+def decision_projection(args: argparse.Namespace, *, source_outcome: str | None) -> dict[str, Any]:
+    return {
+        "status": args.status,
+        "title": clean_text(args.title, "title"),
+        "decision": clean_text(args.decision, "decision"),
+        "scope": clean_text(args.scope, "scope"),
+        "rationale": clean_text(args.rationale, "rationale"),
+        "consequences": clean_text(args.consequences, "consequences"),
+        "authority": "owner",
+        "supersedes": sorted(set(args.supersedes or [])),
+        "source_outcome": source_outcome,
+        "source": clean_text(args.source, "source"),
+        "promotion_key": clean_key(args.promotion_key, "promotion_key", required=True),
+    }
+
+
+def comparable_decision(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in record.items()
+        if key not in {"schema", "id", "decided_at"}
+    }
+
+
+def render_decision(record: dict[str, Any]) -> str:
+    return (
+        f"## {record['id']} — {record['title']}\n\n"
+        "```project-decision\n"
+        + canonical_json(record)
+        + "\n```\n\n"
+    )
+
+
+def promote(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    if not args.owner_confirmed:
+        raise DecisionError(
+            "promotion requires --owner-confirmed as a factual attestation that the owner established this decision"
+        )
+    location = paths(root)
+    with write_lock(location["lock"]):
+        records = parse_ledger(location["ledger"])
+        source_outcome = args.outcome_id
+        if source_outcome is not None:
+            if OUTCOME_ID.fullmatch(source_outcome) is None:
+                raise DecisionError(f"invalid --outcome-id: {source_outcome}")
+            if find_outcome(root, source_outcome) is None:
+                raise DecisionError(f"source outcome does not exist: {source_outcome}")
+        projection = decision_projection(args, source_outcome=source_outcome)
+        for existing in records:
+            if existing["promotion_key"] != projection["promotion_key"]:
+                continue
+            if comparable_decision(existing) != projection:
+                raise DecisionError(
+                    "promotion key already exists with different decision content: "
+                    f"{projection['promotion_key']}"
+                )
+            return {"status": "existing", "decision_id": existing["id"]}
+        if source_outcome is not None:
+            linked = [record["id"] for record in records if record["source_outcome"] == source_outcome]
+            if linked:
+                raise DecisionError(
+                    f"source outcome {source_outcome} is already promoted as {', '.join(linked)}"
+                )
+        active = {record["id"] for record in active_decisions(records)}
+        supersedes = projection["supersedes"]
+        invalid = [item for item in supersedes if DECISION_ID.fullmatch(item) is None]
+        if invalid:
+            raise DecisionError(f"invalid supersedes IDs: {', '.join(invalid)}")
+        inactive = sorted(set(supersedes) - active)
+        if inactive:
+            raise DecisionError(
+                "a new decision may supersede only currently active decisions: " + ", ".join(inactive)
+            )
+        if projection["status"] == "withdrawn" and not supersedes:
+            raise DecisionError("a withdrawn record must supersede at least one active decision")
+        decision_id = f"PD-{len(records) + 1:04d}"
+        record = {
+            "schema": DECISION_SCHEMA,
+            "id": decision_id,
+            "decided_at": utc_now(),
+            **projection,
+        }
+        validate_decision(record, expected_id=decision_id, expected_title=record["title"])
+        old = location["ledger"].read_bytes()
+        if not old.endswith(b"\n"):
+            raise DecisionError(f"project decision ledger must end with a newline: {location['ledger']}")
+        updated = old + render_decision(record).encode("utf-8")
+        if not updated.startswith(old):
+            raise DecisionError("internal append-only invariant failed before ledger write")
+        atomic_write(location["ledger"], updated)
+        parse_ledger(location["ledger"])
+    return {"status": "promoted", "decision_id": decision_id}
+
+
+def print_records(records: list[dict[str, Any]], *, compact: bool) -> None:
+    if compact:
+        if not records:
+            print("No matching records.")
+            return
+        for record in records:
+            if record.get("schema") == DECISION_SCHEMA:
+                print(
+                    f"{record['id']} [{record['scope']}] {record['title']}: {record['decision']}"
+                )
+            else:
+                candidate = (
+                    f" | candidate: {record['decision_candidate']}"
+                    if record.get("decision_candidate")
+                    else ""
+                )
+                print(
+                    f"{record['id']} {record['agent']}/{record['status']}: "
+                    f"{record['outcome']}{candidate}"
+                )
+        return
+    print(canonical_json(records))
+
+
+def command_active(root: Path, args: argparse.Namespace) -> None:
+    records = active_decisions(parse_ledger(paths(root)["ledger"]))
+    records = [record for record in records if scope_matches(record["scope"], args.scope)]
+    print_records(records, compact=args.compact)
+
+
+def command_recent(root: Path, args: argparse.Namespace) -> None:
+    if args.limit <= 0 or args.limit > 1000:
+        raise DecisionError("--limit must be between 1 and 1000")
+    recent: collections.deque[dict[str, Any]] = collections.deque(maxlen=args.limit)
+    for record in iter_outcomes(paths(root)["outcomes"]):
+        if args.task is not None and record.get("task") != args.task:
+            continue
+        recent.append(record)
+    print_records(list(recent), compact=args.compact)
+
+
+def command_pending(root: Path, args: argparse.Namespace) -> None:
+    promoted = {
+        record["source_outcome"]
+        for record in parse_ledger(paths(root)["ledger"])
+        if record["source_outcome"] is not None
+    }
+    pending = [
+        record
+        for record in iter_outcomes(paths(root)["outcomes"])
+        if record.get("decision_candidate") and record["id"] not in promoted
+    ]
+    if args.task is not None:
+        pending = [record for record in pending if record.get("task") == args.task]
+    print_records(pending, compact=args.compact)
+
+
+def command_show(root: Path, args: argparse.Namespace) -> None:
+    records = parse_ledger(paths(root)["ledger"])
+    matches = [record for record in records if record["id"] == args.decision_id]
+    if not matches:
+        raise DecisionError(f"decision does not exist: {args.decision_id}")
+    print(canonical_json(matches[0]))
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", default=".", help="exact Git project root")
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    initialize_parser = commands.add_parser("init", help="initialize or verify project decision support")
+    initialize_parser.add_argument("--replace-helper", action="store_true")
+
+    capture_parser = commands.add_parser("capture", help="append one non-authoritative response outcome")
+    capture_parser.add_argument("--agent", choices=("codex", "claude"), required=True)
+    capture_parser.add_argument("--status", choices=("completed", "partial", "blocked"), required=True)
+    capture_parser.add_argument("--outcome", required=True)
+    capture_parser.add_argument("--task")
+    capture_parser.add_argument("--scope")
+    capture_parser.add_argument("--decision-candidate")
+    capture_parser.add_argument("--decision-id", action="append")
+    capture_parser.add_argument("--affected-path", action="append")
+    capture_parser.add_argument("--idempotency-key")
+
+    promote_parser = commands.add_parser("promote", help="append one owner-confirmed durable decision")
+    promote_parser.add_argument("--title", required=True)
+    promote_parser.add_argument("--decision", required=True)
+    promote_parser.add_argument("--scope", required=True)
+    promote_parser.add_argument("--rationale", required=True)
+    promote_parser.add_argument("--consequences", required=True)
+    promote_parser.add_argument("--source", required=True)
+    promote_parser.add_argument("--promotion-key", required=True)
+    promote_parser.add_argument("--outcome-id")
+    promote_parser.add_argument("--supersedes", action="append")
+    promote_parser.add_argument("--status", choices=("active", "withdrawn"), default="active")
+    promote_parser.add_argument("--owner-confirmed", action="store_true")
+
+    active_parser = commands.add_parser("active", help="print authoritative active decisions")
+    active_parser.add_argument("--scope")
+    active_parser.add_argument("--compact", action="store_true")
+
+    recent_parser = commands.add_parser("recent", help="print recent non-authoritative outcomes")
+    recent_parser.add_argument("--limit", type=int, default=20)
+    recent_parser.add_argument("--task")
+    recent_parser.add_argument("--compact", action="store_true")
+
+    pending_parser = commands.add_parser("pending", help="print unpromoted decision candidates")
+    pending_parser.add_argument("--task")
+    pending_parser.add_argument("--compact", action="store_true")
+
+    show_parser = commands.add_parser("show", help="print one historical decision")
+    show_parser.add_argument("decision_id")
+
+    validate_parser = commands.add_parser("validate", help="validate ledger and optional outcome history")
+    validate_parser.add_argument("--include-outcomes", action="store_true")
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    try:
+        root = resolve_repository(args.repo)
+        if args.command == "init":
+            print(canonical_json(initialize(root, replace_helper=args.replace_helper)))
+        elif args.command == "capture":
+            print(canonical_json(capture(root, args)))
+        elif args.command == "promote":
+            print(canonical_json(promote(root, args)))
+        elif args.command == "active":
+            command_active(root, args)
+        elif args.command == "recent":
+            command_recent(root, args)
+        elif args.command == "pending":
+            command_pending(root, args)
+        elif args.command == "show":
+            command_show(root, args)
+        else:
+            counts = validate_all(root, include_outcomes=args.include_outcomes)
+            print(
+                "PROJECT DECISIONS VALID: "
+                f"{counts['decisions']} decision(s), "
+                + (
+                    f"{counts['outcomes']} outcome(s)"
+                    if args.include_outcomes
+                    else "outcome spool intentionally not scanned"
+                )
+            )
+        return 0
+    except (DecisionError, OSError, UnicodeError, json.JSONDecodeError) as exc:
+        print(f"PROJECT DECISIONS BLOCKED: {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

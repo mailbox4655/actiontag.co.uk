@@ -1,0 +1,54 @@
+{
+  "archive": {
+    "bytes": 4992172,
+    "path": "icon-picker-template.zip",
+    "sha256": "eaf1f15f6b4bc2f1692fc5d38076134e3a73580981ff4e8b92abbb210eedce02"
+  },
+  "libraries": {
+    "lucide": {
+      "asset_root": "assets/lucide",
+      "file_count": 1952,
+      "license": "ISC",
+      "package": "lucide-static",
+      "version": "1.14.0"
+    },
+    "twemoji": {
+      "asset_root": "assets/twemoji",
+      "file_count": 3720,
+      "graphics_license": "CC-BY-4.0",
+      "package": "@twemoji/svg",
+      "version": "15.0.0"
+    }
+  },
+  "required_files": [
+    "icon-picker.css",
+    "LICENSES.md",
+    "licenses/dompurify.LICENSE.txt",
+    "licenses/lucide-static.LICENSE.txt",
+    "licenses/twemoji.LICENSE.txt",
+    "licenses/unicode-emoji-json.LICENSE.txt",
+    "src/components/icon-picker.js",
+    "src/index.js",
+    "src/utils/sanitize.js"
+  ],
+  "scaffold": {
+    "destination": "public/assets/pickers/icon-picker",
+    "excluded": [
+      "demo.html",
+      "README.md"
+    ],
+    "file_count": 5693,
+    "manifest_sha256": "db177ac4879da0985cca16b5ffcb99cbc616d951a37bb0366e1cd98f879f7c87",
+    "total_bytes": 9808028
+  },
+  "schema": "gpt-design-bridge/icon-picker-template/v1",
+  "source": {
+    "label": "GPT-Mermaid owner-supplied picker",
+    "relative_path": "public/vendor/icon-picker"
+  },
+  "source_snapshot": {
+    "file_count": 5695,
+    "manifest_sha256": "e96c2e5b88bbee25e2385d712a51069d2231c60e9a2adfb95231b96a6ac9c4e9",
+    "total_bytes": 9824822
+  }
+}

@@ -1,0 +1,82 @@
+import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
+import { createDirectSocket } from "../api/direct-socket.js";
+import { createTravellingTaskStore } from "./task-store.js";
+
+const target = globalThis;
+const EXPECTED_SQLITE = "3.53.0";
+let activeStore = null;
+
+function requiredGlobal(name) {
+  const value = target[name];
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`TRAVELLING RUNTIME: window.${name} is missing or empty`);
+  }
+  return value;
+}
+
+function decodeBase64(name) {
+  const encoded = requiredGlobal(name);
+  let binary;
+  try {
+    binary = target.atob(encoded);
+  } catch (error) {
+    throw new Error(`TRAVELLING RUNTIME: window.${name} is not valid base64`, {
+      cause: error,
+    });
+  }
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+async function open({ onStatusChange }) {
+  if (activeStore) {
+    throw new Error("TRAVELLING RUNTIME: the task store is already open");
+  }
+  const sqlite3 = await sqlite3InitModule({
+    wasmBinary: decodeBase64("__GDB_SQLITE_WASM_BASE64__"),
+    print: () => {},
+    printErr: (message) => console.error(`SQLITE-WASM: ${message}`),
+  });
+  if (sqlite3.version.libVersion !== EXPECTED_SQLITE) {
+    throw new Error(
+      `TRAVELLING RUNTIME: SQLite ${EXPECTED_SQLITE} is required; loaded ${
+        sqlite3.version.libVersion
+      }`,
+    );
+  }
+  activeStore = await createTravellingTaskStore({
+    sqlite3,
+    seedImage: decodeBase64("__GDB_SEED_DB_BASE64__"),
+    stageStamp: requiredGlobal("__GDB_STAGE_STAMP__"),
+    onStatusChange,
+  });
+  return Object.freeze({
+    socket: createDirectSocket(activeStore),
+    status: activeStore.status,
+  });
+}
+
+function currentStore() {
+  if (!activeStore) throw new Error("TRAVELLING RUNTIME: the task store is not open");
+  return activeStore;
+}
+
+const api = Object.freeze({
+  open,
+  status: () => currentStore().status(),
+  exportDb: () => currentStore().exportDb(),
+  resetToSpecimen: () => currentStore().resetToSpecimen(),
+  async close() {
+    const store = currentStore();
+    await store.close();
+    activeStore = null;
+  },
+});
+
+if (Object.hasOwn(target, "__GDB_TRAVELLING__")) {
+  throw new Error("TRAVELLING RUNTIME: window.__GDB_TRAVELLING__ already exists");
+}
+target.__GDB_TRAVELLING__ = api;

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="data:," />
+    <title>@@PROJECT_NAME_MARKDOWN@@</title>
+    <style>
+      #gdb-boot-error {
+        display: none;
+        margin: 2rem auto;
+        max-width: 52rem;
+        padding: 1rem 1.25rem;
+        border: 2px solid #a6382f;
+        border-radius: 0.75rem;
+        background: #fff2ef;
+        color: #5f1712;
+        font: 600 1rem/1.5 system-ui, sans-serif;
+        white-space: pre-wrap;
+      }
+    </style>
+    <script>
+      (() => {
+        const show = (message) => {
+          let panel = document.getElementById("gdb-boot-error");
+          if (!panel) {
+            panel = document.createElement("pre");
+            panel.id = "gdb-boot-error";
+            panel.setAttribute("role", "alert");
+            document.body.prepend(panel);
+          }
+          panel.textContent = `APPLICATION FAILED TO START\n${message}`;
+          panel.style.display = "block";
+        };
+        const timer = window.setTimeout(
+          () => show("The application did not mount within 8 seconds. Check the console and server."),
+          8000,
+        );
+        window.__GDB_BOOT_OK__ = () => window.clearTimeout(timer);
+        window.__GDB_SHOW_BOOT_ERROR__ = show;
+        window.addEventListener("error", (event) => show(event.message || "Unknown script error"));
+        window.addEventListener("unhandledrejection", (event) => {
+          const reason = event.reason;
+          show(reason instanceof Error ? reason.message : `Non-Error rejection: ${String(reason)}`);
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="gdb-boot-error" role="alert"></div>
+    <div id="root"></div>
+    <script type="module" src="/app/src/main.jsx"></script>
+  </body>
+</html>

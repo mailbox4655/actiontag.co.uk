@@ -1,0 +1,26 @@
+import process from "node:process";
+import { readConfig } from "./config.js";
+import { createTaskStore } from "./database/adapter.js";
+
+async function migrate() {
+  const config = readConfig(process.env);
+  const store = await createTaskStore(config.database);
+  await store.close();
+  process.stdout.write(
+    `${JSON.stringify({ event: "migrations_complete", database: config.database.kind })}\n`,
+  );
+}
+
+migrate().catch((error) => {
+  const failure =
+    error instanceof Error ? error : new Error(`Non-Error migration failure: ${String(error)}`);
+  process.stderr.write(
+    `${JSON.stringify({
+      event: "migrations_failed",
+      name: failure.name,
+      message: failure.message,
+      stack: failure.stack,
+    })}\n`,
+  );
+  process.exitCode = 1;
+});

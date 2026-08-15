@@ -1,0 +1,322 @@
+import { taskSchema } from "../api/routes.js";
+import { TaskStoreError } from "../state/memory-store.js";
+import { openMirrorDatabase, readMirror, writeMirror } from "./mirror.js";
+import {
+  TRAVELLING_MIGRATION_NAME,
+  TRAVELLING_SCHEMA_SQL,
+  TRAVELLING_SCHEMA_VERSION,
+} from "./schema.js";
+
+const SQLITE_HEADER = "SQLite format 3\u0000";
+
+function fail(message) {
+  throw new Error(`TRAVELLING STORE: ${message}`);
+}
+
+export function assertSqliteImage(candidate, label) {
+  const view =
+    candidate instanceof Uint8Array
+      ? candidate
+      : candidate instanceof ArrayBuffer
+        ? new Uint8Array(candidate)
+        : null;
+  if (!view) fail(`${label} is not a byte image`);
+  const bytes =
+    view.constructor === Uint8Array
+      ? view
+      : new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+  const header =
+    bytes.byteLength >= SQLITE_HEADER.length
+      ? String.fromCharCode(...bytes.subarray(0, SQLITE_HEADER.length))
+      : "";
+  if (bytes.byteLength < 512 || header !== SQLITE_HEADER) {
+    fail(
+      `${label} is not a SQLite database file (${bytes.byteLength} bytes, header ${JSON.stringify(
+        header,
+      )})`,
+    );
+  }
+  return bytes;
+}
+
+export function stageNamespace(stageStamp) {
+  if (typeof stageStamp !== "string" || !/^[0-9a-f]{64}$/.test(stageStamp)) {
+    fail(`stage stamp is not a 64-character SHA-256 value: ${JSON.stringify(stageStamp)}`);
+  }
+  return `gdb-travelling-${stageStamp.slice(0, 20)}`;
+}
+
+async function sha256Hex(text, cryptoImpl) {
+  if (!cryptoImpl?.subtle) fail("Web Crypto SHA-256 is unavailable");
+  const digest = await cryptoImpl.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)]
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function queryRows(db, sql, bind = []) {
+  return db.exec({
+    sql,
+    bind,
+    rowMode: "object",
+    returnValue: "resultRows",
+  });
+}
+
+function taskFromRow(row) {
+  if (row.completed !== 0 && row.completed !== 1) {
+    fail(`task ${String(row.id)} has invalid completed value ${String(row.completed)}`);
+  }
+  return taskSchema.parse({
+    id: row.id,
+    title: row.title,
+    completed: row.completed === 1,
+    createdAt: row.created_at,
+  });
+}
+
+function deserialize(sqlite3, bytes, label) {
+  const db = new sqlite3.oo1.DB();
+  try {
+    const image = assertSqliteImage(bytes, label);
+    const pointer = sqlite3.wasm.allocFromTypedArray(image);
+    db.checkRc(
+      sqlite3.capi.sqlite3_deserialize(
+        db.pointer,
+        "main",
+        pointer,
+        image.byteLength,
+        image.byteLength,
+        sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
+          | sqlite3.capi.SQLITE_DESERIALIZE_RESIZEABLE,
+      ),
+    );
+    db.exec("SELECT count(*) FROM sqlite_master");
+    return db;
+  } catch (error) {
+    db.close();
+    throw error;
+  }
+}
+
+async function validateSchema(db, cryptoImpl) {
+  const expectedHash = await sha256Hex(TRAVELLING_SCHEMA_SQL, cryptoImpl);
+  const rows = queryRows(
+    db,
+    "SELECT name, sha256, schema_version FROM gdb_schema_migrations ORDER BY name",
+  );
+  if (
+    rows.length !== 1
+    || rows[0].name !== TRAVELLING_MIGRATION_NAME
+    || rows[0].sha256 !== expectedHash
+    || rows[0].schema_version !== TRAVELLING_SCHEMA_VERSION
+  ) {
+    fail("database migration history does not match this travelling runtime");
+  }
+}
+
+function runMutation(db, operation, label) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    const result = operation();
+    db.exec("COMMIT");
+    return result;
+  } catch (operationError) {
+    try {
+      db.exec("ROLLBACK");
+    } catch (rollbackError) {
+      throw new AggregateError(
+        [operationError, rollbackError],
+        `${label} and rollback both failed`,
+      );
+    }
+    throw operationError;
+  }
+}
+
+export async function createTravellingTaskStore({
+  sqlite3,
+  seedImage,
+  stageStamp,
+  onStatusChange,
+  indexedDB = globalThis.indexedDB,
+  storageManager = globalThis.navigator?.storage,
+  cryptoImpl = globalThis.crypto,
+  clock = () => new Date().toISOString(),
+  idFactory = () => cryptoImpl.randomUUID(),
+}) {
+  if (!sqlite3?.oo1?.DB || !sqlite3?.capi?.sqlite3_js_db_export) {
+    fail("the injected SQLite-WASM API is incomplete");
+  }
+  if (typeof onStatusChange !== "function") {
+    fail("an explicit visible storage-status callback is required");
+  }
+  const seed = assertSqliteImage(seedImage, "shipped SPECIMEN database");
+  const databaseName = stageNamespace(stageStamp);
+  let idb = null;
+  let mirrorError = null;
+  let source = "shipped-specimen";
+  let image = seed;
+  try {
+    idb = await openMirrorDatabase(indexedDB, databaseName);
+    const mirrored = await readMirror(idb);
+    if (mirrored !== undefined) {
+      image = assertSqliteImage(mirrored, "saved travelling database");
+      source = "saved-mirror";
+    }
+  } catch (error) {
+    mirrorError = `Durable storage is unavailable: ${
+      error instanceof Error ? error.message : String(error)
+    }. This session remains a real SQLite database but is not being saved.`;
+  }
+
+  let db = deserialize(sqlite3, image, source);
+  await validateSchema(db, cryptoImpl);
+  let persisted = "unavailable";
+  if (storageManager && typeof storageManager.persist === "function") {
+    try {
+      persisted = (await storageManager.persist()) === true;
+    } catch (error) {
+      persisted = false;
+    }
+  }
+
+  const status = () =>
+    Object.freeze({
+      mode: mirrorError ? "degraded" : "durable",
+      durable: mirrorError === null,
+      reason: mirrorError,
+      source,
+      databaseName,
+      schemaVersion: TRAVELLING_SCHEMA_VERSION,
+      persisted,
+    });
+  const notify = () => onStatusChange(status());
+  const exportDb = () => sqlite3.capi.sqlite3_js_db_export(db);
+
+  async function persist() {
+    if (!idb) {
+      notify();
+      return false;
+    }
+    try {
+      await writeMirror(idb, exportDb());
+      if (mirrorError) {
+        mirrorError = null;
+        notify();
+      }
+      return true;
+    } catch (error) {
+      mirrorError = `The travelling database changed, but its durable mirror failed: ${
+        error instanceof Error ? error.message : String(error)
+      }. Export the database before closing this page.`;
+      notify();
+      return false;
+    }
+  }
+
+  async function selected(id) {
+    const rows = queryRows(
+      db,
+      "SELECT id, title, completed, created_at FROM tasks WHERE id = ?",
+      [id],
+    );
+    if (rows.length === 0) {
+      throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+    }
+    if (rows.length !== 1) fail(`task ${id} returned ${rows.length} rows`);
+    return taskFromRow(rows[0]);
+  }
+
+  const store = Object.freeze({
+    async listTasks() {
+      return queryRows(
+        db,
+        "SELECT id, title, completed, created_at FROM tasks ORDER BY created_at, id",
+      ).map(taskFromRow);
+    },
+    async createTask(title) {
+      const task = taskSchema.parse({
+        id: idFactory(),
+        title,
+        completed: false,
+        createdAt: clock(),
+      });
+      if (queryRows(db, "SELECT id FROM tasks WHERE id = ?", [task.id]).length) {
+        throw new TaskStoreError("DUPLICATE_ID", `Task ID already exists: ${task.id}`);
+      }
+      runMutation(
+        db,
+        () =>
+          db.exec({
+            sql: "INSERT INTO tasks(id, title, completed, created_at) VALUES (?, ?, 0, ?)",
+            bind: [task.id, task.title, task.createdAt],
+          }),
+        "task creation",
+      );
+      await persist();
+      return selected(task.id);
+    },
+    async setTaskCompleted(id, completed) {
+      await selected(id);
+      runMutation(
+        db,
+        () =>
+          db.exec({
+            sql: "UPDATE tasks SET completed = ? WHERE id = ?",
+            bind: [completed ? 1 : 0, id],
+          }),
+        "task completion update",
+      );
+      await persist();
+      return selected(id);
+    },
+    async deleteTask(id) {
+      await selected(id);
+      runMutation(
+        db,
+        () => db.exec({ sql: "DELETE FROM tasks WHERE id = ?", bind: [id] }),
+        "task deletion",
+      );
+      await persist();
+    },
+    status,
+    exportDb,
+    async resetToSpecimen() {
+      const replacement = deserialize(sqlite3, seed, "shipped SPECIMEN database");
+      await validateSchema(replacement, cryptoImpl);
+      const previous = db;
+      db = replacement;
+      previous.close();
+      source = "shipped-specimen-reset";
+      await persist();
+      notify();
+      return status();
+    },
+    async close() {
+      const errors = [];
+      try {
+        await persist();
+      } catch (error) {
+        errors.push(error);
+      }
+      try {
+        db.close();
+      } catch (error) {
+        errors.push(error);
+      }
+      try {
+        idb?.close();
+      } catch (error) {
+        errors.push(error);
+      }
+      if (errors.length === 1) throw errors[0];
+      if (errors.length > 1) {
+        throw new AggregateError(errors, "travelling database shutdown failed");
+      }
+    },
+  });
+  await persist();
+  notify();
+  return store;
+}

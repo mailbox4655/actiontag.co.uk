@@ -1,0 +1,130 @@
+# Native deployment for @@PROJECT_NAME_MARKDOWN@@
+
+These files define one Hetzner VPS procedure; their existence proves no external
+state. Docker and compose deployment are prohibited. Production is an unprivileged
+Node service under systemd, bound to `127.0.0.1:@@APPLICATION_PORT@@`, behind the
+host's explicitly selected existing reverse proxy: additive Nginx or Caddy.
+
+| Concern | Path |
+|---|---|
+| Releases/current link | `/opt/@@PROJECT_SLUG@@/releases/` and `/opt/@@PROJECT_SLUG@@/current` |
+| Data/environment | `/var/lib/@@PROJECT_SLUG@@/` and `/etc/@@PROJECT_SLUG@@/@@PROJECT_SLUG@@.env` |
+| Backup staging | `/var/backups/@@PROJECT_SLUG@@/` |
+| systemd | `/etc/systemd/system/@@PROJECT_SLUG@@.service` |
+| Caddy option | `/etc/caddy/apps-enabled/@@PROJECT_SLUG@@.caddy` |
+| Nginx option | `/etc/nginx/sites-available/@@PROJECT_SLUG@@.conf` plus its exact `sites-enabled` symlink |
+
+Cloudflare credentials never enter source or the app environment.
+
+## Select the host's proxy before mutation
+
+Inventory the real host first: record which service owns ports 80/443, whether Caddy
+or Nginx is active, the exact current vhosts, and a small owner-approved set of
+neighboring public sites to recheck. Do not install or activate a second proxy beside
+an existing one and do not rewrite a shared main configuration.
+
+Choose exactly one argument:
+
+```text
+sudo bash deploy/native/install-host.sh caddy
+sudo bash deploy/native/install-host.sh nginx
+```
+
+The Caddy path requires the shared main Caddyfile to import
+`/etc/caddy/apps-enabled/*.caddy`. The Nginx path installs one hostname-specific file
+and one exact symlink; it refuses a different existing path and validates with
+`nginx -t`. Both paths record the selection at
+`/etc/@@PROJECT_SLUG@@/reverse-proxy`. Neither path reloads the shared proxy.
+
+## Install once
+
+1. Install exact Node 24.18.0, npm 11.16.0, Git, `curl`, the selected database client,
+   and the already-selected Caddy or Nginx package.
+2. Run `install-host.sh` with the exact proxy argument shown above.
+3. Copy the installed `.env.example` to `.env`, replace every marked `SPECIMEN_`
+   value, and retain mode `0640` with group `@@PROJECT_SLUG@@`.
+4. Record the prior DNS value, then configure the Hetzner firewall and Cloudflare
+   record/TLS mode.
+
+The installer does not start the app, reload the shared proxy, edit Cloudflare,
+request a certificate, invent secrets, or rewrite a shared main configuration.
+
+## Workstation access preflight
+
+Before the first host or DNS mutation, place machine-local access values in the
+Git-ignored `.env.infrastructure.local` and run:
+
+```powershell
+.\Test-GPT-Design-Bridge-Infrastructure.ps1 -Mode Connect -Target All
+```
+
+This performs strict-host-key BatchMode SSH with a read-only remote probe, verifies
+the Cloudflare token is active, reads the exact active zone, and reads the exact
+deployment hostname. It does not print/export the token or alter DNS. Successful
+reads do not prove DNS Write. The intended DNS record change must record its previous
+value, successful response, and rollback operation before that permission is claimed.
+
+## Backup, restore proof, and release
+
+```text
+sudo -u @@PROJECT_SLUG@@ bash deploy/native/backup.sh <current-release-id>
+sudo -u @@PROJECT_SLUG@@ bash deploy/native/restore-proof.sh <backup-evidence.json>
+sudo bash deploy/native/release.sh <release-id> <source-directory> <backup-evidence.json>
+sudo bash deploy/native/doctor.sh
+```
+
+SQLite uses the online backup API, never a live-file copy. PostgreSQL uses custom
+`pg_dump` and an explicitly separate restore/test database. Transfer the proved
+artifact off-box; uploads are a second backup set.
+
+Release verifies fresh backup evidence, copies into a new versioned path, runs the
+locked check/build, applies migrations, proves database access, switches the stable
+link, restarts systemd, and retries loopback health.
+
+After release, record the proxy configuration backup and the prior Cloudflare DNS
+value. Validate the selected proxy, activate only the new app vhost, configure valid
+origin TLS, apply the intended Cloudflare record, and retain an exact rollback route.
+For Nginx, use the installed hostname-specific file and obtain/renew its certificate
+through the host's existing certificate procedure; never let a certificate tool
+rewrite unrelated vhosts.
+
+Then run `sudo bash deploy/native/doctor.sh`. The doctor validates the recorded proxy
+and prints elapsed time plus the last observed loopback, direct-origin HTTPS, and
+public HTTPS state at the configured progress interval. Healthy activation has no
+default overall deadline. Set `GDB_DOCTOR_DEADLINE_SECONDS` deliberately when this
+release needs one; the final error names the last response and exact elapsed time. A
+first 404 immediately after reload is therefore an activation observation, not a
+final verdict. A non-healthy payload, invalid TLS, explicit deadline, or process error
+fails loudly.
+
+Finally, recheck every recorded neighboring site, prove Cloudflare TLS/cache behavior,
+prove Postmark test-stream mail when in scope, and walk the production UI in visible
+independent Chrome/Chromium. Neighbor checks are required because a shared-proxy
+syntax pass does not prove that another vhost was left healthy.
+
+Rollback requires a known-compatible release and a literal gate:
+
+```text
+sudo bash deploy/native/rollback.sh <release-id> --confirm-schema-compatible
+```
+
+An incompatible forward migration requires forward repair, not a dishonest rollback.
+
+## Release and disk lifecycle
+
+The release command accepts only a clean source tree whose commit is proven on
+`GDB_RECONSTRUCTION_REMOTE_REF` (default `origin/main`). Each completed release carries
+`.gpt-release-artifact.json` binding its source commit and reconstruction ref. After
+health succeeds it retains the new `current` release and the immediately previous
+proved release as rollback, then removes only older directories carrying a valid
+release marker whose source commit still exists and remains reconstructable from that
+remote ref. Unmarked, linked, escaping, non-directory, database, evidence, or otherwise
+unknown paths are retained with a specific diagnostic.
+
+Local build output is replaced in place: `scripts/prepare-build-output.mjs` removes
+only the resolved non-linked `dist/server` immediately before rebuilding it, while
+Vite replaces `dist/client`. Do not keep prior intermediate `dist` trees. For other
+registered reproducible artifacts, use the project-local artifact lifecycle tool's
+report → preview → hash-bound prune flow. Designer couriers/returns, travelling data
+escrow, databases, uploads, secrets, adoption baselines, and required proof are never
+ordinary build debris.

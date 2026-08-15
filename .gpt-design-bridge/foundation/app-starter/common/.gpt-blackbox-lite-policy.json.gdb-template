@@ -1,0 +1,80 @@
+{
+  "schema": "gpt-blackbox-lite-lanes",
+  "version": 1,
+  "settle_enabled": true,
+  "protected_paths": [
+    ".gpt-blackbox-lite-policy.json",
+    ".env*",
+    "**/.env*",
+    "**/*.key",
+    "**/*.pem",
+    ".agents/**",
+    ".gpt-design-bridge/**",
+    ".project-decisions/.gitignore",
+    ".project-decisions/project_decisions.py",
+    "AGENTS.md",
+    "HARNESS-VERSIONS.txt",
+    "package.json",
+    "package-lock.json",
+    "tsconfig*.json",
+    "vite.config.*",
+    "app/src/api/routes.js",
+    "designer-assets.json",
+    "public/assets/pickers/**",
+    "server/migrations/**",
+    "server/src/config.ts",
+    "server/src/database/**",
+    "server/src/mail.ts",
+    "server/src/migrate.ts",
+    "deploy/**",
+    "scripts/**",
+    "Run-GPT-Bridge.ps1",
+    "Test-GPT-Design-Bridge-Infrastructure.ps1"
+  ],
+  "force_full_task_kinds": [
+    "foundation",
+    "security",
+    "auth",
+    "schema-change",
+    "migration",
+    "dependency-change",
+    "database-change",
+    "persistence-change",
+    "interface-contract",
+    "mail",
+    "deploy",
+    "ops",
+    "infrastructure",
+    "designer-round",
+    "designer-adoption",
+    "release"
+  ],
+  "interface_paths": [
+    "app/src/ui/**",
+    "app/src/styles/**",
+    "app/src/main.jsx",
+    "index.html",
+    "public/design/**"
+  ],
+  "surface_support_paths": [
+    "tests/*ui*.test.*",
+    "tests/color-picker.test.*",
+    "tests/owner-picker-layer.test.*",
+    "evidence/ui/**",
+    "docs/**"
+  ],
+  "thresholds": {
+    "patch": {
+      "max_changed_lines": 40,
+      "max_files": 3
+    },
+    "standard": {
+      "max_changed_lines": 150,
+      "max_files": 8
+    },
+    "surface": {
+      "max_changed_lines": 150,
+      "max_files": 8
+    }
+  }
+}

@@ -1,0 +1,531 @@
+{
+  "browser_proof": {
+    "in_app_browser_allowed": false,
+    "surface": "visible-independent-chrome-or-chromium"
+  },
+  "database": {
+    "engine": "sqlite",
+    "journal_mode": "DELETE",
+    "network_filesystem": false,
+    "postgresql_promotion_gate": [
+      "database accessed from multiple hosts",
+      "simultaneous writers cannot queue",
+      "multiple application replicas planned"
+    ],
+    "wal_policy": "disabled-until-runtime-version-and-concurrency-proof"
+  },
+  "deployment": {
+    "application_port": 3021,
+    "containerization": "prohibited",
+    "dns": "cloudflare",
+    "hosting": "hetzner-vps",
+    "hostname": "actiontag.co.uk",
+    "reverse_proxy": "host-selected-caddy-or-nginx",
+    "runtime": "systemd",
+    "system_mail": "postmark"
+  },
+  "designer": {
+    "authority": "external",
+    "designer_can_run_build": false,
+    "mode": "travelling-drop"
+  },
+  "foundation_manifest": {
+    "contract/CONSTITUTION.md": {
+      "bytes": 17935,
+      "sha256": "d6f73adb2143317c8eefb1afa20d878e0ad06a3f451d20778b6f6d0dadf8195f"
+    },
+    "contract/DATABASE-DEPLOYMENT.md": {
+      "bytes": 11171,
+      "sha256": "c269036a6212ad7827a1fa8d8c948c86e407b4566e449ab4ab15f3b469702c73"
+    },
+    "contract/OWNER-RULES-DESIGN.md": {
+      "bytes": 14817,
+      "sha256": "e993bb088b7ee2f82ee5086afa361e7f959e0fc8adee8f29f91a423147983a3b"
+    },
+    "contract/OWNER-RULES-GENERAL.md": {
+      "bytes": 4332,
+      "sha256": "13530bf8d4754e9763950cb1744b6a7f3f6a5e47023d89d8a51bf531b1b675b9"
+    },
+    "contract/OWNER-RULES.md": {
+      "bytes": 1392,
+      "sha256": "f41906cfc3eca643d06d2bcedee8d2fc89e987c72a5f5e7648e40f782c65c5a7"
+    },
+    "contract/ROUND-TRIP.md": {
+      "bytes": 28928,
+      "sha256": "67a83354ef52478d32ea316d26cf9b40513b3abb7716b8a7f0be5916c5890e8d"
+    },
+    "contract/STACK.md": {
+      "bytes": 16621,
+      "sha256": "72adbe33243c03d723a39324ffd14b856cafca28aba52aa9c6356247ed64826d"
+    },
+    "foundation/app-starter/FOUNDATION.json": {
+      "bytes": 300,
+      "sha256": "984ca15442ac84483ce56c5a7a13236dcbf63e3ecf5694ceaa150e8bdf138d13"
+    },
+    "foundation/app-starter/bundles/icon-picker-template.json": {
+      "bytes": 1540,
+      "sha256": "40824e52083ad8570bdbf187f0b2af7f4d5c0b7973d241ed944f220c806d7b34"
+    },
+    "foundation/app-starter/bundles/icon-picker-template.zip": {
+      "bytes": 4992172,
+      "sha256": "eaf1f15f6b4bc2f1692fc5d38076134e3a73580981ff4e8b92abbb210eedce02"
+    },
+    "foundation/app-starter/common/.gitignore.gdb-template": {
+      "bytes": 205,
+      "sha256": "86b125f4edf8c88012b4b0c530fed3bec871803e1dbd4e05f13b980d6c1b099d"
+    },
+    "foundation/app-starter/common/.gpt-artifact-lifecycle.json.gdb-template": {
+      "bytes": 648,
+      "sha256": "95fdffe6684f098364c106aa248e2f05ee170464ea4f5e39542790d1b5caf9a0"
+    },
+    "foundation/app-starter/common/.gpt-blackbox-lite-fast-lane.json.gdb-template": {
+      "bytes": 270,
+      "sha256": "741c557550980eaaf310a91a84fd11a24b610663e7bb5d756795591d9dac99b9"
+    },
+    "foundation/app-starter/common/.gpt-blackbox-lite-policy.json.gdb-template": {
+      "bytes": 1709,
+      "sha256": "89c8f77a60d4e4a954024de728cebaa91cb156321b8de578bbb2d5b7c161665f"
+    },
+    "foundation/app-starter/common/.npmrc.gdb-template": {
+      "bytes": 64,
+      "sha256": "66da44cd6a380a045c70d6802f0219bed766e0a1e106e8cc4d159915480b3677"
+    },
+    "foundation/app-starter/common/.nvmrc.gdb-template": {
+      "bytes": 8,
+      "sha256": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce"
+    },
+    "foundation/app-starter/common/.project-decisions/.gitignore.gdb-template": {
+      "bytes": 82,
+      "sha256": "59fff0da9fe7dbfad8078240b1a862e4542966ab1eeed7d857300757d8de1ef9"
+    },
+    "foundation/app-starter/common/.project-decisions/outcomes.jsonl.gdb-template": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "foundation/app-starter/common/.project-decisions/project_decisions.py.gdb-template": {
+      "bytes": 34343,
+      "sha256": "7e29f0fd7b7d2442cb835610ffddd68f9788d52e35db98dd37546ecaba1930e1"
+    },
+    "foundation/app-starter/common/AGENTS.md.gdb-template": {
+      "bytes": 10254,
+      "sha256": "516e5efeb2a3d084c4160604dae82f0c9e9b57d73a6ddc7ef335eca28176f3f1"
+    },
+    "foundation/app-starter/common/PROJECT-DECISIONS.md.gdb-template": {
+      "bytes": 747,
+      "sha256": "8e3bfd7882d22a8167edf910fc7a4b1d1014bd4ecc0825d7c30d29e105110a54"
+    },
+    "foundation/app-starter/common/README.md.gdb-template": {
+      "bytes": 5645,
+      "sha256": "33ebf321698183c9dcd8f5079396faaaa46d5522208ecb8d1634ded931a7182c"
+    },
+    "foundation/app-starter/common/app/src/api/direct-socket.js.gdb-template": {
+      "bytes": 358,
+      "sha256": "07f9b846a59d09b0426781abe032457cbb376f03e608cd66d1304557e71c4912"
+    },
+    "foundation/app-starter/common/app/src/api/http-socket.js.gdb-template": {
+      "bytes": 2695,
+      "sha256": "8a5720b0cbef994478d3c867167cbf9a03000084b29013897361eafd8473b625"
+    },
+    "foundation/app-starter/common/app/src/api/routes.js.gdb-template": {
+      "bytes": 2860,
+      "sha256": "02a20ea9d7b81b177294f9fa290adeeeaee8dbf8e9fbde9ebcaa82693a3ea5e5"
+    },
+    "foundation/app-starter/common/app/src/engine/task-service.js.gdb-template": {
+      "bytes": 929,
+      "sha256": "7a6842825f1f753c7bf85872a705850c1b13ccbf8eaf9dc1f5e8c1a85b4e9440"
+    },
+    "foundation/app-starter/common/app/src/main.jsx.gdb-template": {
+      "bytes": 986,
+      "sha256": "ff65e75f8b9e7a95458b24be0bbb70f41aa203b069e2b03d37f1883373dd2300"
+    },
+    "foundation/app-starter/common/app/src/state/memory-store.js.gdb-template": {
+      "bytes": 2272,
+      "sha256": "1771ac285af6ba1072fc976e4e9c023bba597c512b21373d14313e7d0fed8548"
+    },
+    "foundation/app-starter/common/app/src/styles/color-picker.css.gdb-template": {
+      "bytes": 8074,
+      "sha256": "9147c08dbe9543d950c68aaa36728911786dcd07e90b95edb87e8ae370ed25d3"
+    },
+    "foundation/app-starter/common/app/src/styles/shell.css.gdb-template": {
+      "bytes": 2177,
+      "sha256": "f6941ffccf674f0c28943ed84299509b5a25619e50dc0023d03c43fccd38e60d"
+    },
+    "foundation/app-starter/common/app/src/styles/tokens.css.gdb-template": {
+      "bytes": 681,
+      "sha256": "3165a216b662da010d6bbca3299c5d61c6b59b046f9558a1a34501d67e2e0c6d"
+    },
+    "foundation/app-starter/common/app/src/styles/views.css.gdb-template": {
+      "bytes": 4993,
+      "sha256": "2f183d5545b02a1a3d09c3bd0d9f62285e57f78659edc4c5d950c216e5e6f9a2"
+    },
+    "foundation/app-starter/common/app/src/travelling/mirror.js.gdb-template": {
+      "bytes": 1716,
+      "sha256": "85765337e5d6b80cc9e2678559514cbb7f2a456e46b79529616481552dcc5e75"
+    },
+    "foundation/app-starter/common/app/src/travelling/runtime-entry.js.gdb-template": {
+      "bytes": 2381,
+      "sha256": "d39e51db91c597688104fbc93181d7698eb32a7b2311619fc61fa376acbbef5c"
+    },
+    "foundation/app-starter/common/app/src/travelling/schema.js.gdb-template": {
+      "bytes": 849,
+      "sha256": "6b8a566ad1e4fb152fe18be3ff0f15c9e547f24fe0fffe219b5b0a51d833fd2b"
+    },
+    "foundation/app-starter/common/app/src/travelling/task-store.js.gdb-template": {
+      "bytes": 9066,
+      "sha256": "c56b41a6e8b3415ded3924b669032ce76c17df1b4db79452fa504f500ae26028"
+    },
+    "foundation/app-starter/common/app/src/ui/App.jsx.gdb-template": {
+      "bytes": 6673,
+      "sha256": "baa0a32201127821c9edea69c11b924a4c78233c0609ee9975424c2ad53e4c4b"
+    },
+    "foundation/app-starter/common/app/src/ui/ColorPicker.jsx.gdb-template": {
+      "bytes": 15802,
+      "sha256": "7a4172b544bbc76bb896694035782f4342fe1ff3181feb9e41aab6f1ecab26c6"
+    },
+    "foundation/app-starter/common/app/src/ui/TaskRow.jsx.gdb-template": {
+      "bytes": 1232,
+      "sha256": "a6890918d2e6a8f989f7af9c6463ae1320a8fdbb535157728f47f4438d5061c9"
+    },
+    "foundation/app-starter/common/app/src/ui/owner-picker-layer.js.gdb-template": {
+      "bytes": 4960,
+      "sha256": "afc2f127bcecc65179dc39bb414ddb997315a950dedd3600c31a8aa2b3c6268d"
+    },
+    "foundation/app-starter/common/deploy/README.md.gdb-template": {
+      "bytes": 6695,
+      "sha256": "13fb31668ac41974fd63038af0123e974e7e28077e00e0807d8fdcc5c5c6df15"
+    },
+    "foundation/app-starter/common/deploy/caddy/app.caddy.gdb-template": {
+      "bytes": 230,
+      "sha256": "ee0e4b1a3b337aa29edc6b69846dc92c0a7bf9ddaf97f20c61749482458a738e"
+    },
+    "foundation/app-starter/common/deploy/native/doctor.sh.gdb-template": {
+      "bytes": 4163,
+      "sha256": "7d4c27d1d34abad21f50d1fe528e0f9c395b17ddf620823c3674159441bc099c"
+    },
+    "foundation/app-starter/common/deploy/native/install-host.sh.gdb-template": {
+      "bytes": 3816,
+      "sha256": "94489886c2d612380c7799f1ec68db9ddd8dffd706f4c01adcf0632d70fa5a5f"
+    },
+    "foundation/app-starter/common/deploy/native/release.sh.gdb-template": {
+      "bytes": 9790,
+      "sha256": "80e009e51ac7300722b8d5b51ce06ea384a516c5948d60bfd6441c6f9eec637e"
+    },
+    "foundation/app-starter/common/deploy/native/rollback.sh.gdb-template": {
+      "bytes": 1175,
+      "sha256": "9867faf047d7ad70b5aa04ca2b859e3404c533ab3ca7699d17863fce037639f5"
+    },
+    "foundation/app-starter/common/deploy/nginx/app.nginx.gdb-template": {
+      "bytes": 689,
+      "sha256": "670c078b01b9d73c275338aae60fff19d6a35b604513d779bfba8c66322974e6"
+    },
+    "foundation/app-starter/common/deploy/systemd/app.service.gdb-template": {
+      "bytes": 776,
+      "sha256": "dc23b62ba71ad6fa1177c570cbb07dcd0ac8d664bcbac546de883b3d2ba9d851"
+    },
+    "foundation/app-starter/common/designer-assets.json.gdb-template": {
+      "bytes": 107,
+      "sha256": "6c4c3e9979570f68a3a75072e70f67c889eac375b2f5288be87dc36dc891b1fb"
+    },
+    "foundation/app-starter/common/docs/COLOR-PICKER-TEMPLATE.md.gdb-template": {
+      "bytes": 4860,
+      "sha256": "8eb7a1da3483f37a59c3ae42683b48c92de81bc140e02d67510f2a5b76511796"
+    },
+    "foundation/app-starter/common/docs/FALLBACK-LOG.md.gdb-template": {
+      "bytes": 1378,
+      "sha256": "b1fe36b8e5c8f96aac372d872bd2b12a39aa553620ddfe5aff481039cdc139d5"
+    },
+    "foundation/app-starter/common/docs/ICON-PICKER-TEMPLATE.md.gdb-template": {
+      "bytes": 8217,
+      "sha256": "f9938500942487833d28384072a322c9f625c777074515caa48c619950dfba4d"
+    },
+    "foundation/app-starter/common/index.html.gdb-template": {
+      "bytes": 1920,
+      "sha256": "fec46e194ce4c0ae4d2203bd40947e9d55b7c68b86f4aace18ffdaa435beb75b"
+    },
+    "foundation/app-starter/common/scripts/build-designer-icons.mjs.gdb-template": {
+      "bytes": 3935,
+      "sha256": "51b4e104f13b4e7fcc7ce88651dccbeb4cee43f9c0f5114bdf2605035bca5215"
+    },
+    "foundation/app-starter/common/scripts/build-designer-runtime.mjs.gdb-template": {
+      "bytes": 4210,
+      "sha256": "c83129e7c8bf532ce4e0134370f53d97dc09a0fa81845f73d39920d65b5b7e45"
+    },
+    "foundation/app-starter/common/scripts/create-designer-seed.mjs.gdb-template": {
+      "bytes": 4296,
+      "sha256": "75dc91e43cabdde9aeeeff2eaf4b7bd8d74a4e95b22cfe9c661388bfef988d8a"
+    },
+    "foundation/app-starter/common/scripts/deployment-contract-check.mjs.gdb-template": {
+      "bytes": 3387,
+      "sha256": "e0ef82de72f7afd9dde389a221e45dab335d37178fb732f49f91483ba14e3ccd"
+    },
+    "foundation/app-starter/common/scripts/policy-check.mjs.gdb-template": {
+      "bytes": 4674,
+      "sha256": "69a0eb9421a752ed91683b7c291b56c97f6dd16682cab03f1cd5cb553aaeb2b0"
+    },
+    "foundation/app-starter/common/scripts/prepare-build-output.mjs.gdb-template": {
+      "bytes": 1482,
+      "sha256": "b986985cb009cfbf283cea448e883cbf2b9f33a78d844eb3b1c27dbd919cbb30"
+    },
+    "foundation/app-starter/common/scripts/runtime-check.mjs.gdb-template": {
+      "bytes": 3337,
+      "sha256": "b34e1499bc7af50f2e95ef9a49526b53b9fab8dedf1f240c54d7453579107c1d"
+    },
+    "foundation/app-starter/common/server/src/app.ts.gdb-template": {
+      "bytes": 4556,
+      "sha256": "f931d8ad5d41da0517975db5d2cb51eb6dcdb17e5a91bb87564aec2710f21648"
+    },
+    "foundation/app-starter/common/server/src/config.ts.gdb-template": {
+      "bytes": 4932,
+      "sha256": "f231248fefd649ba7c946f69522a079f4d86d4f3fac4286c0c5b165a458aa1ee"
+    },
+    "foundation/app-starter/common/server/src/database-proof.ts.gdb-template": {
+      "bytes": 936,
+      "sha256": "e51d4414f9a89f5b1c7b3f450945eb6a46bdfb1c873817ab360ee707e2e4f900"
+    },
+    "foundation/app-starter/common/server/src/database/types.ts.gdb-template": {
+      "bytes": 381,
+      "sha256": "55e52c85935bcfbcb5ef49f90910da0954150692eaf625307b4578b73bafc50d"
+    },
+    "foundation/app-starter/common/server/src/index.ts.gdb-template": {
+      "bytes": 3259,
+      "sha256": "352401264d3c63c249bc67bfaf92b80b78e84bff20ec6a91051d8871ccc1906a"
+    },
+    "foundation/app-starter/common/server/src/mail.ts.gdb-template": {
+      "bytes": 1512,
+      "sha256": "50dcdfc87a859bcd9ecd05127b369a050db9a6ff21388b4fe00f637c79623dc1"
+    },
+    "foundation/app-starter/common/server/src/migrate.ts.gdb-template": {
+      "bytes": 766,
+      "sha256": "8ec102f6aebb5887175bcd427ee133c961c57101a249f3406cae4d1b314c6af6"
+    },
+    "foundation/app-starter/common/tests/color-picker.test.js.gdb-template": {
+      "bytes": 3679,
+      "sha256": "a47967f887d409f199862e3699c204e5abf347f12ceac2e12ec1a30269518b01"
+    },
+    "foundation/app-starter/common/tests/config-mail.test.ts.gdb-template": {
+      "bytes": 2264,
+      "sha256": "c35537b212d266918616d7afc9a8a496e6e89122e7128f9812f7f898ed52eb4a"
+    },
+    "foundation/app-starter/common/tests/domain.test.js.gdb-template": {
+      "bytes": 2019,
+      "sha256": "945b2a414cba1dbd820ebacb76af0c46ef99ecc2c9f54a498e6da6860d6c89b1"
+    },
+    "foundation/app-starter/common/tests/owner-picker-layer.test.js.gdb-template": {
+      "bytes": 3483,
+      "sha256": "ca1f347a851665db9086630ee94ebc480e6e37458180849196ff7a8a1bd8642c"
+    },
+    "foundation/app-starter/common/tests/route-parity.test.js.gdb-template": {
+      "bytes": 2912,
+      "sha256": "9f09d6dfe2867dd3d06b283252454cbe242e4dd1f7e886f7634fe27cd39aa8b1"
+    },
+    "foundation/app-starter/common/tests/travelling-runtime.test.js.gdb-template": {
+      "bytes": 2869,
+      "sha256": "928d6a4612917ad97c43f03ce39b9d6a63e4c32199ee61691e6e616585784fe6"
+    },
+    "foundation/app-starter/common/tsconfig.base.json.gdb-template": {
+      "bytes": 645,
+      "sha256": "b8eb71b655e61405fcc9fcea2b8745f58a8c97552fbdeb49216ee415a3c305ee"
+    },
+    "foundation/app-starter/common/tsconfig.check.json.gdb-template": {
+      "bytes": 222,
+      "sha256": "8738dd776e3ebae8f4e673d7e057ac9bdb6f3ef90711a10f4390f8a26c366648"
+    },
+    "foundation/app-starter/common/tsconfig.server.json.gdb-template": {
+      "bytes": 313,
+      "sha256": "426e0bcf339dcd5b38a0f348e3940f91026461a2fdfee19b23168484fc14fc17"
+    },
+    "foundation/app-starter/common/vite.config.js.gdb-template": {
+      "bytes": 573,
+      "sha256": "892af10dd883b120a358c3081ac8fb4759a621fcc6f1cc8c2f63e0b85349a201"
+    },
+    "foundation/app-starter/database/postgresql/.env.example.gdb-template": {
+      "bytes": 192,
+      "sha256": "a9fe8090df701cac184e99deffd7cd84806c1b879fdff1dfe11b29e29593c301"
+    },
+    "foundation/app-starter/database/postgresql/.env.production.example.gdb-template": {
+      "bytes": 387,
+      "sha256": "807a9b7208b3a7c07fe690e833bcc6d1b57b71780308e009ded7c66c8d91792b"
+    },
+    "foundation/app-starter/database/postgresql/deploy/native/backup.sh.gdb-template": {
+      "bytes": 2077,
+      "sha256": "287318e8e4c757ebbecd71909f7aac141d99472ea56110661f2d14b3d4a702bd"
+    },
+    "foundation/app-starter/database/postgresql/deploy/native/restore-proof.sh.gdb-template": {
+      "bytes": 2757,
+      "sha256": "6a175b48a08184cf861cdd1611fad762cdcf9157cae6d7dc9f4e8b85f57310e3"
+    },
+    "foundation/app-starter/database/postgresql/package-lock.json.gdb-template": {
+      "bytes": 78217,
+      "sha256": "55c1fee155129583bb7073a243202a5209fd471e332fd2cf6e9662331f955c91"
+    },
+    "foundation/app-starter/database/postgresql/package.json.gdb-template": {
+      "bytes": 2252,
+      "sha256": "61a38e11a4ff80a7dcc757a58ea237f1e9b83711b80019ec84fc2744e2ddebb1"
+    },
+    "foundation/app-starter/database/postgresql/server/migrations/001_init.sql.gdb-template": {
+      "bytes": 250,
+      "sha256": "1084210b939738a5671b1862d785c7e13f5605c9f5cf5db3702d564160c3e166"
+    },
+    "foundation/app-starter/database/postgresql/server/src/database/adapter.ts.gdb-template": {
+      "bytes": 8464,
+      "sha256": "7589e3a7ca553ee5bfb9f40f823d2bc575a350601c920c5dbeb25ee7f44f4ec2"
+    },
+    "foundation/app-starter/database/postgresql/tests/database.test.ts.gdb-template": {
+      "bytes": 3656,
+      "sha256": "1858654bcc72c1a01d0bc9a71e301b185bd4a48f46c1397a3dda3ee6ce966bbc"
+    },
+    "foundation/app-starter/database/sqlite/.env.example.gdb-template": {
+      "bytes": 172,
+      "sha256": "6eb3ce52fa12ad58feb32604b62d3f040dd951c755fab54b9e59df284bc0d20a"
+    },
+    "foundation/app-starter/database/sqlite/.env.production.example.gdb-template": {
+      "bytes": 387,
+      "sha256": "00bb88ed087913fac0a54d11dfbf7754085d269c631c79c46f4f17e32fa73df0"
+    },
+    "foundation/app-starter/database/sqlite/deploy/native/backup.sh.gdb-template": {
+      "bytes": 1031,
+      "sha256": "8c7691a7065e5ab22935ea283aab4a9a1faf26b7b5d29c868a9568eeed3a4309"
+    },
+    "foundation/app-starter/database/sqlite/deploy/native/restore-proof.sh.gdb-template": {
+      "bytes": 956,
+      "sha256": "c2a3d8a03b953c515272dac7abd00f7e970447f994008dbda0d51b8c24086675"
+    },
+    "foundation/app-starter/database/sqlite/package-lock.json.gdb-template": {
+      "bytes": 73590,
+      "sha256": "1162a70ecceed211c76a1e9e83ef84c3c92f2c3bcd133ac89facbd6d09ee2928"
+    },
+    "foundation/app-starter/database/sqlite/package.json.gdb-template": {
+      "bytes": 2205,
+      "sha256": "31c28852cb85ed13a24310449dca448708e1119b4ceb4a80d4948e0ff46c921a"
+    },
+    "foundation/app-starter/database/sqlite/scripts/sqlite-backup.mjs.gdb-template": {
+      "bytes": 3372,
+      "sha256": "83628ff7f2768325f5b15fd278862cac32e83829a712b72f62717d0c512f2a4c"
+    },
+    "foundation/app-starter/database/sqlite/scripts/sqlite-restore-proof.mjs.gdb-template": {
+      "bytes": 4331,
+      "sha256": "f3df4c9809d9227bf6dff61c9a6584ef5f61ca092db43365e07b9ecac243cd65"
+    },
+    "foundation/app-starter/database/sqlite/server/migrations/001_init.sql.gdb-template": {
+      "bytes": 282,
+      "sha256": "25b1692cca2a3ca8d3d122649b54fc1740168916cca790460949d7b9c3b39ef9"
+    },
+    "foundation/app-starter/database/sqlite/server/src/database/adapter.ts.gdb-template": {
+      "bytes": 6032,
+      "sha256": "3640fa4654eba4fd1c633f7fb1b80ed6b0fb4025e3a680b726f545f47866186d"
+    },
+    "foundation/app-starter/database/sqlite/tests/database.test.ts.gdb-template": {
+      "bytes": 3287,
+      "sha256": "75b955a38ded403d3b854b47d3516cb81551b5538dd68db64286f981c0f62dc9"
+    },
+    "templates/DROP-BRIEF.template.md": {
+      "bytes": 11292,
+      "sha256": "cdb232f89c26bb03996ac78e6a31e93a65824fbc00829b16d97e8c1feea623e9"
+    },
+    "templates/RETURN-NOTE.template.md": {
+      "bytes": 8012,
+      "sha256": "e42859992862d1d2b6a787068ca754ae9eba381e8a08f5b9bbe88c3bf2972f56"
+    },
+    "templates/contract-additions.empty.json": {
+      "bytes": 99,
+      "sha256": "af6c4df9bc8badee2f39df063f7e9867d5cd19826083adad88618acde5ff0921"
+    },
+    "templates/contract-additions.schema.json": {
+      "bytes": 3318,
+      "sha256": "41deb6f75038146daa4f5a2380928b326a587914a4ff9a0939b09238794cffd8"
+    }
+  },
+  "kit_version": "0.1.0",
+  "project": {
+    "name": "ActionTag",
+    "origin": "fresh",
+    "slug": "actiontag"
+  },
+  "schema": "gpt-design-bridge/project/v1",
+  "tool_manifest": {
+    "tools/artifact_lifecycle.py": {
+      "bytes": 31284,
+      "sha256": "4f09de26e401c23098b233b4adf9ef36d87ca4945ee65315fe4b4a51b04a4df4"
+    },
+    "tools/bridge_adopt.py": {
+      "bytes": 21429,
+      "sha256": "420b78b170fdc2522f783af96686e28e65387143d1d90f6897a1e80c5d21f6f7"
+    },
+    "tools/bridge_artifacts.py": {
+      "bytes": 16383,
+      "sha256": "a5fb16e716585b74db5658810323d6ad4d405380f86e79992c55c1f2a22704b7"
+    },
+    "tools/bridge_core.py": {
+      "bytes": 32953,
+      "sha256": "ac330c0fff2accafca1bf9c4503a62d2b8c05637c2944d383746a60183b5abbb"
+    },
+    "tools/bridge_drop.py": {
+      "bytes": 31055,
+      "sha256": "e0f57c9b17f0bc97253d9241c1c6f55f018495c527e28ebe4616ef4bb9bd2ed6"
+    },
+    "tools/bridge_process.py": {
+      "bytes": 7971,
+      "sha256": "eb3805e151ba493037d1b062364c2f4b9a3d9a2a015127793b1f23cb7e79bfed"
+    },
+    "tools/bridge_provenance.py": {
+      "bytes": 80888,
+      "sha256": "8fb8d30cf8fcddd28d6cb175213d27e221b41d77d4f7b4b17eee030c2d776ef5"
+    },
+    "tools/bridge_return.py": {
+      "bytes": 23857,
+      "sha256": "60a83d17cae1456045b0ee4ffcbe9cf9294378d341e20ef474052d8d67430cb4"
+    },
+    "tools/bridge_rounds.py": {
+      "bytes": 29930,
+      "sha256": "cff3655c4c32caedd9005b1e706a82779feb3017150655c8f56a24cd95e45c60"
+    },
+    "tools/bridge_scaffold.py": {
+      "bytes": 31463,
+      "sha256": "29f7ebfd35515e55fd9455af05762c96b2ed128b611a9ab95a0e51eb5c979cde"
+    },
+    "tools/bridge_seal.py": {
+      "bytes": 26944,
+      "sha256": "983b41cfdae44d5a3ac0b06f05e4a9b62d51c65c2bced26fd395e988ad12651a"
+    },
+    "tools/bridge_stage.py": {
+      "bytes": 17845,
+      "sha256": "e14086db84aea715c995bed41721531b47943734e8addbcb343d3b3a558a540c"
+    },
+    "tools/bridge_stage_page.py": {
+      "bytes": 14890,
+      "sha256": "634c661eda95f004121d68802578a9872557699d8a2a87dd6f08cc57446b4b97"
+    },
+    "tools/bridge_surface.py": {
+      "bytes": 22210,
+      "sha256": "5ba43b7a5819da2c148ff346d6c65dc8437ab4e0a7c233f3e69b7b4ef14d98af"
+    },
+    "tools/bridge_travelling_assets.py": {
+      "bytes": 16100,
+      "sha256": "c0f3b19e45d763b4736296227d6d87ca71850f5c9d867f5f10d938ec3ca5d30d"
+    },
+    "tools/controlled_chrome.mjs": {
+      "bytes": 13623,
+      "sha256": "b987866c573905bae6c260f5c482502b1d734086547a8bd11cbb6165fef0b805"
+    },
+    "tools/controlled_chrome_actions.mjs": {
+      "bytes": 15138,
+      "sha256": "dc3a65cee31f3ca596985b9a4c490682f548e60e5f87a3221d0fc0bfb56a082a"
+    },
+    "tools/controlled_chrome_cdp.mjs": {
+      "bytes": 11502,
+      "sha256": "49ec3687cc2aa9b73d5161333d1904927466e63906f0e1fb44653711c9b7d76b"
+    },
+    "tools/controlled_chrome_install.mjs": {
+      "bytes": 9652,
+      "sha256": "134be102454e2284a1e0f42939c5db68d6984599bd57cadbb6d666ecfa14939d"
+    },
+    "tools/gpt_blackbox.py": {
+      "bytes": 172152,
+      "sha256": "515802b2dbb71671757032fb468f53dba81a7a7cf93b9981c0d95d8d08a3b756"
+    },
+    "tools/gpt_design_bridge.py": {
+      "bytes": 36169,
+      "sha256": "13710ab9df0221e380ebee00ce9f6830aaf12c4cc23f6b059e4ceccec79de0f4"
+    }
+  }
+}

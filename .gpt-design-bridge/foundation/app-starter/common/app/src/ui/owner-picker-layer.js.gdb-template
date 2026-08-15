@@ -1,0 +1,157 @@
+const BACKDROP_CLASS = "cat-editor-backdrop";
+
+function layerFailure(message, options) {
+  return new Error(`OWNER PICKER LAYER: ${message}`, options);
+}
+
+function requireDocument(documentRoot) {
+  if (
+    !documentRoot
+    || typeof documentRoot.querySelectorAll !== "function"
+    || !documentRoot.body
+    || typeof documentRoot.body.appendChild !== "function"
+  ) {
+    throw layerFailure("a live browser document with a body is required");
+  }
+  return documentRoot;
+}
+
+function requireBackdrop(backdrop) {
+  if (
+    !backdrop
+    || backdrop.nodeType !== 1
+    || !backdrop.classList?.contains(BACKDROP_CLASS)
+  ) {
+    throw layerFailure(`the raw picker backdrop .${BACKDROP_CLASS} is required`);
+  }
+  return backdrop;
+}
+
+function modalDialogs(documentRoot) {
+  try {
+    return [...documentRoot.querySelectorAll("dialog:modal")];
+  } catch (cause) {
+    throw layerFailure(
+      "the browser cannot query active native modal dialogs with :modal; "
+        + "picker top-layer composition cannot be proved",
+      { cause },
+    );
+  }
+}
+
+function closestModal(origin) {
+  if (!origin || typeof origin.closest !== "function") return null;
+  try {
+    return origin.closest("dialog:modal");
+  } catch (cause) {
+    throw layerFailure(
+      "the picker origin cannot resolve its active native modal dialog",
+      { cause },
+    );
+  }
+}
+
+/**
+ * Move the raw owner picker out of BODY and into the front native modal's top layer.
+ *
+ * The owner picker is provenance-locked and mounts imperatively under BODY. A native
+ * showModal() dialog sits in the browser top layer, so a BODY child can exist in the
+ * DOM while remaining visually and interactively behind it. Product adapters call
+ * this immediately after openIconPicker().
+ */
+export function placeOwnerPickerBackdrop({
+  backdrop,
+  origin = null,
+  layerRoot = null,
+  documentRoot = globalThis.document,
+} = {}) {
+  const activeDocument = requireDocument(documentRoot);
+  const pickerBackdrop = requireBackdrop(backdrop);
+  const modals = modalDialogs(activeDocument);
+
+  if (modals.length === 0) {
+    activeDocument.body.appendChild(pickerBackdrop);
+    return Object.freeze({ host: activeDocument.body, mode: "document" });
+  }
+
+  const frontModal = modals.at(-1);
+  const requestedRoot = layerRoot || closestModal(origin);
+  if (!requestedRoot) {
+    throw layerFailure(
+      "a picker was opened while a native modal dialog is active, but the adapter "
+        + "did not provide that dialog as layerRoot and the origin is outside it",
+    );
+  }
+  if (
+    requestedRoot !== frontModal
+    && typeof frontModal.contains === "function"
+    && !frontModal.contains(requestedRoot)
+  ) {
+    throw layerFailure(
+      "the requested picker layer is not inside the front native modal dialog",
+    );
+  }
+  if (typeof frontModal.appendChild !== "function") {
+    throw layerFailure("the front native modal cannot host the picker backdrop");
+  }
+  frontModal.appendChild(pickerBackdrop);
+  return Object.freeze({ host: frontModal, mode: "native-modal" });
+}
+
+function safeElementName(element) {
+  if (!element) return "(no element)";
+  const tag = String(element.tagName || "element").toLowerCase();
+  const id = typeof element.id === "string" && element.id ? `#${element.id}` : "";
+  return `${tag}${id}`;
+}
+
+/**
+ * Prove rendered visibility and native hit testing; DOM presence alone is not proof.
+ * Call from requestAnimationFrame after placement and product adaptation.
+ */
+export function assertOwnerPickerInteractable(
+  backdrop,
+  {
+    documentRoot = globalThis.document,
+    target = null,
+  } = {},
+) {
+  const activeDocument = requireDocument(documentRoot);
+  const pickerBackdrop = requireBackdrop(backdrop);
+  const hitTarget = target || pickerBackdrop.querySelector?.(".cat-editor-modal");
+  if (!hitTarget || typeof hitTarget.getBoundingClientRect !== "function") {
+    throw layerFailure("the rendered picker modal cannot be measured");
+  }
+  const rect = hitTarget.getBoundingClientRect();
+  if (
+    !Number.isFinite(rect.left)
+    || !Number.isFinite(rect.top)
+    || !Number.isFinite(rect.width)
+    || !Number.isFinite(rect.height)
+    || rect.width <= 0
+    || rect.height <= 0
+  ) {
+    throw layerFailure(
+      `the rendered picker modal has no visible area (${rect.width} by ${rect.height})`,
+    );
+  }
+  if (typeof activeDocument.elementFromPoint !== "function") {
+    throw layerFailure("the browser cannot perform native picker hit testing");
+  }
+  const x = rect.left + (rect.width / 2);
+  const y = rect.top + (rect.height / 2);
+  const hit = activeDocument.elementFromPoint(x, y);
+  if (!hit || typeof pickerBackdrop.contains !== "function" || !pickerBackdrop.contains(hit)) {
+    throw layerFailure(
+      `the picker center is obscured by ${safeElementName(hit)} at `
+        + `${Math.round(x)},${Math.round(y)}`,
+    );
+  }
+  return Object.freeze({
+    height: rect.height,
+    hit: safeElementName(hit),
+    width: rect.width,
+    x,
+    y,
+  });
+}

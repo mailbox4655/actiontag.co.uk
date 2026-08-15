@@ -1,0 +1,82 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { DatabaseSync, backup } from "node:sqlite";
+
+function fail(message) { throw new Error(`SQLITE BACKUP: ${message}`); }
+function argumentsFrom(argv) {
+  const values = {};
+  for (let index = 0; index < argv.length; index += 2) {
+    const [flag, value] = argv.slice(index, index + 2);
+    if (!["--source", "--artifact", "--evidence", "--release"].includes(flag) || !value) {
+      fail("usage: --source FILE --artifact NEW_FILE --evidence NEW_JSON --release ID");
+    }
+    values[flag.slice(2)] = value;
+  }
+  if (Object.keys(values).length !== 4) fail("all four named arguments are required once");
+  return values;
+}
+const sha256 = (file) =>
+  crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+function inspect(database) {
+  const integrity = database.prepare("PRAGMA integrity_check").all();
+  if (integrity.length !== 1 || integrity[0]?.integrity_check !== "ok") {
+    fail(`integrity_check failed: ${JSON.stringify(integrity)}`);
+  }
+  const migrations = database.prepare(
+    "SELECT name, sha256 FROM gdb_schema_migrations ORDER BY name",
+  ).all();
+  if (!migrations.length) fail("backup has no recorded migrations");
+  return migrations;
+}
+async function main() {
+  if (process.version !== "v24.18.0" || process.versions.sqlite !== "3.53.1") {
+    fail(`requires Node 24.18.0 / SQLite 3.53.1; running ${
+      process.version} / ${process.versions.sqlite ?? "none"}`);
+  }
+  const selected = argumentsFrom(process.argv.slice(2));
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(selected.release))
+    fail("release ID is invalid");
+  const source = path.resolve(selected.source), artifact = path.resolve(selected.artifact);
+  const evidence = path.resolve(selected.evidence);
+  if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile())
+    fail(`live database is missing: ${source}`);
+  if (fs.existsSync(artifact) || fs.existsSync(evidence))
+    fail("artifact and evidence paths must both be new");
+  fs.mkdirSync(path.dirname(artifact), { recursive: true });
+  fs.mkdirSync(path.dirname(evidence), { recursive: true });
+  const temporary = `${artifact}.partial-${crypto.randomUUID()}`;
+  let live;
+  try {
+    live = new DatabaseSync(source, { readOnly: true, timeout: 5_000, defensive: true });
+    await backup(live, temporary);
+    live.close();
+    live = null;
+    const copy = new DatabaseSync(temporary, { readOnly: true, defensive: true });
+    const migrations = inspect(copy);
+    copy.close();
+    fs.renameSync(temporary, artifact);
+    const record = {
+      schema: "gpt-design-bridge/backup/v1",
+      engine: "sqlite",
+      release: selected.release,
+      created_at: new Date().toISOString(),
+      artifact: path.basename(artifact),
+      bytes: fs.statSync(artifact).size,
+      sha256: sha256(artifact),
+      integrity_check: "ok",
+      migrations,
+    };
+    fs.writeFileSync(evidence, `${JSON.stringify(record, null, 2)}\n`, { encoding: "utf8", flag: "wx" });
+    process.stdout.write(`${JSON.stringify(record)}\n`);
+  } catch (error) {
+    if (live) live.close();
+    fs.rmSync(temporary, { force: true });
+    throw error;
+  }
+}
+main().catch((error) => {
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  process.exitCode = 1;
+});

@@ -1,0 +1,99 @@
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+import {
+  ColorPicker,
+  TAILWIND_COLOR_FAMILIES,
+  TAILWIND_SHADE_LABELS,
+  colorFamilySelection,
+  colorFamilyForHex,
+  normalizeHex,
+  validateColorValue,
+} from "../app/src/ui/ColorPicker.jsx";
+
+const EXPECTED_FAMILIES = [
+  "slate", "gray", "zinc", "neutral", "stone", "red", "orange", "amber",
+  "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue",
+  "indigo", "violet", "purple", "fuchsia", "pink", "rose",
+];
+
+describe("owner color picker model", () => {
+  it("carries the complete approved 22 by 11 Tailwind palette", () => {
+    expect(Object.keys(TAILWIND_COLOR_FAMILIES)).toEqual(EXPECTED_FAMILIES);
+    expect(TAILWIND_SHADE_LABELS).toEqual([
+      50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+    ]);
+    for (const family of EXPECTED_FAMILIES) {
+      const values = TAILWIND_COLOR_FAMILIES[family];
+      expect(values).toHaveLength(11);
+      expect(values[5]).toMatch(/^#[0-9a-f]{6}$/);
+      expect(new Set(values).size).toBe(11);
+    }
+  });
+
+  it("normalizes supported three- and six-digit custom hex values", () => {
+    expect(normalizeHex(" #AbC ")).toEqual({ ok: true, value: "#aabbcc" });
+    expect(normalizeHex("22D3EE")).toEqual({ ok: true, value: "#22d3ee" });
+    expect(colorFamilyForHex("#3b82f6")).toBe("blue");
+    expect(colorFamilyForHex("#123456")).toBeNull();
+  });
+
+  it("selects the family 500 shade and switches the fixed tray together", () => {
+    expect(colorFamilySelection("rose", 82)).toEqual({
+      color: { hex: "#f43f5e", opacity: 82 },
+      openFamily: { name: "rose" },
+    });
+    expect(() => colorFamilySelection("not-a-family", 82)).toThrow(
+      "Color family must be one of",
+    );
+    expect(() => colorFamilySelection("rose", 101)).toThrow(
+      "finite number from 0 through 100",
+    );
+  });
+
+  it("reserves the horizontal shade tray on first render", () => {
+    const html = renderToStaticMarkup(React.createElement(ColorPicker, {
+      id: "stable-picker",
+      value: { hex: "#3b82f6", opacity: 100 },
+      onChange() {},
+    }));
+    expect(html).toContain('class="owner-color-picker__shades"');
+    expect(html).toContain('aria-label="blue shades 50 through 950"');
+    expect(html.match(/data-color-shade=/g)).toHaveLength(11);
+    expect(html).toContain("select and show shades");
+  });
+
+  it("is form-composable and keeps explicit Enter and Add actions", () => {
+    const html = renderToStaticMarkup(React.createElement(ColorPicker, {
+      id: "composable-picker",
+      value: { hex: "#3b82f6", opacity: 100 },
+      onChange() {},
+    }));
+    expect(html).not.toContain("<form");
+    expect(html).toContain('class="owner-color-picker__hex"');
+    expect(html).toContain('<button type="button">Add</button>');
+  });
+
+  it("returns an exact reason for an invalid custom hex value", () => {
+    expect(normalizeHex("#12xz").ok).toBe(false);
+    expect(normalizeHex("#12xz").error).toContain("3 or 6 hexadecimal digits");
+    expect(normalizeHex("").error).toContain("(empty)");
+  });
+
+  it("accepts only explicit finite opacity from 0 through 100", () => {
+    expect(validateColorValue({ hex: "#3B82F6", opacity: 0 })).toEqual({
+      hex: "#3b82f6",
+      opacity: 0,
+    });
+    expect(validateColorValue({ hex: "fff", opacity: 100 })).toEqual({
+      hex: "#ffffff",
+      opacity: 100,
+    });
+    expect(() => validateColorValue({ hex: "#3b82f6", opacity: -1 })).toThrow(
+      "from 0 through 100",
+    );
+    expect(() => validateColorValue({ hex: "#3b82f6", opacity: Number.NaN })).toThrow(
+      "finite number",
+    );
+  });
+});

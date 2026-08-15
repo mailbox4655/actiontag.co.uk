@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the ActionTag health check every five minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+Unit=actiontag-health-watch.service
+
+[Install]
+WantedBy=timers.target

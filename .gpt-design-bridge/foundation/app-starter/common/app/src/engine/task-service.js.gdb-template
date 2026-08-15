@@ -1,0 +1,27 @@
+import { parseRouteInput, parseRouteOutput } from "../api/routes.js";
+
+export async function executeRoute(store, routeId, untrustedInput) {
+  if (!store || typeof store !== "object") {
+    throw new Error("TASK SERVICE: a store object is required");
+  }
+  const input = parseRouteInput(routeId, untrustedInput);
+  let output;
+  switch (routeId) {
+    case "tasks.list":
+      output = { tasks: await store.listTasks() };
+      break;
+    case "tasks.create":
+      output = { task: await store.createTask(input.title) };
+      break;
+    case "tasks.setCompleted":
+      output = { task: await store.setTaskCompleted(input.id, input.completed) };
+      break;
+    case "tasks.delete":
+      await store.deleteTask(input.id);
+      output = { deletedId: input.id };
+      break;
+    default:
+      throw new Error(`TASK SERVICE: no handler for route ${JSON.stringify(routeId)}`);
+  }
+  return parseRouteOutput(routeId, output);
+}

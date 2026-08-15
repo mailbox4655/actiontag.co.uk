@@ -1,0 +1,79 @@
+import { taskSchema } from "../api/routes.js";
+
+export class TaskStoreError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.name = "TaskStoreError";
+    this.code = code;
+  }
+}
+
+function cloneTask(task) {
+  return { ...task };
+}
+
+export function createMemoryTaskStore({ initialTasks, clock, idFactory }) {
+  if (!Array.isArray(initialTasks)) {
+    throw new Error("MEMORY STORE: initialTasks must be an array");
+  }
+  if (typeof clock !== "function" || typeof idFactory !== "function") {
+    throw new Error("MEMORY STORE: explicit clock and idFactory functions are required");
+  }
+  const tasks = new Map();
+  for (const candidate of initialTasks) {
+    const task = taskSchema.parse(candidate);
+    if (tasks.has(task.id)) {
+      throw new Error(`MEMORY STORE: duplicate initial task ID ${task.id}`);
+    }
+    tasks.set(task.id, cloneTask(task));
+  }
+
+  return Object.freeze({
+    async listTasks() {
+      return [...tasks.values()]
+        .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+        .map(cloneTask);
+    },
+
+    async createTask(title) {
+      const task = taskSchema.parse({
+        id: idFactory(),
+        title,
+        completed: false,
+        createdAt: clock(),
+      });
+      if (tasks.has(task.id)) {
+        throw new TaskStoreError("DUPLICATE_ID", `Task ID already exists: ${task.id}`);
+      }
+      tasks.set(task.id, cloneTask(task));
+      return cloneTask(task);
+    },
+
+    async setTaskCompleted(id, completed) {
+      const current = tasks.get(id);
+      if (!current) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+      const updated = taskSchema.parse({ ...current, completed });
+      tasks.set(id, cloneTask(updated));
+      return cloneTask(updated);
+    },
+
+    async deleteTask(id) {
+      if (!tasks.delete(id)) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+    },
+  });
+}
+
+export function browserClock() {
+  return new Date().toISOString();
+}
+
+export function browserIdFactory() {
+  if (!globalThis.crypto || typeof globalThis.crypto.randomUUID !== "function") {
+    throw new Error("MEMORY STORE: crypto.randomUUID is unavailable");
+  }
+  return globalThis.crypto.randomUUID();
+}

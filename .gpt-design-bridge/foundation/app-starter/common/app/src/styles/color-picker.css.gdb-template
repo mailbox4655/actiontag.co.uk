@@ -1,0 +1,297 @@
+.owner-color-picker {
+  width: min(100%, 37rem);
+  display: grid; gap: 1rem;
+  padding: 1.25rem;
+  color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow); font-family: var(--font-sans);
+}
+.owner-color-picker *,
+.owner-color-picker *::before,
+.owner-color-picker *::after {
+  box-sizing: border-box;
+}
+.owner-color-picker__heading {
+  display: flex;
+  align-items: flex-start; justify-content: space-between; gap: 1rem;
+}
+.owner-color-picker__heading h3,
+.owner-color-picker__heading p,
+.owner-color-picker__status,
+.owner-color-picker__hex p {
+  margin: 0;
+}
+.owner-color-picker__heading h3 {
+  color: var(--ink-strong); font-size: 1rem;
+}
+.owner-color-picker__heading p {
+  max-width: 28rem;
+  margin-top: 0.25rem; color: var(--ink-muted);
+  font-size: 0.78rem; line-height: 1.45;
+}
+.owner-color-picker__current {
+  min-width: 7.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem 0.5rem; align-items: center;
+  color: var(--ink-muted);
+  font-family: var(--font-mono); font-size: 0.72rem;
+}
+.owner-color-picker__current strong {
+  color: var(--ink-strong); font-size: 0.74rem;
+}
+.owner-color-picker__preview {
+  grid-row: 1 / span 2;
+  width: 2rem; height: 2rem; padding: 0.2rem; overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, var(--line) 25%, transparent 25% 75%, var(--line) 75%),
+    linear-gradient(45deg, var(--line) 25%, var(--surface-raised) 25% 75%, var(--line) 75%);
+  background-position: 0 0, 0.25rem 0.25rem; background-size: 0.5rem 0.5rem;
+}
+.owner-color-picker__preview span {
+  display: block; width: 100%; height: 100%; border-radius: inherit;
+}
+.owner-color-picker__palette {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(11, minmax(1.75rem, 1fr));
+  gap: 0.55rem; padding: 1rem 0.65rem;
+  border-block: 1px dotted var(--line);
+}
+.owner-color-picker__swatch,
+.owner-color-picker__shade {
+  position: relative;
+  display: block; padding: 0;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%; cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.owner-color-picker__swatch {
+  width: 100%;
+}
+.owner-color-picker__swatch:hover,
+.owner-color-picker__shade:hover {
+  transform: scale(1.12);
+}
+.owner-color-picker__swatch[data-selected="true"],
+.owner-color-picker__shade[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--brand);
+}
+.owner-color-picker__swatch--custom {
+  border-style: dashed;
+}
+.owner-color-picker__swatch:focus-visible,
+.owner-color-picker__shade:focus-visible,
+.owner-color-picker__hex input:focus-visible,
+.owner-color-picker__hex button:focus-visible,
+.owner-color-picker__opacity input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+.owner-color-picker [data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%; bottom: calc(100% + 0.55rem); z-index: 80;
+  width: max-content;
+  max-width: 12rem;
+  padding: 0.35rem 0.5rem;
+  color: var(--surface); background: var(--ink-strong);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow);
+  font-family: var(--font-sans); font-size: 0.68rem; line-height: 1.25;
+  text-align: center; white-space: normal; opacity: 0; pointer-events: none;
+  transform: translate(-50%, 0.2rem);
+  transition: opacity 100ms ease, transform 100ms ease;
+}
+.owner-color-picker [data-tooltip]:hover::after,
+.owner-color-picker [data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.owner-color-picker__shades {
+  --shade-size: 1.65rem;
+  position: relative; grid-column: 1 / -1;
+  width: 100%;
+  min-block-size: 4.75rem;
+  padding: 0.5rem;
+  color: var(--ink); background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow);
+}
+
+.owner-color-picker__shade-heading {
+  display: flex; justify-content: space-between; gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  text-align: center;
+}
+
+.owner-color-picker__shade-heading strong {
+  color: var(--ink-strong); font-size: 0.68rem; text-transform: capitalize;
+}
+
+.owner-color-picker__shade-heading span {
+  color: var(--ink-muted); font-size: 0.6rem;
+}
+
+.owner-color-picker__shade-list {
+  display: grid; grid-template-columns: repeat(11, 1fr); gap: 0.35rem;
+}
+
+.owner-color-picker__shade {
+  width: 100%;
+}
+
+.owner-color-picker__hex {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.7fr) minmax(12rem, 1.3fr);
+  gap: 0.5rem 1rem; align-items: center;
+}
+
+.owner-color-picker__hex > label,
+.owner-color-picker__opacity label {
+  color: var(--ink-strong);
+  font-weight: 650;
+}
+
+.owner-color-picker__hex > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.owner-color-picker__hex input,
+.owner-color-picker__hex button {
+  min-height: 2.65rem;
+  color: var(--ink); background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  font: inherit;
+}
+
+.owner-color-picker__hex input {
+  min-width: 0; padding-inline: 0.85rem; font-family: var(--font-mono);
+}
+
+.owner-color-picker__hex input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.owner-color-picker__hex button {
+  padding-inline: 1rem; color: var(--ink-strong); cursor: pointer;
+}
+
+.owner-color-picker__hex button:hover {
+  border-color: var(--brand);
+}
+
+.owner-color-picker__hex p {
+  grid-column: 2;
+  padding: 0.6rem 0.75rem;
+  color: var(--danger); background: var(--danger-soft);
+  border-left: 3px solid var(--danger);
+  border-radius: var(--radius-small);
+  font-size: 0.75rem; line-height: 1.4;
+}
+
+.owner-color-picker__opacity {
+  display: grid; gap: 0.55rem;
+}
+
+.owner-color-picker__opacity > div {
+  display: flex; justify-content: space-between; gap: 1rem;
+}
+
+.owner-color-picker__opacity output {
+  color: var(--ink-muted); font-family: var(--font-mono); font-size: 0.78rem;
+}
+
+.owner-color-picker__opacity input {
+  width: 100%; height: 1.15rem; margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent; cursor: pointer;
+}
+
+.owner-color-picker__opacity input::-webkit-slider-runnable-track {
+  height: 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      var(--owner-opacity-color) var(--owner-opacity-position),
+      var(--line) var(--owner-opacity-position)
+    ),
+    var(--surface-raised);
+}
+
+.owner-color-picker__opacity input::-moz-range-track {
+  height: 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      var(--owner-opacity-color) var(--owner-opacity-position),
+      var(--line) var(--owner-opacity-position)
+    ),
+    var(--surface-raised);
+}
+
+.owner-color-picker__opacity input::-webkit-slider-thumb {
+  width: 1.15rem; height: 1.15rem;
+  margin-top: -0.36rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid var(--surface);
+  border-radius: 50%; background: var(--owner-opacity-color);
+  box-shadow: 0 0 0 1px var(--ink-strong);
+}
+
+.owner-color-picker__opacity input::-moz-range-thumb {
+  width: 1.15rem; height: 1.15rem;
+  border: 2px solid var(--surface);
+  border-radius: 50%; background: var(--owner-opacity-color);
+  box-shadow: 0 0 0 1px var(--ink-strong);
+}
+
+.owner-color-picker__status {
+  min-height: 1.1rem;
+  color: var(--ink-muted); font-size: 0.72rem;
+}
+
+@media (max-width: 36rem) {
+  .owner-color-picker__heading,
+  .owner-color-picker__hex {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-color-picker__heading {
+    display: grid;
+  }
+
+  .owner-color-picker__palette {
+    grid-template-columns: repeat(6, minmax(1.75rem, 1fr));
+  }
+
+  .owner-color-picker__hex p {
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-color-picker__swatch,
+  .owner-color-picker__shade,
+  .owner-color-picker [data-tooltip]::after {
+    transition: none;
+  }
+}

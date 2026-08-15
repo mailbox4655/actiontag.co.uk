@@ -1,0 +1,34 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { createHttpSocket } from "./api/http-socket.js";
+import { App } from "./ui/App.jsx";
+import "./styles/tokens.css";
+import "./styles/shell.css";
+import "./styles/views.css";
+import "./styles/color-picker.css";
+
+const projectName = @@PROJECT_NAME_JSON@@;
+
+try {
+  const mount = document.getElementById("root");
+  if (!mount) {
+    throw new Error("BOOT: required #root mount element is missing");
+  }
+  const socket = createHttpSocket({
+    baseUrl: window.location.origin,
+    fetchImpl: window.fetch.bind(window),
+  });
+  createRoot(mount).render(
+    <React.StrictMode>
+      <App
+        projectName={projectName}
+        socket={socket}
+        onMounted={() => window.__GDB_BOOT_OK__()}
+      />
+    </React.StrictMode>,
+  );
+} catch (error) {
+  const message = error instanceof Error ? error.message : `Non-Error throw: ${String(error)}`;
+  window.__GDB_SHOW_BOOT_ERROR__(message);
+  throw error;
+}

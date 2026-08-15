@@ -1,0 +1,103 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { Pool } from "pg";
+import { describe, expect, it } from "vitest";
+import { createPostgresTaskStore } from "../server/src/database/adapter.js";
+
+function testDatabaseUrl(): string {
+  const value = process.env.TEST_DATABASE_URL;
+  if (!value) {
+    throw new Error(
+      "POSTGRESQL TEST: TEST_DATABASE_URL is required; this real integration test never skips",
+    );
+  }
+  const parsed = new URL(value);
+  if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+    throw new Error("POSTGRESQL TEST: TEST_DATABASE_URL must use PostgreSQL");
+  }
+  const databaseName = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
+  if (!databaseName || !databaseName.toLowerCase().includes("test")) {
+    throw new Error(
+      "POSTGRESQL TEST: refusing a database whose name does not contain the word test",
+    );
+  }
+  return parsed.toString();
+}
+
+describe("PostgreSQL task store", () => {
+  it("runs hashed migrations and performs real CRUD against an explicit test database", async () => {
+    const url = testDatabaseUrl();
+    const id = crypto.randomUUID();
+    const clock = "2026-08-01T00:00:00.000Z";
+    const inspection = new Pool({ connectionString: url, max: 1 });
+    await inspection.query("DELETE FROM tasks WHERE id = $1", [id]).catch((error: unknown) => {
+      if (
+        typeof error !== "object"
+        || error === null
+        || !("code" in error)
+        || error.code !== "42P01"
+      ) {
+        throw error;
+      }
+    });
+    const store = await createPostgresTaskStore(
+      { kind: "postgresql", url },
+      {
+        clock: () => clock,
+        idFactory: () => id,
+        migrationRoot: path.resolve("server/migrations"),
+      },
+    );
+    try {
+      const created = await store.createTask("Prove the PostgreSQL path");
+      expect(created).toEqual({
+        id,
+        title: "Prove the PostgreSQL path",
+        completed: false,
+        createdAt: clock,
+      });
+      await expect(store.createTask("Duplicate")).rejects.toMatchObject({
+        code: "DUPLICATE_ID",
+      });
+      expect((await store.listTasks()).find((task) => task.id === id)).toEqual(created);
+      const completed = await store.setTaskCompleted(id, true);
+      expect(completed.completed).toBe(true);
+      await store.deleteTask(id);
+      await expect(store.deleteTask(id)).rejects.toMatchObject({
+        code: "TASK_NOT_FOUND",
+      });
+
+      const migrations = await inspection.query<{
+        name: string;
+        sha256: string;
+      }>("SELECT name, sha256 FROM gdb_schema_migrations ORDER BY name");
+      expect(migrations.rows.some(
+        (migration) =>
+          migration.name === "001_init.sql" && /^[0-9a-f]{64}$/.test(migration.sha256),
+      )).toBe(true);
+
+      const changedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "gdb-postgres-test-"));
+      try {
+        fs.copyFileSync(
+          path.resolve("server/migrations/001_init.sql"),
+          path.join(changedRoot, "001_init.sql"),
+        );
+        fs.appendFileSync(path.join(changedRoot, "001_init.sql"), "\n-- changed\n");
+        await expect(
+          createPostgresTaskStore(
+            { kind: "postgresql", url },
+            { clock: () => clock, idFactory: () => id, migrationRoot: changedRoot },
+          ),
+        ).rejects.toThrow("hash changed");
+      } finally {
+        fs.rmSync(changedRoot, { recursive: true, force: true });
+      }
+    } finally {
+      await inspection.query("DELETE FROM tasks WHERE id = $1", [id]);
+      await store.close();
+      await inspection.end();
+    }
+  });
+});

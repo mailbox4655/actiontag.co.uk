@@ -1,0 +1,21 @@
+[Unit]
+Description=ActionTag same-host health check and recovery
+After=network-online.target actiontag.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 /opt/actiontag/current/deploy/health-watch.py --env /etc/actiontag/actiontag.env --state /var/lib/actiontag/health-state.json
+
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/actiontag

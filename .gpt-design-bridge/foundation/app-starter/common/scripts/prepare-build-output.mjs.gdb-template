@@ -1,0 +1,36 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const project = fs.realpathSync(process.cwd());
+const dist = path.resolve(project, "dist");
+const server = path.resolve(dist, "server");
+const relative = path.relative(project, server);
+
+if (!relative || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+  throw new Error(`BUILD CLEANUP: resolved server output escapes the project: ${server}`);
+}
+if (fs.existsSync(dist)) {
+  const distStat = fs.lstatSync(dist);
+  if (distStat.isSymbolicLink() || !distStat.isDirectory()) {
+    throw new Error(`BUILD CLEANUP: expected a real directory at ${dist}`);
+  }
+} else {
+  fs.mkdirSync(dist, { recursive: false });
+}
+const resolvedDist = fs.realpathSync(dist);
+const distRelative = path.relative(project, resolvedDist);
+if (!distRelative || distRelative.startsWith(`..${path.sep}`) || path.isAbsolute(distRelative)) {
+  throw new Error(`BUILD CLEANUP: real dist directory escapes the project: ${resolvedDist}`);
+}
+if (fs.existsSync(server)) {
+  const stat = fs.lstatSync(server);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) {
+    throw new Error(`BUILD CLEANUP: expected a real directory at ${server}`);
+  }
+  fs.rmSync(server, { recursive: true, force: false });
+}
+process.stdout.write(JSON.stringify({
+  schema: "gpt-design-bridge/build-cleanup/v1",
+  removed: relative.replaceAll(path.sep, "/"),
+  reason: "stale reproducible server build output is removed immediately before replacement",
+}) + "\n");

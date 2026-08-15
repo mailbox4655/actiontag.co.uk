@@ -1,0 +1,32 @@
+[Unit]
+Description=@@PROJECT_NAME_MARKDOWN@@ web application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@@PROJECT_SLUG@@
+Group=@@PROJECT_SLUG@@
+WorkingDirectory=/opt/@@PROJECT_SLUG@@/current
+EnvironmentFile=/etc/@@PROJECT_SLUG@@/@@PROJECT_SLUG@@.env
+ExecStart=/usr/bin/node dist/server/server/src/index.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/@@PROJECT_SLUG@@
+
+[Install]
+WantedBy=multi-user.target

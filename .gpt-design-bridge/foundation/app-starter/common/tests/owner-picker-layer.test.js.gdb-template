@@ -1,0 +1,115 @@
+import { describe, expect, it } from "vitest";
+import {
+  assertOwnerPickerInteractable,
+  placeOwnerPickerBackdrop,
+} from "../app/src/ui/owner-picker-layer.js";
+
+function fakeElement({ classes = [], tagName = "DIV" } = {}) {
+  const element = {
+    nodeType: 1,
+    tagName,
+    id: "",
+    parentElement: null,
+    children: [],
+    classList: {
+      contains(name) {
+        return classes.includes(name);
+      },
+    },
+    appendChild(child) {
+      child.parentElement = element;
+      if (!element.children.includes(child)) element.children.push(child);
+      return child;
+    },
+    contains(candidate) {
+      let cursor = candidate;
+      while (cursor) {
+        if (cursor === element) return true;
+        cursor = cursor.parentElement;
+      }
+      return false;
+    },
+  };
+  return element;
+}
+
+function fakeDocument(modals = []) {
+  const body = fakeElement({ tagName: "BODY" });
+  return {
+    body,
+    elementFromPoint() {
+      return null;
+    },
+    querySelectorAll(selector) {
+      if (selector !== "dialog:modal") throw new Error(`Unexpected selector ${selector}`);
+      return modals;
+    },
+  };
+}
+
+describe("owner picker top-layer composition", () => {
+  it("moves a body-mounted picker into the front native modal", () => {
+    const modal = fakeElement({ tagName: "DIALOG" });
+    const backdrop = fakeElement({ classes: ["cat-editor-backdrop"] });
+    const documentRoot = fakeDocument([modal]);
+    documentRoot.body.appendChild(backdrop);
+    const origin = { closest: () => modal };
+
+    const placement = placeOwnerPickerBackdrop({
+      backdrop,
+      origin,
+      layerRoot: modal,
+      documentRoot,
+    });
+
+    expect(placement.mode).toBe("native-modal");
+    expect(placement.host).toBe(modal);
+    expect(backdrop.parentElement).toBe(modal);
+  });
+
+  it("refuses a body layer while a native modal is active", () => {
+    const modal = fakeElement({ tagName: "DIALOG" });
+    const backdrop = fakeElement({ classes: ["cat-editor-backdrop"] });
+    const documentRoot = fakeDocument([modal]);
+
+    expect(() => placeOwnerPickerBackdrop({ backdrop, documentRoot })).toThrow(
+      "did not provide that dialog as layerRoot",
+    );
+  });
+
+  it("uses the document only when there is no active native modal", () => {
+    const backdrop = fakeElement({ classes: ["cat-editor-backdrop"] });
+    const documentRoot = fakeDocument();
+
+    const placement = placeOwnerPickerBackdrop({ backdrop, documentRoot });
+
+    expect(placement.mode).toBe("document");
+    expect(backdrop.parentElement).toBe(documentRoot.body);
+  });
+
+  it("proves visible area and center-point native hit testing", () => {
+    const backdrop = fakeElement({ classes: ["cat-editor-backdrop"] });
+    const target = fakeElement();
+    const hit = fakeElement({ tagName: "BUTTON" });
+    backdrop.appendChild(target);
+    target.appendChild(hit);
+    target.getBoundingClientRect = () => ({
+      height: 400,
+      left: 100,
+      top: 80,
+      width: 520,
+    });
+    const documentRoot = fakeDocument();
+    documentRoot.elementFromPoint = () => hit;
+
+    expect(
+      assertOwnerPickerInteractable(backdrop, { documentRoot, target }),
+    ).toMatchObject({ height: 400, hit: "button", width: 520 });
+
+    const blocker = fakeElement({ tagName: "DIALOG" });
+    documentRoot.elementFromPoint = () => blocker;
+    expect(
+      () => assertOwnerPickerInteractable(backdrop, { documentRoot, target }),
+    ).toThrow("picker center is obscured by dialog");
+  });
+});

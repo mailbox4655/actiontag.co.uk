@@ -1,0 +1,109 @@
+import { z } from "zod";
+
+export class RouteContractError extends Error {
+  constructor(code, message, options) {
+    super(message, options);
+    this.name = "RouteContractError";
+    this.code = code;
+  }
+}
+
+const taskIdSchema = z.string().uuid();
+const taskTitleSchema = z.string().trim().min(1).max(160);
+const timestampSchema = z.string().datetime({ offset: true });
+
+export const taskSchema = z
+  .object({
+    id: taskIdSchema,
+    title: taskTitleSchema,
+    completed: z.boolean(),
+    createdAt: timestampSchema,
+  })
+  .strict();
+
+export const apiErrorSchema = z
+  .object({
+    error: z
+      .object({
+        code: z.string().min(1),
+        message: z.string().min(1),
+      })
+      .strict(),
+  })
+  .strict();
+
+function route(method, path, input, output) {
+  return Object.freeze({ method, path, input, output });
+}
+
+export const routes = Object.freeze({
+  "tasks.list": route(
+    "GET",
+    "/api/tasks",
+    z.object({}).strict(),
+    z.object({ tasks: z.array(taskSchema) }).strict(),
+  ),
+  "tasks.create": route(
+    "POST",
+    "/api/tasks",
+    z.object({ title: taskTitleSchema }).strict(),
+    z.object({ task: taskSchema }).strict(),
+  ),
+  "tasks.setCompleted": route(
+    "PATCH",
+    "/api/tasks/completed",
+    z.object({ id: taskIdSchema, completed: z.boolean() }).strict(),
+    z.object({ task: taskSchema }).strict(),
+  ),
+  "tasks.delete": route(
+    "DELETE",
+    "/api/tasks",
+    z.object({ id: taskIdSchema }).strict(),
+    z.object({ deletedId: taskIdSchema }).strict(),
+  ),
+});
+
+export function routeDefinition(routeId) {
+  if (typeof routeId !== "string" || !Object.hasOwn(routes, routeId)) {
+    throw new RouteContractError(
+      "UNKNOWN_ROUTE",
+      `ROUTE CONTRACT: unknown route ID ${JSON.stringify(routeId)}`,
+    );
+  }
+  return routes[routeId];
+}
+
+export function parseRouteInput(routeId, input) {
+  const parsed = routeDefinition(routeId).input.safeParse(input);
+  if (!parsed.success) {
+    throw new RouteContractError(
+      "INVALID_INPUT",
+      `ROUTE CONTRACT: invalid input for ${routeId}: ${z.prettifyError(parsed.error)}`,
+    );
+  }
+  return parsed.data;
+}
+
+export function parseRouteOutput(routeId, output) {
+  const parsed = routeDefinition(routeId).output.safeParse(output);
+  if (!parsed.success) {
+    throw new RouteContractError(
+      "INVALID_OUTPUT",
+      `ROUTE CONTRACT: invalid output for ${routeId}: ${z.prettifyError(parsed.error)}`,
+    );
+  }
+  return parsed.data;
+}
+
+export function routeIdFromHttp(method, pathname) {
+  const matches = Object.entries(routes).filter(
+    ([, definition]) => definition.method === method && definition.path === pathname,
+  );
+  if (matches.length !== 1) {
+    throw new RouteContractError(
+      "HTTP_ROUTE_MISMATCH",
+      `ROUTE CONTRACT: ${method} ${pathname} resolved to ${matches.length} routes`,
+    );
+  }
+  return matches[0][0];
+}

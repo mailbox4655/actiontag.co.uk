@@ -1,0 +1,41 @@
+[Unit]
+Description=ActionTag contact service
+Documentation=https://github.com/mailbox4655/actiontag.co.uk
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=actiontag
+Group=actiontag
+WorkingDirectory=/opt/actiontag/current/site
+EnvironmentFile=/etc/actiontag/actiontag.env
+Environment=NODE_ENV=production
+Environment=ACTIONTAG_BIND_HOST=127.0.0.1
+Environment=PATH=/opt/node24/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+ExecStartPre=/usr/bin/test -f /opt/actiontag/current/site/server/contact-service.mjs
+ExecStart=/opt/node24/bin/node /opt/actiontag/current/site/server/contact-service.mjs
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+SuccessExitStatus=143
+UMask=0027
+LimitNOFILE=16384
+MemoryMax=256M
+
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/actiontag
+
+[Install]
+WantedBy=multi-user.target

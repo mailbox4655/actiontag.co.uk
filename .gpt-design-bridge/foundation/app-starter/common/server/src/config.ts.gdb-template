@@ -1,0 +1,145 @@
+import path from "node:path";
+import { z } from "zod";
+
+const expectedDatabase = String(@@DATABASE_ENGINE_JSON@@) as "sqlite" | "postgresql";
+const expectedPort = @@APPLICATION_PORT@@;
+
+const rawSchema = z
+  .object({
+    APP_ENV: z.enum(["development", "test", "production"]),
+    APP_HOST: z.literal("127.0.0.1"),
+    APP_PORT: z.string().regex(/^[1-9][0-9]{0,4}$/),
+    APP_ORIGIN: z.string().url(),
+    DATABASE_KIND: z.enum(["sqlite", "postgresql"]),
+    SQLITE_PATH: z.string().min(1).optional(),
+    DATABASE_URL: z.string().min(1).optional(),
+    MAIL_MODE: z.enum(["disabled", "postmark"]),
+    POSTMARK_SERVER_TOKEN: z.string().min(1).optional(),
+    POSTMARK_FROM: z.string().email().optional(),
+    POSTMARK_MESSAGE_STREAM: z.string().min(1).optional(),
+  })
+  .strict();
+
+export type DatabaseConfig =
+  | { kind: "sqlite"; path: string; journalMode: "DELETE" }
+  | { kind: "postgresql"; url: string };
+
+export type MailConfig =
+  | { mode: "disabled" }
+  | { mode: "postmark"; serverToken: string; from: string; messageStream: string };
+
+export interface AppConfig {
+  environment: "development" | "test" | "production";
+  host: "127.0.0.1";
+  port: number;
+  origin: string;
+  database: DatabaseConfig;
+  mail: MailConfig;
+}
+
+function selectedEnvironment(environment: NodeJS.ProcessEnv) {
+  return {
+    APP_ENV: environment.APP_ENV,
+    APP_HOST: environment.APP_HOST,
+    APP_PORT: environment.APP_PORT,
+    APP_ORIGIN: environment.APP_ORIGIN,
+    DATABASE_KIND: environment.DATABASE_KIND,
+    SQLITE_PATH: environment.SQLITE_PATH,
+    DATABASE_URL: environment.DATABASE_URL,
+    MAIL_MODE: environment.MAIL_MODE,
+    POSTMARK_SERVER_TOKEN: environment.POSTMARK_SERVER_TOKEN,
+    POSTMARK_FROM: environment.POSTMARK_FROM,
+    POSTMARK_MESSAGE_STREAM: environment.POSTMARK_MESSAGE_STREAM,
+  };
+}
+
+function parseOrigin(value: string): string {
+  const origin = new URL(value);
+  if (!["http:", "https:"].includes(origin.protocol)) {
+    throw new Error(`CONFIG: APP_ORIGIN must use HTTP(S), got ${origin.protocol}`);
+  }
+  if (
+    origin.username ||
+    origin.password ||
+    origin.pathname !== "/" ||
+    origin.search ||
+    origin.hash
+  ) {
+    throw new Error("CONFIG: APP_ORIGIN must be an origin without credentials, path, query, or hash");
+  }
+  return origin.origin;
+}
+
+function databaseConfig(raw: z.infer<typeof rawSchema>): DatabaseConfig {
+  if (raw.DATABASE_KIND !== expectedDatabase) {
+    throw new Error(
+      `CONFIG: this scaffold is ${expectedDatabase}, not ${raw.DATABASE_KIND}; regenerate or migrate explicitly`,
+    );
+  }
+  if (raw.DATABASE_KIND === "sqlite") {
+    if (!raw.SQLITE_PATH || raw.DATABASE_URL) {
+      throw new Error("CONFIG: SQLite requires SQLITE_PATH and prohibits DATABASE_URL");
+    }
+    const resolved = path.resolve(raw.SQLITE_PATH);
+    if (raw.APP_ENV === "production" && !path.isAbsolute(raw.SQLITE_PATH)) {
+      throw new Error("CONFIG: production SQLITE_PATH must be absolute");
+    }
+    return { kind: "sqlite", path: resolved, journalMode: "DELETE" };
+  }
+  if (!raw.DATABASE_URL || raw.SQLITE_PATH) {
+    throw new Error("CONFIG: PostgreSQL requires DATABASE_URL and prohibits SQLITE_PATH");
+  }
+  const url = new URL(raw.DATABASE_URL);
+  if (!["postgres:", "postgresql:"].includes(url.protocol)) {
+    throw new Error("CONFIG: DATABASE_URL must use postgres:// or postgresql://");
+  }
+  return { kind: "postgresql", url: url.toString() };
+}
+
+function mailConfig(raw: z.infer<typeof rawSchema>): MailConfig {
+  const supplied = [
+    raw.POSTMARK_SERVER_TOKEN,
+    raw.POSTMARK_FROM,
+    raw.POSTMARK_MESSAGE_STREAM,
+  ].filter((value) => value !== undefined);
+  if (raw.MAIL_MODE === "disabled") {
+    if (supplied.length) {
+      throw new Error("CONFIG: MAIL_MODE=disabled prohibits ignored Postmark settings");
+    }
+    return { mode: "disabled" };
+  }
+  if (
+    !raw.POSTMARK_SERVER_TOKEN ||
+    !raw.POSTMARK_FROM ||
+    !raw.POSTMARK_MESSAGE_STREAM
+  ) {
+    throw new Error(
+      "CONFIG: MAIL_MODE=postmark requires token, from address, and message stream",
+    );
+  }
+  return {
+    mode: "postmark",
+    serverToken: raw.POSTMARK_SERVER_TOKEN,
+    from: raw.POSTMARK_FROM,
+    messageStream: raw.POSTMARK_MESSAGE_STREAM,
+  };
+}
+
+export function readConfig(environment: NodeJS.ProcessEnv): Readonly<AppConfig> {
+  const parsed = rawSchema.safeParse(selectedEnvironment(environment));
+  if (!parsed.success) {
+    throw new Error(`CONFIG: invalid environment\n${z.prettifyError(parsed.error)}`);
+  }
+  const port = Number(parsed.data.APP_PORT);
+  if (port < 1 || port > 65535 || port !== expectedPort) {
+    throw new Error(`CONFIG: APP_PORT must be the generated port ${expectedPort}, got ${port}`);
+  }
+  return Object.freeze({
+    environment: parsed.data.APP_ENV,
+    host: parsed.data.APP_HOST,
+    port,
+    origin: parseOrigin(parsed.data.APP_ORIGIN),
+    database: databaseConfig(parsed.data),
+    mail: mailConfig(parsed.data),
+  });
+}

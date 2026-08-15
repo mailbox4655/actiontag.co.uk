@@ -5,6 +5,10 @@
 node_modules/
 site/dist/
 site/.astro/
+out/
+
+# Local infrastructure credentials
+.env.infrastructure.local
 
 # Local scratch
 *.log

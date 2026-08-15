@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly PORT="@@APPLICATION_PORT@@"
+fail() { printf 'NATIVE ROLLBACK FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "${EUID}" -eq 0 ]] || fail "run as root"
+[[ "$#" -eq 2 ]] ||
+  fail "usage: rollback.sh RELEASE_ID --confirm-schema-compatible"
+readonly RELEASE_ID="$1"
+[[ "$2" == "--confirm-schema-compatible" ]] ||
+  fail "rollback requires an explicit schema-compatibility confirmation"
+[[ "$RELEASE_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] ||
+  fail "invalid release ID"
+readonly DESTINATION="/opt/${APP}/releases/${RELEASE_ID}"
+[[ -d "$DESTINATION" ]] || fail "target release is missing: $DESTINATION"
+ln -s -- "$DESTINATION" "/opt/${APP}/.current.$$"
+mv -Tf -- "/opt/${APP}/.current.$$" "/opt/${APP}/current"
+systemctl restart "${APP}.service"
+for attempt in {1..20}; do
+  if curl --fail --silent "http://127.0.0.1:${PORT}/api/health" >/dev/null; then
+    printf 'NATIVE ROLLBACK PASS: app=%s release=%s\n' "$APP" "$RELEASE_ID"
+    exit 0
+  fi
+  sleep 1
+done
+journalctl -u "${APP}.service" -n 80 --no-pager >&2 || printf 'journal collection failed\n' >&2
+fail "health did not pass after rollback switch"

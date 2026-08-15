@@ -1,0 +1,8 @@
+{
+  "active_round": null,
+  "deferred_obligations": [],
+  "generation": 1,
+  "phase": "initialized",
+  "schema": "gpt-design-bridge/state/v1",
+  "sealed_rounds": []
+}

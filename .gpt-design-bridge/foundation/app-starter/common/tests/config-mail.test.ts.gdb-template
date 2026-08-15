@@ -1,0 +1,64 @@
+import { describe, expect, it } from "vitest";
+import { readConfig } from "../server/src/config.js";
+import { createMailService } from "../server/src/mail.js";
+
+const selectedDatabase = String(@@DATABASE_ENGINE_JSON@@) as "sqlite" | "postgresql";
+
+function validEnvironment(): NodeJS.ProcessEnv {
+  return {
+    APP_ENV: "test",
+    APP_HOST: "127.0.0.1",
+    APP_PORT: String(@@APPLICATION_PORT@@),
+    APP_ORIGIN: "https://" + @@HOSTNAME_JSON@@,
+    DATABASE_KIND: selectedDatabase,
+    ...(selectedDatabase === "sqlite"
+      ? { SQLITE_PATH: "./var/test.sqlite3" }
+      : { DATABASE_URL: "postgresql://app:secret@127.0.0.1/explicit_test" }),
+    MAIL_MODE: "disabled",
+  };
+}
+
+describe("configuration and mail boundaries", () => {
+  it("accepts only the generated database selection and exact application port", () => {
+    const config = readConfig(validEnvironment());
+    expect(config.database.kind).toBe(selectedDatabase);
+    expect(config.port).toBe(@@APPLICATION_PORT@@);
+
+    expect(() =>
+      readConfig({ ...validEnvironment(), APP_PORT: "65535" }),
+    ).toThrow("generated port");
+    expect(() =>
+      readConfig({
+        ...validEnvironment(),
+        DATABASE_KIND: selectedDatabase === "sqlite" ? "postgresql" : "sqlite",
+      }),
+    ).toThrow("this scaffold is");
+  });
+
+  it("rejects ignored database and mail settings", () => {
+    const conflicting =
+      selectedDatabase === "sqlite"
+        ? { ...validEnvironment(), DATABASE_URL: "postgresql://127.0.0.1/ignored_test" }
+        : { ...validEnvironment(), SQLITE_PATH: "./ignored.sqlite3" };
+    expect(() => readConfig(conflicting)).toThrow(
+      selectedDatabase === "sqlite" ? "prohibits DATABASE_URL" : "prohibits SQLITE_PATH",
+    );
+    expect(() =>
+      readConfig({
+        ...validEnvironment(),
+        POSTMARK_SERVER_TOKEN: "must-not-be-ignored",
+      }),
+    ).toThrow("prohibits ignored Postmark settings");
+  });
+
+  it("makes disabled mail an explicit error", async () => {
+    const mail = createMailService({ mode: "disabled" });
+    await expect(
+      mail.sendSystemMessage({
+        to: "owner@example.test",
+        subject: "Must fail",
+        textBody: "No transport is configured.",
+      }),
+    ).rejects.toThrow("explicitly disabled");
+  });
+});

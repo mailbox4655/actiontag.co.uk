@@ -1,0 +1,159 @@
+# Project operating contract
+
+This is a GPT Design Bridge project.
+
+## Codex harness boundary
+
+Codex uses GPT BlackBox Lite as its only engineering harness. If `CLAUDE.md`,
+`.claude/`, or `BlackBox3/` is later added for a different platform, treat it as
+foreign read-only state: do not read it as Codex authority, run it, defer to it, or
+send the same objective through both pipelines. If a tracked
+`.harness-separation/contract.json` exists, run its project-local authority verifier
+and claim `codex-lite` before substantive work. A platform transfer requires the
+owner's prompt-scoped instruction and a hash-bound evidence handoff; it is never an
+automatic second review pipeline.
+
+For every code change:
+
+1. Before substantive work, run
+   `python -X utf8 .project-decisions/project_decisions.py --repo . active --compact`
+   and comply with every active decision relevant to the task. The owner's current
+   instruction is higher authority. Do not routinely load
+   `.project-decisions/outcomes.jsonl`; it is non-authoritative working history for
+   resumption, promotion, handover, and audit only. Before each substantive final
+   response, append one concise outcome through `capture` with agent `codex` and a
+   stable response-scoped idempotency key. Promote only an owner-confirmed durable
+   decision, before final tree-bound proof. Never silently edit prior decisions.
+2. Use the `gpt-blackbox-lite:gpt-blackbox-lite` skill before editing. Preserve
+   existing behavior, record the exact allowed paths and complete size envelope, and
+   let the tracked `.gpt-blackbox-lite-policy.json` route the task. Run the precise
+   reviews required by the selected lane and let its mechanical gate decide whether
+   the task is provisionally accepted or fully sealed. Never call a cheap lane
+   complete merely because its immediate gate passed.
+   `--user-approved` is a factual attestation that the owner explicitly approved the
+   exact amendment, deletion, or rewrite in a message. General build/fix authority is
+   not that approval. Never infer or self-assert it; stop and ask when it is absent.
+   The one lifecycle boundary is wholesale installation through `adopt-apply`: do
+   not start BlackBox before that verified, transactional operation. Immediately
+   afterward, start a fresh BlackBox task from the adopted tree before any
+   engineering integration, correction, migration, or other authored edit. The
+   adoption recovery copy remains hash-verified evidence and is not coding churn.
+3. Read `.gpt-design-bridge/contract/OWNER-RULES.md` and apply
+   `OWNER-RULES-GENERAL.md` to every task. Apply `OWNER-RULES-DESIGN.md` whenever
+   work creates or changes any visible interface, regardless of whether engineering
+   or an external designer performs it.
+4. Use the `gpt-design-bridge` skill for architecture that touches the visible
+   app, designer surface, routes, persistence, mail, packaging, adoption, or
+   deployment. A change is not designer-compatible merely because it builds.
+5. Do not open an external designer round unless the owner requests the handoff.
+   Designer-readiness is always present; designer participation is optional.
+
+## Rigor without work-size ceilings
+
+- Line/file estimates select initial ceremony; they do not cap a correct deliverable.
+  If actual work outgrows a cheap lane, keep the same worktree and let BlackBox
+  promote it to `full`. Never reverse, condense, split, or recreate valid code, tests,
+  documentation, or handovers to satisfy a line, file, paragraph, character, or role
+  quota.
+- Treat churn, size, and auto-detected anchor movement as risk observations requiring
+  the risk-domain reviews printed by `status`. Do not manufacture a fixed
+  three-person ritual for low-risk work.
+- Hard stops protect real authority, security, data, paths, deletions/replacements,
+  unknown binaries, and current-tree evidence. An exact same-goal supporting path may
+  use BlackBox `discover`; it never grants deletion/rewrite authority.
+- If already-authored work needs an exact owner-approved amendment, the preceding
+  contract must have passed preflight. Bind the amended plan and preflight to the
+  immutable current tree; do not reverse work to manufacture a baseline, and do not
+  use retrospective amendment to legitimize an unapproved tree.
+- Healthy commands have no implicit elapsed-time deadline. Stream output to the
+  durable task/process log and report elapsed time plus the last verified phase. Use
+  a total deadline or no-output stall window only when the specific operation calls
+  for it, and preserve partial output when it fires.
+
+## Ownership
+
+- The owner decides product meaning and ambiguity.
+- During an owner-requested round, the external designer owns the declared designer
+  surface: visible hierarchy, styling, interaction, responsive behavior,
+  accessibility, and user-visible copy.
+- Engineering owns secrets, authentication, deployment, database mechanics,
+  migrations, mail transport, runtime adapters, and proof.
+- Designer intent and working behavior are both preservation obligations. Neither
+  may be silently discarded to make adoption easier.
+
+The designer receives a runnable travelling app, not this arbitrary source tree.
+They cannot be required to install packages, run a build, connect to production, or
+interpret engineering internals. Return intake treats their whole declared surface
+as authoritative; engineering then connects it without redesigning it.
+
+An accepted designer return is executable interface source, not inspiration. Every
+screen declares `exact`, `characterized`, or `reference`; omitted mode means `exact`.
+For exact screens, preserve returned JSX, CSS, assets, component hierarchy, class
+names, and visible copy unchanged. Put routing, auth, navigation, API, persistence,
+and legacy-framework adapters outside sealed UI files. Production UI uses React and
+ReactDOM with Vite by default (esbuild only after an explicit foundation choice).
+Do not introduce Vue and never convert an accepted React return to Vue. A brownfield
+Vue/Angular/PHP route hosts it as an isolated React mount and unmounts it on route
+destruction.
+
+## Owner rulebooks
+
+The two owner rulebooks are canonical. Skills, checks, and this file may reference or
+enforce them but do not replace them. Project-specific additions may extend them and
+may not silently weaken them.
+
+Plans, implementation notes, reviews, and troubleshooting reports should cite the
+stable `R`, `G`, and `D` rule IDs rather than copying their prose. The operational
+fallback record required by general rule G2.8 is `docs/FALLBACK-LOG.md`.
+
+## Platform laws
+
+- On Windows, run `node`, `npm`, `npx`, and project BlackBox Python commands through
+  `.\Run-GPT-Bridge.ps1`. Before the first task, prove the pinned toolchain with
+  `.\Run-GPT-Bridge.ps1 -- npm run check:runtime`. Keep the `--` delimiter before the
+  requested command so flags pass through unchanged. It reads `GDB_NODE_HOME` from the
+  ignored `.env.infrastructure.local`, selects the exact project runtime, and forces
+  UTF-8 Python I/O. A missing or mismatched runtime is a stop; never substitute the
+  global `PATH`.
+- Production runs natively under systemd behind the host's explicitly selected
+  existing Caddy or additive Nginx service; never activate a second competing proxy.
+- Docker and container deployment are prohibited.
+- Cloudflare handles DNS/proxy policy. Postmark is server-only.
+- Before any host or DNS mutation, run
+  `Test-GPT-Design-Bridge-Infrastructure.ps1 -Mode Connect` against the ignored
+  `.env.infrastructure.local`. It uses strict-host-key BatchMode SSH and read-only
+  Cloudflare queries. Never print or export credential values.
+- Successful Cloudflare GET requests prove only the read scopes exercised. Record the
+  prior DNS value and seal DNS Write with the intended record change and rollback
+  evidence; never infer edit permission from token verification.
+- The configured database is `@@DATABASE_ENGINE@@`; do not switch it implicitly.
+- SQLite stays on one host and begins in DELETE journal mode. Promotion to WAL or
+  PostgreSQL requires the recorded database gates.
+- Browser release evidence must use project-local
+  `.gpt-design-bridge/tools/controlled_chrome.mjs`: visible pinned Chrome for Testing,
+  a fresh owned profile, and owned cleanup. Never use the owner's browser/profile or
+  the in-app browser, and never disable file security.
+- Store every browser artifact referenced by a designer proof under
+  `evidence/designer-round-<round-id>/`, never under `.gpt-design-bridge/runtime/`.
+  The owned controller opens `file://` directly. A generic controller refusal is not
+  a reason to ask the owner for routine proof or substitute HTTP. Preserve its
+  `proof.partial.json` and exact diagnostic if owned Chrome itself fails.
+- A task that changes DOM composition, a dialog, portal, popover, picker, focus or
+  keyboard routing, form boundaries, responsive behavior, or page overflow must set
+  BlackBox `--require-browser`, even when it appears to be a component or adapter
+  task rather than a styling task.
+- `patch`, `standard`, and `surface` are deferred-depth lanes, not skipped-depth
+  lanes. Settle every provisional task through all three `settle` reviews and
+  `settle-gate`. The Bridge automatically runs `release-gate` before stage
+  preparation, courier release, return adoption, adoption integration, round seal,
+  and native deployment. Do not bypass or recreate that gate by hand.
+- Before starting a premade-component integration task, trace and include the
+  launcher, adapter, containing layer, styles, persistence callback, tests, and
+  Chrome path in the initial BlackBox scope. Do not rely on a late amendment for a
+  foreseeable integration file.
+- Before replacing build output, run the generated cleanup step; do not keep obsolete
+  intermediate builds. Use `.gpt-design-bridge/tools/artifact_lifecycle.py` only with
+  tracked `.gpt-artifact-lifecycle.json` and its report → preview → hash-bound prune
+  sequence. Never prune databases, uploads, secrets, designer archives/escrow,
+  adoption baselines, required evidence, current release, or sole rollback. Remote
+  reconstructability—not merely the existence of Git—is required where configured.

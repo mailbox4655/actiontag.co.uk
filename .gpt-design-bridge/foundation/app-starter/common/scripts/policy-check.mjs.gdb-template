@@ -1,0 +1,145 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+const violations = [];
+const ignoredDirectories = new Set([
+  ".git",
+  ".gpt-design-bridge",
+  "design-bridge-stage",
+  "dist",
+  "node_modules",
+]);
+
+function relative(file) {
+  return path.relative(root, file).split(path.sep).join("/");
+}
+
+function sourceFiles(directory) {
+  const resolved = path.resolve(directory);
+  if (!fs.statSync(resolved, { throwIfNoEntry: false })?.isDirectory()) {
+    violations.push(`${directory}: required source directory is missing`);
+    return [];
+  }
+  const found = [];
+  const visit = (current) => {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const target = path.join(current, entry.name);
+      if (entry.isSymbolicLink()) {
+        violations.push(`${relative(target)}: symbolic links are not permitted in checked source`);
+      } else if (entry.isDirectory()) {
+        if (!ignoredDirectories.has(entry.name)) visit(target);
+      } else if (/\.(?:js|jsx|mjs|ts|tsx)$/.test(entry.name)) {
+        found.push(target);
+      }
+    }
+  };
+  visit(resolved);
+  return found;
+}
+
+function allRepositoryFiles() {
+  const found = [];
+  const visit = (current) => {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (ignoredDirectories.has(entry.name)) continue;
+      const target = path.join(current, entry.name);
+      if (entry.isDirectory()) visit(target);
+      else found.push(target);
+    }
+  };
+  visit(root);
+  return found;
+}
+
+const repositoryFiles = allRepositoryFiles();
+for (const file of repositoryFiles) {
+  const name = path.basename(file).toLowerCase();
+  if (
+    name === "dockerfile"
+    || name.startsWith("dockerfile.")
+    || /^docker-compose(?:\..+)?\.ya?ml$/.test(name)
+    || /^compose(?:\..+)?\.ya?ml$/.test(name)
+  ) {
+    violations.push(`${relative(file)}: container build/deployment files are prohibited`);
+  }
+}
+
+const packagePath = path.resolve("package.json");
+let packageJson;
+try {
+  packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+} catch (error) {
+  throw new Error("POLICY CHECK: package.json cannot be read", { cause: error });
+}
+for (const [name, command] of Object.entries(packageJson.scripts ?? {})) {
+  if (/(?:^|[\s:/_-])(docker|podman|container)(?:$|[\s:/_-])/i.test(String(command))) {
+    violations.push(`package.json scripts.${name}: container commands are prohibited`);
+  }
+}
+for (const group of ["dependencies", "devDependencies"]) {
+  for (const name of Object.keys(packageJson[group] ?? {})) {
+    if (/(docker|podman)/i.test(name)) {
+      violations.push(`package.json ${group}.${name}: container tooling is prohibited`);
+    }
+  }
+}
+
+const checkedSources = [
+  ...sourceFiles("app"),
+  ...sourceFiles("scripts"),
+  ...sourceFiles("server"),
+  ...sourceFiles("tests"),
+];
+for (const file of checkedSources) {
+  const text = fs.readFileSync(file, "utf8");
+  if (/catch\s*(?:\([^)]*\))?\s*\{\s*\}/s.test(text)) {
+    violations.push(`${relative(file)}: empty catch block hides a failure`);
+  }
+  if (/\.catch\s*\(\s*\(\s*\)\s*=>\s*(?:undefined|null|false|\{\s*\})\s*\)/s.test(text)) {
+    violations.push(`${relative(file)}: promise rejection is silently replaced`);
+  }
+}
+
+const uiFiles = sourceFiles("app/src/ui");
+let lucideImportCount = 0;
+for (const file of uiFiles) {
+  const text = fs.readFileSync(file, "utf8");
+  if (/<svg\b/i.test(text)) {
+    violations.push(`${relative(file)}: hand-authored SVG is prohibited; use Lucide`);
+  }
+  for (const character of text) {
+    const point = character.codePointAt(0);
+    if (
+      point !== undefined
+      && ((point >= 0x1f000 && point <= 0x1faff) || (point >= 0x2600 && point <= 0x27bf))
+    ) {
+      violations.push(`${relative(file)}: emoji/symbol UI character U+${point.toString(16)}`);
+      break;
+    }
+  }
+  for (const match of text.matchAll(/from\s+["']([^"']+)["']/g)) {
+    const imported = match[1];
+    if (imported === "lucide-react") lucideImportCount += 1;
+    if (
+      /^(?:react-icons|@heroicons|@fortawesome|@mui\/icons-material|phosphor-react)(?:\/|$)/.test(
+        imported,
+      )
+    ) {
+      violations.push(`${relative(file)}: second icon library ${imported} is prohibited`);
+    }
+  }
+}
+if (lucideImportCount === 0) {
+  violations.push("app/src/ui: at least one explicit lucide-react import is required");
+}
+
+if (violations.length) {
+  throw new AggregateError(
+    violations.map((message) => new Error(message)),
+    `POLICY CHECK: ${violations.length} violation(s)\n${violations.join("\n")}`,
+  );
+}
+process.stdout.write(
+  `policy check passed: files=${checkedSources.length} ui=${uiFiles.length} violations=0\n`,
+);

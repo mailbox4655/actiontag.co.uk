@@ -1,0 +1,103 @@
+# Owner color-picker template
+
+This application carries the owner-supplied color interaction as a reusable component:
+
+- `app/src/ui/ColorPicker.jsx`
+- `app/src/styles/color-picker.css`
+- `tests/color-picker.test.js`
+
+The behavior was isolated from the owner-supplied GPT-Mermaid theme designer. The
+source project is provenance only; this application has no runtime or build dependency
+on it, Tailwind, a CDN, or an icon library.
+
+`main.jsx` loads `color-picker.css` through the application's global style entry. Keep
+that import there: designer JSX intentionally accepts code bindings only, while the
+travelling stage measures, copies, and links every CSS file in `app/src/styles`.
+
+## Exact retained behavior
+
+The component contains 22 Tailwind color families. Each family carries the exact
+eleven shades `50`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`,
+and `950`.
+
+- The normal palette shows the `500` shade for every family as 22 circles.
+- Left-clicking a family selects its `500` shade and immediately switches the
+  always-present shade tray to that family.
+- The complete lightest-to-darkest shade row is an always-present horizontal tray.
+- Right-clicking a family changes which family's shades occupy that reserved tray
+  without changing the selected color; neither action inserts or removes content that
+  changes the outer picker or dialog dimensions.
+- `Shift+F10`, the keyboard Context Menu key, and touch press-and-hold expose the same
+  family-switching action without requiring a mouse.
+- A valid three- or six-digit custom hex value becomes a reusable custom swatch and is
+  selected immediately.
+- Invalid hex input remains visible and names the rejected value, the required shape,
+  why the picker needs it, and a valid next example.
+- The designed opacity slider emits an explicit value from `0` through `100` and
+  shows the exact percentage as text.
+
+No theme name, canvas selector, border thickness, font selector, sketch control,
+application tint, or GPT-Mermaid persistence behavior was copied.
+
+## Controlled API
+
+The parent owns product state and durable persistence:
+
+```jsx
+const [color, setColor] = useState({ hex: "#3b82f6", opacity: 100 });
+
+<ColorPicker
+  id="brand-color"
+  label="Brand color"
+  value={color}
+  onChange={setColor}
+  initialCustomColors={["#22d3ee"]}
+/>
+```
+
+`value` is required and has the exact shape `{ hex, opacity }`. `onChange` is required.
+Invalid controlled values throw a specific development error; the component never
+fabricates a color or silently clamps opacity. `initialCustomColors` seeds only this
+component instance. If custom swatches must survive reload or synchronize between
+users, load and save that list through the application's real persistence path.
+
+The component deliberately does not render a `<form>`, so it can live inside a
+product-owned settings or persistence form without creating invalid nested forms.
+Its custom-hex input handles Enter explicitly and its Add control is
+`type="button"`. The product parent owns submission, busy state, durable save,
+failure retention, and dialog closure. Do not add a form boundary inside this
+reusable component.
+
+Do not close a containing dialog or claim that a server-backed theme is saved until
+the durable operation succeeds.
+
+## Product adaptation
+
+The component deliberately consumes the generated app tokens (`--surface`, `--ink`,
+`--line`, `--brand`, `--danger`, `--focus`, radius and font tokens). Adapt those token
+bindings to the product rather than replacing the picker or introducing literal
+fallback colors. Preserve:
+
+- all 22 families and all 11 shades;
+- primary-click family selection and immediate shade-tray switching;
+- the always-present horizontal shade tray, context-only family switching, and its
+  keyboard and touch equivalents;
+- stable outer popup geometry while the active family or shade changes;
+- the exact selected hex and opacity text, so state never depends on color alone;
+- designed hover/focus tooltips rather than native `title` attributes;
+- the visible focus treatment and reduced-motion behavior;
+- fail-loud controlled-value and custom-hex validation;
+- the custom-themed range track and thumb; and
+- the single `{ hex, opacity }` change contract.
+
+There is no browser-stock `<input type="color">`. The opacity range uses a native
+semantic input with its visible track and thumb fully themed, retaining keyboard and
+assistive-technology behavior.
+
+For a designer round, declare both `ColorPicker.jsx` and `color-picker.css` in the
+designer surface. The test is engineering proof and does not become designer-owned
+copy.
+
+Visible Chrome proof must open the real containing form/dialog, exercise custom hex
+with Enter and Add, change families and opacity, and confirm zero DOM-nesting or
+other console warnings. A server-rendered component test does not prove composition.

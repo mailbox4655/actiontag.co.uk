@@ -1,0 +1,29 @@
+{
+  "schema": "gpt-artifact-lifecycle-policy",
+  "version": 1,
+  "roots": [
+    {
+      "id": "versioned-builds",
+      "path": ".artifacts/builds",
+      "allowed_classes": [
+        "reproducible-build",
+        "staging"
+      ],
+      "require_remote": true,
+      "remote_refs": [
+        "refs/remotes/origin/main"
+      ],
+      "rebuild_files": [
+        "package.json",
+        "package-lock.json"
+      ],
+      "rebuild_command": "npm ci --strict-allow-scripts && npm run build",
+      "keep_newest_obsolete": 0
+    }
+  ],
+  "protected_patterns": [
+    "designer-rounds/**",
+    "evidence/**",
+    "travelling-data-export.sqlite3"
+  ]
+}

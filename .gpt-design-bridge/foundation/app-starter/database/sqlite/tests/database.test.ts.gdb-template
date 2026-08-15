@@ -1,0 +1,89 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import { afterEach, describe, expect, it } from "vitest";
+import { createSqliteTaskStore } from "../server/src/database/adapter.js";
+
+const temporaryRoots: string[] = [];
+
+function temporaryRoot(): string {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gdb-sqlite-test-"));
+  temporaryRoots.push(root);
+  const migrations = path.join(root, "migrations");
+  fs.mkdirSync(migrations);
+  fs.copyFileSync(
+    path.resolve("server/migrations/001_init.sql"),
+    path.join(migrations, "001_init.sql"),
+  );
+  return root;
+}
+
+afterEach(() => {
+  for (const root of temporaryRoots.splice(0)) {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+describe("SQLite task store", () => {
+  it("migrates a real file and performs the complete CRUD contract", async () => {
+    const root = temporaryRoot();
+    const databasePath = path.join(root, "app.sqlite3");
+    let sequence = 0;
+    const store = await createSqliteTaskStore(
+      { kind: "sqlite", path: databasePath, journalMode: "DELETE" },
+      {
+        clock: () => "2026-08-01T00:00:00.000Z",
+        idFactory: () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, "0")}`,
+        migrationRoot: path.join(root, "migrations"),
+      },
+    );
+    expect(await store.listTasks()).toEqual([]);
+    const created = await store.createTask("Prove the database path");
+    expect(created.completed).toBe(false);
+    expect(await store.listTasks()).toEqual([created]);
+    const completed = await store.setTaskCompleted(created.id, true);
+    expect(completed.completed).toBe(true);
+    await store.deleteTask(created.id);
+    expect(await store.listTasks()).toEqual([]);
+    await expect(store.deleteTask(created.id)).rejects.toMatchObject({
+      code: "TASK_NOT_FOUND",
+    });
+    await store.close();
+
+    const inspection = new DatabaseSync(databasePath, { readOnly: true });
+    const journal = inspection.prepare("PRAGMA journal_mode;").get() as {
+      journal_mode: string;
+    };
+    const migrations = inspection
+      .prepare("SELECT name, sha256 FROM gdb_schema_migrations")
+      .all() as Array<{ name: string; sha256: string }>;
+    inspection.close();
+    expect(journal.journal_mode.toUpperCase()).toBe("DELETE");
+    expect(migrations).toHaveLength(1);
+    expect(migrations[0]!.name).toBe("001_init.sql");
+    expect(migrations[0]!.sha256).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("refuses a changed historical migration", async () => {
+    const root = temporaryRoot();
+    const databasePath = path.join(root, "app.sqlite3");
+    const runtime = {
+      clock: () => "2026-08-01T00:00:00.000Z",
+      idFactory: () => "00000000-0000-4000-8000-000000000001",
+      migrationRoot: path.join(root, "migrations"),
+    };
+    const first = await createSqliteTaskStore(
+      { kind: "sqlite", path: databasePath, journalMode: "DELETE" },
+      runtime,
+    );
+    await first.close();
+    fs.appendFileSync(path.join(root, "migrations", "001_init.sql"), "\n-- changed\n");
+    await expect(
+      createSqliteTaskStore(
+        { kind: "sqlite", path: databasePath, journalMode: "DELETE" },
+        runtime,
+      ),
+    ).rejects.toThrow("hash changed");
+  });
+});

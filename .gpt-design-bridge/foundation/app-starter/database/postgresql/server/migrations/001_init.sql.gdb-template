@@ -1,0 +1,8 @@
+CREATE TABLE tasks (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 160),
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX tasks_created_at_id_idx ON tasks(created_at, id);

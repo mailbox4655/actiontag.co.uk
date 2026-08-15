@@ -1,0 +1,270 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { Pool, type PoolClient } from "pg";
+import { taskSchema } from "../../../app/src/api/routes.js";
+import { TaskStoreError } from "../../../app/src/state/memory-store.js";
+import type { DatabaseConfig } from "../config.js";
+import type { Task, TaskStore } from "./types.js";
+
+interface PostgresRuntime {
+  clock(): string;
+  idFactory(): string;
+  migrationRoot: string;
+}
+
+interface TaskRow {
+  id: unknown;
+  title: unknown;
+  completed: unknown;
+  created_at: unknown;
+}
+
+interface Migration {
+  name: string;
+  sql: string;
+  sha256: string;
+}
+
+const migrationLock = "gpt-design-bridge:@@PROJECT_SLUG@@:schema-migrations";
+
+function sha256(content: string): string {
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+function migrationFiles(root: string): Migration[] {
+  const resolved = path.resolve(root);
+  if (!fs.statSync(resolved, { throwIfNoEntry: false })?.isDirectory()) {
+    throw new Error(`POSTGRESQL: migration directory is missing: ${resolved}`);
+  }
+  const names = fs.readdirSync(resolved).filter((name) => /^[0-9]{3}_[a-z0-9_]+\.sql$/.test(name));
+  names.sort();
+  if (!names.length) {
+    throw new Error(`POSTGRESQL: no migration files found in ${resolved}`);
+  }
+  return names.map((name) => {
+    const sql = fs.readFileSync(path.join(resolved, name), "utf8");
+    if (!sql.trim()) throw new Error(`POSTGRESQL: migration is empty: ${name}`);
+    return { name, sql, sha256: sha256(sql) };
+  });
+}
+
+async function runOneMigration(client: PoolClient, migration: Migration): Promise<void> {
+  await client.query("BEGIN");
+  try {
+    await client.query(migration.sql);
+    await client.query({
+      name: "gdb-record-schema-migration",
+      text: "INSERT INTO gdb_schema_migrations(name, sha256) VALUES ($1, $2)",
+      values: [migration.name, migration.sha256],
+    });
+    await client.query("COMMIT");
+  } catch (operationError) {
+    try {
+      await client.query("ROLLBACK");
+    } catch (rollbackError) {
+      throw new AggregateError(
+        [operationError, rollbackError],
+        `POSTGRESQL: migration ${migration.name} and rollback both failed`,
+      );
+    }
+    throw operationError;
+  }
+}
+
+async function migrateWhileLocked(client: PoolClient, root: string): Promise<void> {
+  await client.query(
+    "CREATE TABLE IF NOT EXISTS gdb_schema_migrations("
+      + "name TEXT PRIMARY KEY NOT NULL, sha256 TEXT NOT NULL)",
+  );
+  for (const migration of migrationFiles(root)) {
+    const result = await client.query<{ sha256: unknown }>({
+      name: "gdb-read-schema-migration",
+      text: "SELECT sha256 FROM gdb_schema_migrations WHERE name = $1",
+      values: [migration.name],
+    });
+    if (result.rowCount === 1) {
+      if (result.rows[0]?.sha256 !== migration.sha256) {
+        throw new Error(
+          `POSTGRESQL: applied migration ${migration.name} hash changed; create a new migration`,
+        );
+      }
+      continue;
+    }
+    if (result.rowCount !== 0) {
+      throw new Error(`POSTGRESQL: migration ${migration.name} has duplicate history rows`);
+    }
+    await runOneMigration(client, migration);
+  }
+}
+
+async function runMigrations(pool: Pool, root: string): Promise<void> {
+  const client = await pool.connect();
+  let locked = false;
+  let operationError: unknown;
+  let unlockError: unknown;
+  let releaseError: unknown;
+  try {
+    await client.query({
+      name: "gdb-lock-schema-migrations",
+      text: "SELECT pg_advisory_lock(hashtext($1))",
+      values: [migrationLock],
+    });
+    locked = true;
+    await migrateWhileLocked(client, root);
+  } catch (error) {
+    operationError = error;
+  }
+  if (locked) {
+    try {
+      const result = await client.query<{ unlocked: boolean }>({
+        name: "gdb-unlock-schema-migrations",
+        text: "SELECT pg_advisory_unlock(hashtext($1)) AS unlocked",
+        values: [migrationLock],
+      });
+      if (result.rows[0]?.unlocked !== true) {
+        throw new Error("POSTGRESQL: advisory migration lock was not held at unlock");
+      }
+    } catch (error) {
+      unlockError = error;
+    }
+  }
+  try {
+    client.release(Boolean(unlockError));
+  } catch (error) {
+    releaseError = error;
+  }
+  const errors = [operationError, unlockError, releaseError].filter(
+    (error): error is NonNullable<typeof error> => error !== undefined,
+  );
+  if (errors.length > 1) {
+    throw new AggregateError(errors, "POSTGRESQL: migration, unlock, or release failed");
+  }
+  if (errors.length === 1) throw errors[0];
+}
+
+function taskFromRow(row: TaskRow): Task {
+  return taskSchema.parse({
+    id: row.id,
+    title: row.title,
+    completed: row.completed,
+    createdAt: row.created_at,
+  });
+}
+
+function postgresCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null || !("code" in error)) return undefined;
+  return typeof error.code === "string" ? error.code : undefined;
+}
+
+async function endAfterSetupFailure(pool: Pool, setupError: unknown): Promise<never> {
+  try {
+    await pool.end();
+  } catch (closeError) {
+    throw new AggregateError(
+      [setupError, closeError],
+      "POSTGRESQL: setup and pool shutdown both failed",
+    );
+  }
+  throw setupError;
+}
+
+export async function createPostgresTaskStore(
+  config: Extract<DatabaseConfig, { kind: "postgresql" }>,
+  runtime: PostgresRuntime,
+): Promise<TaskStore> {
+  const pool = new Pool({
+    connectionString: config.url,
+    application_name: "@@PROJECT_SLUG@@",
+    max: 10,
+    connectionTimeoutMillis: 5_000,
+    idleTimeoutMillis: 30_000,
+    allowExitOnIdle: false,
+  });
+  try {
+    await runMigrations(pool, runtime.migrationRoot);
+  } catch (error) {
+    return endAfterSetupFailure(pool, error);
+  }
+
+  async function selected(id: string): Promise<Task> {
+    const result = await pool.query<TaskRow>({
+      name: "gdb-select-task",
+      text: "SELECT id, title, completed, created_at FROM tasks WHERE id = $1",
+      values: [id],
+    });
+    if (result.rowCount === 0) {
+      throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+    }
+    if (result.rowCount !== 1 || !result.rows[0]) {
+      throw new Error(`POSTGRESQL: task ${id} returned an impossible row count`);
+    }
+    return taskFromRow(result.rows[0]);
+  }
+
+  return Object.freeze({
+    async listTasks() {
+      const result = await pool.query<TaskRow>({
+        name: "gdb-list-tasks",
+        text: "SELECT id, title, completed, created_at FROM tasks ORDER BY created_at, id",
+      });
+      return result.rows.map(taskFromRow);
+    },
+    async createTask(title: string) {
+      const task = taskSchema.parse({
+        id: runtime.idFactory(),
+        title,
+        completed: false,
+        createdAt: runtime.clock(),
+      });
+      try {
+        await pool.query({
+          name: "gdb-insert-task",
+          text: "INSERT INTO tasks(id, title, completed, created_at) VALUES ($1, $2, $3, $4)",
+          values: [task.id, task.title, task.completed, task.createdAt],
+        });
+      } catch (error) {
+        if (postgresCode(error) === "23505") {
+          throw new TaskStoreError("DUPLICATE_ID", `Task ID already exists: ${task.id}`);
+        }
+        throw error;
+      }
+      return selected(task.id);
+    },
+    async setTaskCompleted(id: string, completed: boolean) {
+      const result = await pool.query({
+        name: "gdb-update-task-completed",
+        text: "UPDATE tasks SET completed = $1 WHERE id = $2",
+        values: [completed, id],
+      });
+      if (result.rowCount !== 1) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+      return selected(id);
+    },
+    async deleteTask(id: string) {
+      const result = await pool.query({
+        name: "gdb-delete-task",
+        text: "DELETE FROM tasks WHERE id = $1",
+        values: [id],
+      });
+      if (result.rowCount !== 1) {
+        throw new TaskStoreError("TASK_NOT_FOUND", `Task does not exist: ${id}`);
+      }
+    },
+    async close() {
+      await pool.end();
+    },
+  });
+}
+
+export function createTaskStore(config: DatabaseConfig): Promise<TaskStore> {
+  if (config.kind !== "postgresql") {
+    throw new Error(`POSTGRESQL: adapter received ${config.kind} configuration`);
+  }
+  return createPostgresTaskStore(config, {
+    clock: () => new Date().toISOString(),
+    idFactory: () => crypto.randomUUID(),
+    migrationRoot: path.resolve("server/migrations"),
+  });
+}

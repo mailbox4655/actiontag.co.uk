@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+fail() { printf 'POSTGRESQL RESTORE PROOF FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "$(id -un)" == "$APP" ]] || fail "run as the ${APP} service account"
+[[ "$#" -eq 2 && "$2" == "--confirm-empty-restore-database" && -f "$1" ]] ||
+  fail "usage: restore-proof.sh BACKUP_EVIDENCE.json --confirm-empty-restore-database"
+[[ -f "$ENV_FILE" ]] || fail "environment file is missing: $ENV_FILE"
+command -v pg_restore >/dev/null 2>&1 || fail "pg_restore is missing"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+[[ "${DATABASE_KIND:-}" == "postgresql" && -n "${DATABASE_URL:-}" ]] ||
+  fail "production environment does not select PostgreSQL"
+[[ -n "${RESTORE_DATABASE_URL:-}" && "$RESTORE_DATABASE_URL" != "$DATABASE_URL" ]] ||
+  fail "set RESTORE_DATABASE_URL to a separate empty restore/test database"
+/usr/bin/node - "$DATABASE_URL" "$RESTORE_DATABASE_URL" <<'NODE'
+const live=new URL(process.argv[2]),restore=new URL(process.argv[3]);
+const name=decodeURIComponent(restore.pathname.slice(1)).toLowerCase();
+if(!name||!/(?:restore|test)/.test(name))
+  throw new Error("restore database name must visibly contain restore or test");
+if(live.href===restore.href)throw new Error("restore target equals the live database");
+NODE
+readonly EVIDENCE="$(realpath -- "$1")"
+readonly ARTIFACT="$(/usr/bin/node - "$EVIDENCE" <<'NODE'
+const fs=require("fs"),crypto=require("crypto"),path=require("path");
+const evidencePath=process.argv[2],value=JSON.parse(fs.readFileSync(evidencePath,"utf8"));
+if(value.schema!=="gpt-design-bridge/backup/v1"||value.engine!=="postgresql")
+  throw new Error("backup evidence schema or engine is invalid");
+if(!/^[A-Za-z0-9._-]+\.dump$/.test(value.artifact))
+  throw new Error("backup artifact filename is unsafe");
+const artifact=path.resolve(path.dirname(evidencePath),value.artifact);
+const bytes=fs.readFileSync(artifact);
+const hash=crypto.createHash("sha256").update(bytes).digest("hex");
+if(bytes.length!==value.bytes||hash!==value.sha256)
+  throw new Error("backup artifact does not match evidence");
+process.stdout.write(artifact);
+NODE
+)"
+pg_restore --clean --if-exists --no-owner --no-privileges \
+  --dbname="$RESTORE_DATABASE_URL" "$ARTIFACT"
+export DATABASE_URL="$RESTORE_DATABASE_URL"
+/usr/bin/node dist/server/server/src/migrate.js
+readonly APPLICATION_PROOF="$(/usr/bin/node dist/server/server/src/database-proof.js)"
+printf '{"schema":"gpt-design-bridge/restore-proof/v1","engine":"postgresql","applicationProof":%s}\n' \
+  "$(/usr/bin/node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "$APPLICATION_PROOF")"
+printf 'POSTGRESQL RESTORE PROOF PASS: evidence=%s\n' "$EVIDENCE"

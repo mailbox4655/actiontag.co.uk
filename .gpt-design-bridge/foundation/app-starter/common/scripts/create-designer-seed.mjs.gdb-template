@@ -1,0 +1,120 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { DatabaseSync } from "node:sqlite";
+import {
+  SPECIMEN_TASKS,
+  TRAVELLING_MIGRATION_NAME,
+  TRAVELLING_SCHEMA_SQL,
+  TRAVELLING_SCHEMA_VERSION,
+} from "../app/src/travelling/schema.js";
+
+function sha256(content) {
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+function selectedOutput(argv) {
+  if (argv.length === 0) {
+    return path.resolve(".gpt-design-bridge/runtime/designer-seed.sqlite3");
+  }
+  if (argv.length !== 2 || argv[0] !== "--out" || !argv[1]) {
+    throw new Error("DESIGNER SEED: usage: node scripts/create-designer-seed.mjs [--out PATH]");
+  }
+  return path.resolve(argv[1]);
+}
+
+export function buildDesignerSeed(outputPath) {
+  if (process.version !== "v24.18.0" || process.versions.sqlite !== "3.53.1") {
+    throw new Error(
+      `DESIGNER SEED: Node 24.18.0 with SQLite 3.53.1 is required; running ${
+        process.version
+      } with SQLite ${process.versions.sqlite ?? "none"}`,
+    );
+  }
+  const output = path.resolve(outputPath);
+  if (fs.existsSync(output)) {
+    throw new Error(`DESIGNER SEED: refuses to overwrite ${output}`);
+  }
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  const temporary = `${output}.partial-${crypto.randomUUID()}`;
+  let database = null;
+  try {
+    database = new DatabaseSync(temporary, { timeout: 5_000, defensive: true });
+    database.exec("PRAGMA journal_mode = DELETE");
+    database.exec("PRAGMA page_size = 4096");
+    database.exec(
+      "CREATE TABLE gdb_schema_migrations("
+        + "name TEXT PRIMARY KEY NOT NULL, sha256 TEXT NOT NULL,"
+        + " schema_version INTEGER NOT NULL) STRICT",
+    );
+    database.exec(TRAVELLING_SCHEMA_SQL);
+    database
+      .prepare(
+        "INSERT INTO gdb_schema_migrations(name, sha256, schema_version) VALUES (?, ?, ?)",
+      )
+      .run(
+        TRAVELLING_MIGRATION_NAME,
+        sha256(TRAVELLING_SCHEMA_SQL),
+        TRAVELLING_SCHEMA_VERSION,
+      );
+    const insert = database.prepare(
+      "INSERT INTO tasks(id, title, completed, created_at) VALUES (?, ?, ?, ?)",
+    );
+    for (const task of SPECIMEN_TASKS) {
+      insert.run(task.id, task.title, task.completed ? 1 : 0, task.createdAt);
+    }
+    database.exec("VACUUM");
+    database.close();
+    database = null;
+    fs.renameSync(temporary, output);
+
+    const inspection = new DatabaseSync(output, { readOnly: true });
+    const rows = inspection
+      .prepare("SELECT id, title, completed, created_at FROM tasks ORDER BY created_at, id")
+      .all();
+    const history = inspection
+      .prepare("SELECT name, sha256, schema_version FROM gdb_schema_migrations")
+      .get();
+    inspection.close();
+    if (rows.length !== SPECIMEN_TASKS.length) {
+      throw new Error(`DESIGNER SEED: expected ${SPECIMEN_TASKS.length} rows, found ${rows.length}`);
+    }
+    if (
+      history?.name !== TRAVELLING_MIGRATION_NAME
+      || history?.sha256 !== sha256(TRAVELLING_SCHEMA_SQL)
+      || history?.schema_version !== TRAVELLING_SCHEMA_VERSION
+    ) {
+      throw new Error("DESIGNER SEED: migration history verification failed");
+    }
+    const bytes = fs.readFileSync(output);
+    const header = bytes.subarray(0, 16).toString("binary");
+    if (header !== "SQLite format 3\u0000") {
+      throw new Error(`DESIGNER SEED: output has invalid SQLite header ${JSON.stringify(header)}`);
+    }
+    return Object.freeze({
+      output,
+      bytes: bytes.byteLength,
+      sha256: crypto.createHash("sha256").update(bytes).digest("hex"),
+      migrationSha256: sha256(TRAVELLING_SCHEMA_SQL),
+      specimenRows: rows.length,
+    });
+  } catch (error) {
+    if (database) database.close();
+    fs.rmSync(temporary, { force: true });
+    if (fs.existsSync(output)) fs.rmSync(output, { force: true });
+    throw error;
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    const result = buildDesignerSeed(selectedOutput(process.argv.slice(2)));
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `DESIGNER SEED FAILED: ${error instanceof Error ? error.message : String(error)}\n`,
+    );
+    process.exitCode = 1;
+  }
+}

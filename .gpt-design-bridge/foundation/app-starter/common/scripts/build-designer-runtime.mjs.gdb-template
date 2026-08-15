@@ -1,0 +1,133 @@
+import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "vite";
+
+function outputArgument(argv) {
+  if (argv.length !== 2 || argv[0] !== "--out" || !argv[1]) {
+    throw new Error(
+      "DESIGNER RUNTIME: usage: node scripts/build-designer-runtime.mjs --out NEW_DIRECTORY",
+    );
+  }
+  return path.resolve(argv[1]);
+}
+
+function sqliteEmbeddedAssets() {
+  const normalizedNeedle = "/node_modules/@sqlite.org/sqlite-wasm/dist/index.mjs";
+  const substitutions = new Map([
+    [
+      'new URL("sqlite3-worker1.mjs", import.meta.url)',
+      'new URL("gdb-worker-disabled", document.baseURI)',
+    ],
+    [
+      'new URL("sqlite3.wasm", import.meta.url).href',
+      '"gdb-embedded-wasm://provided"',
+    ],
+    [
+      'new URL("sqlite3-opfs-async-proxy.js", import.meta.url)',
+      'new URL("gdb-opfs-disabled", document.baseURI)',
+    ],
+  ]);
+  return {
+    name: "gdb-sqlite-embedded-assets",
+    transform(code, id) {
+      if (!id.replaceAll("\\", "/").endsWith(normalizedNeedle)) return null;
+      let transformed = code;
+      for (const [from, to] of substitutions) {
+        const count = transformed.split(from).length - 1;
+        if (count !== 1) {
+          throw new Error(
+            `DESIGNER RUNTIME: expected one SQLite asset reference ${JSON.stringify(
+              from,
+            )}, found ${count}`,
+          );
+        }
+        transformed = transformed.replace(from, to);
+      }
+      return { code: transformed, map: null };
+    },
+  };
+}
+
+export async function buildDesignerRuntime(outputPath) {
+  if (process.version !== "v24.18.0") {
+    throw new Error(`DESIGNER RUNTIME: Node 24.18.0 is required; running ${process.version}`);
+  }
+  const project = process.cwd();
+  const output = path.resolve(outputPath);
+  const protectedRoots = [
+    path.resolve("app"),
+    path.resolve("dist"),
+    path.resolve("node_modules"),
+  ];
+  if (
+    output === project
+    || project.startsWith(`${output}${path.sep}`)
+    || protectedRoots.some(
+      (candidate) => output === candidate || output.startsWith(`${candidate}${path.sep}`),
+    )
+  ) {
+    throw new Error(`DESIGNER RUNTIME: unsafe output directory ${output}`);
+  }
+  if (fs.existsSync(output)) {
+    throw new Error(`DESIGNER RUNTIME: output must not exist: ${output}`);
+  }
+  const entry = path.resolve("app/src/travelling/runtime-entry.js");
+  if (!fs.statSync(entry, { throwIfNoEntry: false })?.isFile()) {
+    throw new Error(`DESIGNER RUNTIME: entry is missing: ${entry}`);
+  }
+  await build({
+    root: project,
+    base: "./",
+    publicDir: false,
+    configFile: false,
+    logLevel: "warn",
+    plugins: [sqliteEmbeddedAssets()],
+    build: {
+      outDir: output,
+      emptyOutDir: true,
+      modulePreload: false,
+      sourcemap: false,
+      minify: true,
+      rollupOptions: {
+        input: entry,
+        output: {
+          format: "iife",
+          name: "GdbDesignerRuntime",
+          entryFileNames: "gdb-runtime.js",
+          inlineDynamicImports: true,
+        },
+      },
+    },
+  });
+  const files = fs.readdirSync(output, { recursive: true }).map(String).sort();
+  if (files.length !== 1 || files[0] !== "gdb-runtime.js") {
+    throw new Error(
+      `DESIGNER RUNTIME: expected only gdb-runtime.js, emitted ${JSON.stringify(files)}`,
+    );
+  }
+  const bundle = path.join(output, "gdb-runtime.js");
+  const code = fs.readFileSync(bundle, "utf8");
+  if (!code.includes("__GDB_TRAVELLING__") || !code.includes("__GDB_SQLITE_WASM_BASE64__")) {
+    throw new Error("DESIGNER RUNTIME: emitted bundle is missing its public or asset contract");
+  }
+  fs.writeFileSync(bundle, `(()=>{\n${code}\n})();\n`, "utf8");
+  return Object.freeze({
+    output,
+    bundle,
+    bytes: fs.statSync(bundle).size,
+    files,
+  });
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    const result = await buildDesignerRuntime(outputArgument(process.argv.slice(2)));
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `DESIGNER RUNTIME FAILED: ${error instanceof Error ? error.message : String(error)}\n`,
+    );
+    process.exitCode = 1;
+  }
+}

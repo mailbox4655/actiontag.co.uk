@@ -1,0 +1,16 @@
+{
+  "schema": "gpt-blackbox-lite/fast-lane-diagnostics/v1",
+  "version": 1,
+  "browser_policy": "owner-live",
+  "checks": [
+    {
+      "id": "project-check",
+      "command": [
+        "npm.cmd",
+        "run",
+        "check"
+      ],
+      "timeout": 600
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+fail() { printf 'SQLITE BACKUP FAILED: %s\n' "$*" >&2; exit 1; }
+[[ "$(id -un)" == "$APP" ]] || fail "run as the ${APP} service account"
+[[ "$#" -eq 1 && "$1" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] ||
+  fail "usage: backup.sh CURRENT_RELEASE_ID"
+[[ -f "$ENV_FILE" ]] || fail "environment file is missing: $ENV_FILE"
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
+[[ "${DATABASE_KIND:-}" == "sqlite" && -n "${SQLITE_PATH:-}" ]] ||
+  fail "environment does not select SQLite with SQLITE_PATH"
+readonly STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+readonly ROOT="/var/backups/${APP}"
+readonly ARTIFACT="${ROOT}/${APP}-${STAMP}-$1.sqlite3"
+readonly EVIDENCE="${ARTIFACT}.json"
+mkdir -p -- "$ROOT"
+/usr/bin/node scripts/sqlite-backup.mjs \
+  --source "$SQLITE_PATH" --artifact "$ARTIFACT" --evidence "$EVIDENCE" --release "$1"
+printf 'SQLITE BACKUP PASS: artifact=%s evidence=%s\n' "$ARTIFACT" "$EVIDENCE"

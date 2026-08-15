@@ -1,0 +1,13 @@
+import { executeRoute } from "../engine/task-service.js";
+
+export function createDirectSocket(store) {
+  if (!store || typeof store !== "object") {
+    throw new Error("DIRECT SOCKET: a store object is required");
+  }
+  return Object.freeze({
+    kind: "direct",
+    request(routeId, input) {
+      return executeRoute(store, routeId, input);
+    },
+  });
+}

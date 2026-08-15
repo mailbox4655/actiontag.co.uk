@@ -1,0 +1,80 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
+import { afterEach, describe, expect, it } from "vitest";
+import { buildDesignerSeed } from "../scripts/create-designer-seed.mjs";
+import {
+  assertSqliteImage,
+  createTravellingTaskStore,
+  stageNamespace,
+} from "../app/src/travelling/task-store.js";
+
+const temporaryRoots = [];
+
+function temporaryRoot() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gdb-travelling-test-"));
+  temporaryRoots.push(root);
+  return root;
+}
+
+afterEach(() => {
+  for (const root of temporaryRoots.splice(0)) {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+describe("travelling SQLite runtime", () => {
+  it("opens the real seed, reports visible degradation, and performs full CRUD/reset", async () => {
+    const root = temporaryRoot();
+    const seedPath = path.join(root, "seed.sqlite3");
+    const built = buildDesignerSeed(seedPath);
+    const seed = fs.readFileSync(seedPath);
+    const wasm = fs.readFileSync(
+      path.resolve("node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3.wasm"),
+    );
+    const sqlite3 = await sqlite3InitModule({
+      wasmBinary: wasm,
+      print: () => {},
+      printErr: () => {},
+    });
+    const statuses = [];
+    const store = await createTravellingTaskStore({
+      sqlite3,
+      seedImage: seed,
+      stageStamp: built.sha256,
+      onStatusChange: (status) => statuses.push(status),
+      indexedDB: null,
+      storageManager: null,
+      clock: () => "2026-08-01T10:00:00.000Z",
+      idFactory: () => "00000000-0000-4000-8000-000000000201",
+    });
+    expect(await store.listTasks()).toHaveLength(2);
+    expect(store.status()).toMatchObject({
+      mode: "degraded",
+      durable: false,
+      source: "shipped-specimen",
+    });
+    expect(store.status().reason).toContain("not being saved");
+    const created = await store.createTask("Designer-created task");
+    expect(created.completed).toBe(false);
+    expect((await store.setTaskCompleted(created.id, true)).completed).toBe(true);
+    await store.deleteTask(created.id);
+    await expect(store.deleteTask(created.id)).rejects.toMatchObject({
+      code: "TASK_NOT_FOUND",
+    });
+    expect(assertSqliteImage(store.exportDb(), "export")).toBeInstanceOf(Uint8Array);
+    await store.resetToSpecimen();
+    expect(await store.listTasks()).toHaveLength(2);
+    expect(statuses.at(-1).source).toBe("shipped-specimen-reset");
+    await store.close();
+  });
+
+  it("refuses invalid SQLite images and unnamespaced stages", () => {
+    expect(() => assertSqliteImage(new Uint8Array(64), "broken")).toThrow(
+      "not a SQLite database",
+    );
+    expect(() => stageNamespace("short")).toThrow("64-character SHA-256");
+    expect(stageNamespace("a".repeat(64))).toBe(`gdb-travelling-${"a".repeat(20)}`);
+  });
+});

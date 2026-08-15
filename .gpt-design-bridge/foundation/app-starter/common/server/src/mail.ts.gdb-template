@@ -1,0 +1,48 @@
+import { ServerClient } from "postmark";
+import { z } from "zod";
+import type { MailConfig } from "./config.js";
+
+const messageSchema = z
+  .object({
+    to: z.string().email(),
+    subject: z.string().trim().min(1).max(200),
+    textBody: z.string().min(1).max(100_000),
+    tag: z.string().min(1).max(1_000).optional(),
+  })
+  .strict();
+
+export type SystemMessage = z.infer<typeof messageSchema>;
+
+export interface MailService {
+  sendSystemMessage(message: SystemMessage): Promise<{ messageId: string }>;
+}
+
+export function createMailService(config: MailConfig): MailService {
+  if (config.mode === "disabled") {
+    return Object.freeze({
+      async sendSystemMessage() {
+        throw new Error("MAIL: sending is explicitly disabled in this environment");
+      },
+    });
+  }
+  const client = new ServerClient(config.serverToken);
+  return Object.freeze({
+    async sendSystemMessage(candidate: SystemMessage) {
+      const message = messageSchema.parse(candidate);
+      const response = await client.sendEmail({
+        From: config.from,
+        To: message.to,
+        Subject: message.subject,
+        TextBody: message.textBody,
+        MessageStream: config.messageStream,
+        ...(message.tag ? { Tag: message.tag } : {}),
+      });
+      if (response.ErrorCode !== 0 || !response.MessageID) {
+        throw new Error(
+          `MAIL: Postmark refused the message (${response.ErrorCode} ${response.Message})`,
+        );
+      }
+      return { messageId: response.MessageID };
+    },
+  });
+}

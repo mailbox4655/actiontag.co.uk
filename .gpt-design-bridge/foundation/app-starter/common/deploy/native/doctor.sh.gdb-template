@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+readonly APP="@@PROJECT_SLUG@@"
+readonly HOSTNAME="@@DEPLOYMENT_HOSTNAME@@"
+readonly PORT="@@APPLICATION_PORT@@"
+readonly EXPECT_NODE="v24.18.0"
+readonly EXPECT_NPM="11.16.0"
+readonly ENV_FILE="/etc/${APP}/${APP}.env"
+readonly PROXY_MARKER="/etc/${APP}/reverse-proxy"
+readonly PROBE_TIMEOUT_SECONDS="${GDB_DOCTOR_PROBE_TIMEOUT_SECONDS:-15}"
+readonly PROBE_DEADLINE_SECONDS="${GDB_DOCTOR_DEADLINE_SECONDS:-0}"
+readonly PROBE_PROGRESS_SECONDS="${GDB_DOCTOR_PROGRESS_SECONDS:-5}"
+fail() { printf 'DEPLOY DOCTOR FAILED: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || fail "required command is missing: $1"; }
+
+retry_health() {
+  local label="$1"
+  shift
+  local response=""
+  local attempt=0
+  local started now elapsed next_progress="$PROBE_PROGRESS_SECONDS"
+  started="$(date +%s)"
+  while true; do
+    attempt="$((attempt + 1))"
+    if response="$(curl --fail --silent --show-error --max-time "$PROBE_TIMEOUT_SECONDS" "$@" 2>&1)" &&
+      [[ "$response" == *'"ok":true'* ]]; then
+      printf 'DEPLOY DOCTOR PROBE PASS: %s (attempt %d)\n' "$label" "$attempt"
+      return 0
+    fi
+    now="$(date +%s)"
+    elapsed="$((now - started))"
+    if (( elapsed >= next_progress )); then
+      printf 'DEPLOY DOCTOR WAIT: %s attempt %d; elapsed=%ss; last response: %.240s\n' \
+        "$label" "$attempt" "$elapsed" "${response:-no response}" >&2
+      next_progress="$((elapsed + PROBE_PROGRESS_SECONDS))"
+    fi
+    if (( PROBE_DEADLINE_SECONDS > 0 && elapsed >= PROBE_DEADLINE_SECONDS )); then
+      fail "$label did not return an explicit healthy payload within the explicit ${PROBE_DEADLINE_SECONDS}s policy"
+    fi
+    sleep 2
+  done
+}
+
+[[ "$PROBE_TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]] ||
+  fail "GDB_DOCTOR_PROBE_TIMEOUT_SECONDS must be positive whole seconds"
+[[ "$PROBE_DEADLINE_SECONDS" =~ ^[0-9]+$ ]] ||
+  fail "GDB_DOCTOR_DEADLINE_SECONDS must be zero (no deadline) or whole seconds"
+[[ "$PROBE_PROGRESS_SECONDS" =~ ^[1-9][0-9]*$ ]] ||
+  fail "GDB_DOCTOR_PROGRESS_SECONDS must be positive whole seconds"
+
+for command_name in node npm systemctl curl sha256sum stat readlink runuser tar; do
+  need "$command_name"
+done
+[[ "$(node --version)" == "$EXPECT_NODE" ]] ||
+  fail "Node must be ${EXPECT_NODE}; found $(node --version)"
+[[ "$(npm --version)" == "$EXPECT_NPM" ]] ||
+  fail "npm must be ${EXPECT_NPM}; found $(npm --version)"
+[[ -f "$ENV_FILE" ]] || fail "production environment is missing: $ENV_FILE"
+[[ "$(stat -c '%a' "$ENV_FILE")" =~ ^(600|640)$ ]] ||
+  fail "$ENV_FILE must have mode 600 or 640"
+grep -q '^APP_ENV=production$' "$ENV_FILE" || fail "APP_ENV=production is missing"
+grep -q '^APP_HOST=127.0.0.1$' "$ENV_FILE" || fail "APP_HOST must bind loopback"
+if grep -q 'SPECIMEN_' "$ENV_FILE"; then
+  fail "$ENV_FILE still contains marked SPECIMEN values"
+fi
+[[ -d "/opt/${APP}/releases" ]] || fail "release directory is missing"
+[[ -d "/var/lib/${APP}" ]] || fail "durable data directory is missing"
+[[ -L "/opt/${APP}/current" ]] || fail "stable current release link is missing"
+systemctl cat "${APP}.service" >/dev/null || fail "systemd unit is unavailable"
+systemctl is-active --quiet "${APP}.service" ||
+  fail "systemd service is not active: ${APP}.service"
+[[ -f "$PROXY_MARKER" ]] || fail "reverse-proxy selection is missing: $PROXY_MARKER"
+readonly PROXY="$(tr -d '\r\n' < "$PROXY_MARKER")"
+case "$PROXY" in
+  caddy)
+    need caddy
+    caddy validate --config /etc/caddy/Caddyfile >/dev/null ||
+      fail "Caddy configuration validation failed"
+    ;;
+  nginx)
+    need nginx
+    nginx -t >/dev/null ||
+      fail "Nginx configuration validation failed"
+    ;;
+  *)
+    fail "$PROXY_MARKER must contain exactly caddy or nginx; found: $PROXY"
+    ;;
+esac
+
+retry_health "loopback application" "http://127.0.0.1:${PORT}/api/health"
+retry_health "origin HTTPS for ${HOSTNAME}" \
+  --resolve "${HOSTNAME}:443:127.0.0.1" "https://${HOSTNAME}/api/health"
+retry_health "public HTTPS for ${HOSTNAME}" "https://${HOSTNAME}/api/health"
+printf 'DEPLOY DOCTOR PASS: app=%s proxy=%s node=%s npm=%s origin-and-public=https://%s\n' \
+  "$APP" "$PROXY" "$EXPECT_NODE" "$EXPECT_NPM" "$HOSTNAME"
