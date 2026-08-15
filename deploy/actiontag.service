@@ -14,7 +14,7 @@ Environment=NODE_ENV=production
 Environment=ACTIONTAG_BIND_HOST=127.0.0.1
 Environment=PATH=/opt/node24/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 ExecStartPre=/usr/bin/test -f /opt/actiontag/current/site/server/contact-service.mjs
-ExecStart=/opt/node24/bin/node /opt/actiontag/current/site/server/contact-service.mjs
+ExecStart=/opt/node24/bin/node --preserve-symlinks-main /opt/actiontag/current/site/server/contact-service.mjs
 Restart=on-failure
 RestartSec=5s
 TimeoutStartSec=30s
