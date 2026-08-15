@@ -132,7 +132,7 @@ validated_release_path "${new_release}" || fail "unsafe new release path"
 [[ ! -e "${new_release}" && ! -e "${incoming_release}" ]] || fail "release path already exists"
 [[ -f "${artifact}" ]] || fail "uploaded artifact is missing"
 [[ -x /opt/node24/bin/node ]] || fail "the pinned Node 24 runtime is missing"
-[[ -x /usr/bin/cloudflared ]] || fail "cloudflared is missing"
+[[ -x /usr/local/bin/cloudflared ]] || fail "cloudflared is missing"
 [[ -s /etc/cloudflared/actiontag-token ]] || fail "the ActionTag tunnel token is missing"
 [[ "$(stat -c '%a' /etc/cloudflared/actiontag-token)" =~ ^(400|600)$ ]] || fail "the ActionTag tunnel token must have mode 0400 or 0600"
 

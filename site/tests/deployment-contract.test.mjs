@@ -30,7 +30,7 @@ test('systemd units stay native, isolated and secret-free', async () => {
   assert.match(service, /User=actiontag/);
   assert.match(service, /EnvironmentFile=\/etc\/actiontag\/actiontag\.env/);
   assert.match(service, /127\.0\.0\.1/);
-  assert.match(tunnel, /LoadCredential=tunnel-token:\/etc\/cloudflared\/actiontag-token/);
+  assert.match(tunnel, /(?=[\s\S]*ExecStart=\/usr\/local\/bin\/cloudflared)(?=[\s\S]*LoadCredential=tunnel-token:\/etc\/cloudflared\/actiontag-token)/);
   assert.doesNotMatch(`${service}\n${tunnel}`, /docker|POSTMARK_SERVER_TOKEN=/i);
 });
 
