@@ -143,7 +143,7 @@ install -d -o root -g actiontag -m 0750 /etc/actiontag
 install -d -o actiontag -g actiontag -m 0750 /var/lib/actiontag
 install -d -o root -g root -m 0700 "${backup_root}"
 
-old_release="$(readlink -f "${current_link}" 2>/dev/null || true)"
+if [[ -L "${current_link}" ]]; then old_release="$(readlink -f "${current_link}")"; elif [[ -e "${current_link}" ]]; then fail "active ActionTag release link is not a symlink"; fi
 if [[ -n "${old_release}" ]]; then validated_release_path "${old_release}" || fail "active ActionTag release path is unsafe"; fi
 
 readonly timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
