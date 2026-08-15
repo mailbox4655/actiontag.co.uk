@@ -65,7 +65,7 @@ test('deployment scripts bind releases to pushed source and read-only preflight'
   assert.match(preflight, /records_to_preserve_exactly/);
   assert.match(preflight, /authoritative_nameservers/);
   assert.match(preflight, /cfargotunnel\\\.com/);
-  assert.match(promoter, /CONTACT_TO=sales@actiontag\.co\.uk/); assert.match(promoter, /elif \[\[ -e "\$\{current_link\}" \]\]/);
+  assert.match(promoter, /CONTACT_TO=sales@actiontag\.co\.uk/); assert.match(promoter, /systemctl restart cloudflared-actiontag\.service actiontag\.service actiontag-health-watch\.timer/); assert.match(promoter, /elif \[\[ -e "\$\{current_link\}" \]\]/);
   assert.match(promoter, /CONTACT_CC=office@actiontag\.co\.uk/);
   assert.match(promoter, /\/etc\/lasertagsale\/lasertagsale\.env/);
   assert.doesNotMatch(promoter, /\. \/etc\/lasertagsale\/lasertagsale\.env/);

@@ -236,7 +236,8 @@ ln -sfn "${new_release}" "${current_link}"
 systemctl daemon-reload
 nginx -t
 systemctl reload nginx
-systemctl enable --now cloudflared-actiontag.service actiontag.service actiontag-health-watch.timer
+systemctl enable cloudflared-actiontag.service actiontag.service actiontag-health-watch.timer
+systemctl restart cloudflared-actiontag.service actiontag.service actiontag-health-watch.timer
 
 activation_ok=0
 for _ in $(seq 1 45); do
