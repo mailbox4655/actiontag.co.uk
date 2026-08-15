@@ -19,7 +19,7 @@ test('Nginx preserves every legacy redirect and isolates the native API', async 
   }
   assert.match(nginx, /proxy_pass http:\/\/127\.0\.0\.1:3021/);
   assert.match(nginx, /location = \/api\/contact/);
-  assert.match(nginx, /(?=[\s\S]*return 301 https:\/\/actiontag\.co\.uk\$request_uri)(?=[\s\S]*location = \/ \{\s*return 301 https:\/\/actiontag\.co\.uk\/en\/;)/);
+  assert.match(nginx, /(?=[\s\S]*absolute_redirect off;)(?=[\s\S]*return 301 https:\/\/actiontag\.co\.uk\$request_uri)(?=[\s\S]*location = \/ \{\s*return 301 https:\/\/actiontag\.co\.uk\/en\/;)/);
   assert.match(nginx, /set_real_ip_from 127\.0\.0\.1/);
   assert.match(nginx, /proxy_set_header CF-Connecting-IP \$remote_addr/);
 });

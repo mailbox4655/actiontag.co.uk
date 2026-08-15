@@ -2,6 +2,7 @@
 # Certbot can add direct-origin TLS without later releases erasing its work.
 root /opt/actiontag/current/site/dist;
 index index.html;
+absolute_redirect off;
 
 client_max_body_size 20k;
 
