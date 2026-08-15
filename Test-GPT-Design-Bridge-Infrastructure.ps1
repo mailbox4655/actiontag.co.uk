@@ -208,7 +208,7 @@ function Assert-DnsInventory([hashtable]$Configuration, [string]$ZoneId, [object
 }
 
 function Invoke-CloudflarePreflight([hashtable]$Configuration) {
-    $verified = Invoke-CloudflareGet "/accounts/$($Configuration.AccountId)/tokens/verify" $Configuration.Token 'token verification'
+    $verified = Invoke-CloudflareGet "/user/tokens/verify" $Configuration.Token 'token verification'
     if (-not $verified.success -or $verified.result.status -ne 'active') { Fail 'Cloudflare token did not verify as active.' }
     $zoneName = [Uri]::EscapeDataString($Configuration.Zone)
     $zones = Invoke-CloudflareGet "/zones?name=$zoneName&page=1&per_page=50" $Configuration.Token 'zone lookup'
